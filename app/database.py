@@ -57,13 +57,62 @@ def init_db():
         CREATE INDEX IF NOT EXISTS idx_api_keys_prefix ON api_keys(key_prefix);
         CREATE INDEX IF NOT EXISTS idx_usage_api_key_id ON usage_logs(api_key_id);
         CREATE INDEX IF NOT EXISTS idx_usage_created ON usage_logs(created_at);
+
+        CREATE TABLE IF NOT EXISTS customers (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            email TEXT NOT NULL,
+            telegram_or_discord TEXT DEFAULT '',
+            use_case TEXT DEFAULT '',
+            expected_daily_tokens INTEGER DEFAULT 0,
+            created_at TEXT NOT NULL
+        );
+        CREATE TABLE IF NOT EXISTS packages (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            token_quota INTEGER NOT NULL,
+            rate_limit INTEGER DEFAULT 30,
+            description TEXT DEFAULT '',
+            is_active INTEGER DEFAULT 1,
+            created_at TEXT NOT NULL
+        );
+        CREATE TABLE IF NOT EXISTS orders (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            customer_id INTEGER NOT NULL,
+            package_id INTEGER NOT NULL,
+            status TEXT NOT NULL DEFAULT 'pending',
+            payment_status TEXT DEFAULT 'unpaid',
+            key_prefix TEXT,
+            created_at TEXT NOT NULL,
+            approved_at TEXT,
+            FOREIGN KEY (customer_id) REFERENCES customers(id),
+            FOREIGN KEY (package_id) REFERENCES packages(id)
+        );
+        CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
+        CREATE INDEX IF NOT EXISTS idx_orders_customer ON orders(customer_id);
     """)
     conn.commit()
     _migrate_add(conn, "api_keys", "token_quota_total", "INTEGER NOT NULL DEFAULT 10000")
     _migrate_add(conn, "api_keys", "token_quota_used", "INTEGER NOT NULL DEFAULT 0")
     _migrate_add(conn, "api_keys", "request_quota_total", "INTEGER")
     _migrate_add(conn, "api_keys", "request_quota_used", "INTEGER DEFAULT 0")
+    _migrate_add(conn, "orders", "payment_status", "TEXT DEFAULT 'unpaid'")
+    _seed_packages(conn)
     conn.close()
+
+
+def _seed_packages(conn):
+    if conn.execute("SELECT COUNT(*) FROM packages").fetchone()[0] == 0:
+        now = now_utc()
+        pkgs = [
+            ("Trial", 100000, 30, "Test the API"),
+            ("Starter", 1000000, 30, "Personal projects"),
+            ("Standard", 5000000, 60, "Team usage"),
+            ("Pro", 10000000, 120, "Production workloads"),
+        ]
+        for name, quota, rl, desc in pkgs:
+            conn.execute("INSERT INTO packages (name,token_quota,rate_limit,description,created_at) VALUES (?,?,?,?,?)",
+                         (name, quota, rl, desc, now))
+        conn.commit()
 
 def _migrate_add(conn, table, column, col_def):
     cols = [r["name"] for r in conn.execute(f"PRAGMA table_info({table})").fetchall()]
@@ -106,6 +155,200 @@ def check_rate_limit(key_id, limit_per_minute):
     row = conn.execute("SELECT COUNT(*) as cnt FROM usage_logs WHERE api_key_id=? AND created_at >= datetime(?, '-60 seconds')", (key_id, cutoff)).fetchone()
     conn.close()
     return row["cnt"] < limit_per_minute
+
+
+def get_key_usage(key_id):
+    """Return usage stats for a given key_id."""
+    conn = get_db()
+    row = conn.execute("""
+        SELECT k.key_prefix, k.name, k.status, k.token_quota_total, k.token_quota_used,
+               k.rate_limit_per_minute, k.last_used_at,
+               COUNT(l.id) as req_count
+        FROM api_keys k
+        LEFT JOIN usage_logs l ON l.api_key_id = k.id
+        WHERE k.id = ?
+        GROUP BY k.id
+    """, (key_id,)).fetchone()
+    conn.close()
+    if not row:
+        return None
+    qt = row["token_quota_total"] or 0
+    qu = row["token_quota_used"] or 0
+    return {
+        "prefix": row["key_prefix"],
+        "name": row["name"],
+        "status": row["status"],
+        "total_quota": qt if qt > 0 else 0,
+        "used_quota": qu,
+        "remaining_quota": max(0, qt - qu),
+        "request_count": row["req_count"],
+        "last_used": row["last_used_at"],
+        "rate_limit": row["rate_limit_per_minute"],
+    }
+
+def create_order(customer_email, telegram_or_discord, use_case, expected_daily_tokens, package_id):
+    """Create a customer+order from application. Returns order dict."""
+    conn = get_db()
+    now = now_utc()
+    cust = conn.execute("SELECT id FROM customers WHERE email=?", (customer_email,)).fetchone()
+    if cust:
+        cust_id = cust["id"]
+        conn.execute("UPDATE customers SET telegram_or_discord=?, use_case=?, expected_daily_tokens=? WHERE id=?",
+                     (telegram_or_discord, use_case, expected_daily_tokens, cust_id))
+    else:
+        cur = conn.execute("INSERT INTO customers (email,telegram_or_discord,use_case,expected_daily_tokens,created_at) VALUES (?,?,?,?,?)",
+                           (customer_email, telegram_or_discord, use_case, expected_daily_tokens, now))
+        cust_id = cur.lastrowid
+    cur = conn.execute("INSERT INTO orders (customer_id,package_id,status,payment_status,created_at) VALUES (?,?,'pending','unpaid',?)",
+                       (cust_id, package_id, now))
+    order_id = cur.lastrowid
+    conn.commit()
+    pkg = conn.execute("SELECT * FROM packages WHERE id=?", (package_id,)).fetchone()
+    conn.close()
+    return {
+        "order_id": order_id,
+        "status": "pending",
+        "customer_email": customer_email,
+        "package_name": pkg["name"] if pkg else "unknown",
+        "token_quota": pkg["token_quota"] if pkg else 0,
+    }
+
+def get_order(order_id):
+    conn = get_db()
+    row = conn.execute("""
+        SELECT o.*, c.email, p.name as package_name, p.token_quota, p.rate_limit
+        FROM orders o
+        JOIN customers c ON c.id = o.customer_id
+        JOIN packages p ON p.id = o.package_id
+        WHERE o.id = ?
+    """, (order_id,)).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+def list_orders(status=None):
+    conn = get_db()
+    q = """
+        SELECT o.*, c.email, c.telegram_or_discord, p.name as package_name, p.token_quota
+        FROM orders o
+        JOIN customers c ON c.id = o.customer_id
+        JOIN packages p ON p.id = o.package_id
+    """
+    if status:
+        q += " WHERE o.status = ?"
+        rows = conn.execute(q + " ORDER BY o.created_at DESC", (status,)).fetchall()
+    else:
+        rows = conn.execute(q + " ORDER BY o.created_at DESC").fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+def list_customers():
+    conn = get_db()
+    rows = conn.execute("SELECT * FROM customers ORDER BY created_at DESC").fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+def get_order_status(order_id, email):
+    """Public order status lookup. Returns key info only when approved."""
+    conn = get_db()
+    row = conn.execute("""
+        SELECT o.id, o.status, o.payment_status, o.key_prefix, o.created_at, o.approved_at,
+               c.email, p.name as package_name, p.token_quota, p.rate_limit
+        FROM orders o
+        JOIN customers c ON c.id = o.customer_id
+        JOIN packages p ON p.id = o.package_id
+        WHERE o.id = ?
+    """, (order_id,)).fetchone()
+    conn.close()
+    if not row:
+        return None, "Order not found"
+    if row["email"].lower() != email.lower():
+        return None, "Email does not match this order"
+    result = {
+        "order_id": row["id"],
+        "status": row["status"],
+        "payment_status": row["payment_status"] or "unpaid",
+        "selected_plan": row["package_name"],
+        "quota": row["token_quota"],
+        "rate_limit": row["rate_limit"],
+        "created_at": row["created_at"],
+        "approved_at": row["approved_at"],
+        "key_prefix": None,
+        "full_key": None,
+        "dashboard_url": None,
+        "message": None,
+    }
+    if row["status"] == "approved" and row["key_prefix"]:
+        result["key_prefix"] = row["key_prefix"]
+        result["dashboard_url"] = "http://65.49.201.211/dashboard.html"
+        result["message"] = "Your key was displayed when the order was approved. If you lost it, contact support."
+    elif row["status"] == "pending" and (row["payment_status"] or "unpaid") == "unpaid":
+        result["message"] = "Your order is pending review. We will contact you at your email."
+    elif row["status"] == "pending" and (row["payment_status"] or "") == "paid":
+        result["message"] = "Payment received. Waiting for admin approval."
+    return result, None
+
+def mark_order_paid(order_id, note=""):
+    """Mark an order as paid. Only works on pending orders."""
+    conn = get_db()
+    order = conn.execute("SELECT * FROM orders WHERE id=?", (order_id,)).fetchone()
+    if not order:
+        conn.close()
+        return None, "Order not found"
+    if order["status"] != "pending":
+        conn.close()
+        return None, f"Order status is '{order['status']}', expected 'pending'"
+    now = now_utc()
+    conn.execute("UPDATE orders SET payment_status='paid', approved_at=? WHERE id=?", (now, order_id))
+    conn.commit()
+    o = conn.execute("""
+        SELECT o.*, c.email, p.name as pkg_name
+        FROM orders o JOIN customers c ON c.id=o.customer_id JOIN packages p ON p.id=o.package_id
+        WHERE o.id=?
+    """, (order_id,)).fetchone()
+    conn.close()
+    return {
+        "order_id": order_id,
+        "status": o["status"],
+        "payment_status": "paid",
+        "email": o["email"],
+        "package": o["pkg_name"],
+        "note": note,
+    }, None
+
+def approve_order(order_id):
+    """Approve an order: set approved, create api_key, set key_prefix on order.
+    Accepts pending or paid orders."""
+    import secrets, string, hashlib
+    conn = get_db()
+    order = conn.execute("SELECT o.*, p.token_quota, p.rate_limit, p.name as pkg_name, c.email as customer_name "
+                         "FROM orders o JOIN packages p ON p.id=o.package_id JOIN customers c ON c.id=o.customer_id "
+                         "WHERE o.id=?", (order_id,)).fetchone()
+    if not order:
+        conn.close()
+        return None, "Order not found"
+    if order["status"] not in ("pending", "paid"):
+        conn.close()
+        return None, f"Order status is '{order['status']}', not 'pending' or 'paid'"
+    a = string.ascii_letters + string.digits
+    fk = "sk-gateway-" + "".join(secrets.choice(a) for _ in range(48))
+    kh = hashlib.sha256(fk.encode()).hexdigest()
+    kp = fk[:16]
+    now = now_utc()
+    conn.execute("INSERT INTO api_keys (key_hash,key_prefix,name,status,rate_limit_per_minute,token_quota_total,created_at) VALUES (?,?,?,'active',?,?,?)",
+                 (kh, kp, order["customer_name"], order["rate_limit"], order["token_quota"], now))
+    conn.execute("UPDATE orders SET status='approved', key_prefix=?, approved_at=? WHERE id=?",
+                 (kp, now, order_id))
+    conn.commit()
+    conn.close()
+    return {
+        "order_id": order_id,
+        "status": "approved",
+        "key_prefix": kp,
+        "full_key": fk,
+        "name": order["customer_name"],
+        "token_quota": order["token_quota"],
+        "rate_limit": order["rate_limit"],
+    }, None
 
 def check_quota(key_info):
     total = key_info.get("token_quota_total", 0)

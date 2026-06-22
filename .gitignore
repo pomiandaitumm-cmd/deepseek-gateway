@@ -1,1 +1,30 @@
-LmVudgouZW52LioKIS5lbnYuZXhhbXBsZQpkYi5zcWxpdGUzCmRhdGEvZGIuc3FsaXRlMwpiYWNrdXBzLwpfX3B5Y2FjaGVfXy8KKi5weWMKLnZlbnYvCi5lbnYKLmVudi4qCiEuZW52LmV4YW1wbGUKKi5iYWNrdXAqCioudGFyLmd6CmFwcC5iYWsuKgpkYXRhLwo=
+# Environment
+.env
+.env.*
+!.env.example
+
+# Database
+db.sqlite3
+data/db.sqlite3
+*.sqlite3
+
+# Backups
+backups/
+*.backup*
+*.tar.gz
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Backup dirs
+
+# Backup dirs
+app.bak*/
+*.bak
+data/db.sqlite3.bak*

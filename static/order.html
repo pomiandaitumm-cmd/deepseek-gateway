@@ -1,0 +1,184 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Check Order — DeepSeek Gateway</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: #0d1117; color: #c9d1d9; line-height: 1.6;
+  }
+  .container { max-width: 560px; margin: 0 auto; padding: 60px 24px; }
+  h1 { font-size: 1.5rem; font-weight: 700; color: #f0f6fc; margin-bottom: 8px; }
+  .subtitle { font-size: 0.9rem; color: #8b949e; margin-bottom: 32px; }
+  label { display: block; font-size: 0.85rem; font-weight: 500; color: #f0f6fc; margin-bottom: 6px; margin-top: 16px; }
+  input {
+    width: 100%; padding: 10px 14px; background: #161b22; border: 1px solid #30363d;
+    border-radius: 6px; color: #c9d1d9; font-size: 0.9rem; font-family: inherit;
+  }
+  input:focus { outline: none; border-color: #58a6ff; }
+  button {
+    display: block; width: 100%; background: #1f6feb; color: #fff; border: none; padding: 12px 24px;
+    border-radius: 6px; font-weight: 600; font-size: 0.95rem; cursor: pointer; margin-top: 24px;
+  }
+  button:hover { background: #388bfd; }
+  button:disabled { background: #21262d; color: #484f58; cursor: not-allowed; }
+  .result {
+    background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 24px;
+    margin-top: 24px; display: none;
+  }
+  .result h3 { color: #f0f6fc; margin-bottom: 12px; font-size: 1rem; }
+  .result .row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.88rem; border-bottom: 1px solid #21262d; }
+  .result .row:last-child { border-bottom: none; }
+  .result .label { color: #8b949e; }
+  .result .value { color: #c9d1d9; font-weight: 500; }
+  .status-pending { color: #d29922; }
+  .status-paid { color: #58a6ff; }
+  .status-approved { color: #3fb950; }
+  .status-rejected { color: #f85149; }
+  .key-box {
+    background: #0d1117; border: 2px solid #3fb95044; border-radius: 6px; padding: 16px;
+    margin: 16px 0; font-family: "SF Mono", "Fira Code", monospace; font-size: 0.85rem;
+    color: #3fb950; word-break: break-all;
+  }
+  .warning { font-size: 0.82rem; color: #d29922; margin-top: 12px; }
+  pre {
+    background: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 16px;
+    overflow-x: auto; font-size: 0.82rem; line-height: 1.5; color: #c9d1d9; margin-top: 12px;
+  }
+  .error { background: #161b22; border: 1px solid #f8514944; border-radius: 6px; padding: 12px 16px; color: #f85149; font-size: 0.88rem; margin-top: 16px; display: none; }
+  .note { font-size: 0.8rem; color: #8b949e; margin-top: 20px; text-align: center; }
+  a { color: #58a6ff; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .back-link { font-size: 0.82rem; margin-bottom: 20px; display: inline-block; }
+  .btn-sm {
+    display: inline-block; background: #21262d; color: #c9d1d9; padding: 6px 14px;
+    border-radius: 4px; font-size: 0.82rem; text-decoration: none; border: 1px solid #30363d;
+  }
+  .btn-sm:hover { border-color: #58a6ff; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-link" href="/">← Back to Home</a>
+  <h1>Check Your Order</h1>
+  <p class="subtitle">Enter your Order ID and email to check the status of your API key application.</p>
+
+  <form id="lookup-form" onsubmit="checkOrder(event)">
+    <label for="order_id">Order ID *</label>
+    <input type="number" id="order_id" name="order_id" placeholder="e.g. 3" required min="1">
+
+    <label for="email">Email *</label>
+    <input type="email" id="email" name="email" placeholder="you@example.com" required>
+
+    <button type="submit" id="submit-btn">Check Order</button>
+  </form>
+
+  <div id="error-box" class="error"></div>
+
+  <div id="result-box" class="result">
+    <h3 id="result-title">Order Status</h3>
+    <div class="row"><span class="label">Order ID</span><span class="value" id="res-id"></span></div>
+    <div class="row"><span class="label">Status</span><span class="value" id="res-status"></span></div>
+    <div class="row"><span class="label">Payment</span><span class="value" id="res-payment"></span></div>
+    <div class="row"><span class="label">Plan</span><span class="value" id="res-plan"></span></div>
+    <div class="row"><span class="label">Quota</span><span class="value" id="res-quota"></span></div>
+    <div class="row"><span class="label">Rate Limit</span><span class="value" id="res-rate"></span></div>
+    <div class="row"><span class="label">Created</span><span class="value" id="res-created"></span></div>
+    <div class="row"><span class="label">Approved</span><span class="value" id="res-approved"></span></div>
+    <div id="key-section" style="display:none; margin-top:16px;">
+      <p style="color:#f0f6fc; font-weight:600; margin-bottom:8px;">🔑 Your API Key</p>
+      <div class="key-box" id="res-key"></div>
+      <p class="warning">⚠ Save this key now. It will not be shown again. Do not share it.</p>
+      <div style="margin-top:12px;">
+        <a class="btn-sm" href="/dashboard.html">Open Dashboard →</a>
+      </div>
+      <p style="margin-top:16px;color:#f0f6fc;font-size:0.85rem;">Quick Start</p>
+      <pre><code>from openai import OpenAI
+client = OpenAI(
+    base_url="http://65.49.201.211/v1",
+    api_key="<span id="res-key-preview">YOUR_KEY</span>",
+)
+response = client.chat.completions.create(
+    model="deepseek-v4-flash",
+    messages=[{"role":"user","content":"Hello!"}],
+)
+print(response.choices[0].message.content)</code></pre>
+    </div>
+    <div id="message-section" style="margin-top:12px;">
+      <p style="color:#8b949e;font-size:0.88rem;" id="res-message"></p>
+    </div>
+  </div>
+
+  <div class="note">
+    This is a <strong>third-party gateway</strong>, not an official DeepSeek service.
+    Alpha phase — invite only. Manual payment confirmation.
+  </div>
+</div>
+
+<script>
+function checkOrder(e) {
+  e.preventDefault();
+  const btn = document.getElementById("submit-btn");
+  const errBox = document.getElementById("error-box");
+  const resBox = document.getElementById("result-box");
+
+  errBox.style.display = "none";
+  resBox.style.display = "none";
+  btn.disabled = true;
+  btn.textContent = "Checking...";
+
+  const orderId = document.getElementById("order_id").value.trim();
+  const email = document.getElementById("email").value.trim();
+
+  fetch("/api/order/status?order_id=" + orderId + "&email=" + encodeURIComponent(email))
+  .then(r => r.json().then(data => ({status: r.status, data})))
+  .then(({status, data}) => {
+    if (status === 200) {
+      document.getElementById("res-id").textContent = data.order_id;
+      const statusEl = document.getElementById("res-status");
+      statusEl.textContent = data.status;
+      statusEl.className = "value status-" + data.status;
+
+      document.getElementById("res-payment").textContent = data.payment_status || "unpaid";
+      document.getElementById("res-plan").textContent = data.selected_plan;
+      document.getElementById("res-quota").textContent = (data.quota || 0).toLocaleString() + " tokens";
+      document.getElementById("res-rate").textContent = (data.rate_limit || 30) + " req/min";
+      document.getElementById("res-created").textContent = data.created_at || "-";
+      document.getElementById("res-approved").textContent = data.approved_at || "-";
+      document.getElementById("res-message").textContent = data.message || "";
+
+      const keySection = document.getElementById("key-section");
+      if (data.status === "approved" && data.key_prefix) {
+        keySection.style.display = "block";
+        document.getElementById("res-key").textContent = data.full_key || "Contact support to retrieve your key.";
+        document.getElementById("res-key-preview").textContent = data.full_key || "YOUR_KEY";
+      } else {
+        keySection.style.display = "none";
+      }
+
+      resBox.style.display = "block";
+    } else {
+      errBox.textContent = data.detail || "Lookup failed. Check your Order ID and email.";
+      errBox.style.display = "block";
+    }
+  })
+  .catch(err => {
+    errBox.textContent = "Connection failed: " + err.message;
+    errBox.style.display = "block";
+  })
+  .finally(() => {
+    btn.disabled = false;
+    btn.textContent = "Check Order";
+  });
+}
+
+// Pre-fill from URL params
+const params = new URLSearchParams(window.location.search);
+const oid = params.get("order_id");
+if (oid) document.getElementById("order_id").value = oid;
+</script>
+</body>
+</html>

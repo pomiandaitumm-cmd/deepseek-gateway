@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-""""Disable an API key by prefix.""""
+"""Disable an API key by prefix."""
 
 import argparse
 import sys

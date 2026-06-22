@@ -12,6 +12,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY app/ ./app/
 COPY create_key.py disable_key.py usage_report.py add_quota.py set_quota.py ./
+COPY approve_order.py order_report.py customer_report.py mark_paid.py ./
+COPY static/ ./static/
 
 # Expose port
 EXPOSE 8000

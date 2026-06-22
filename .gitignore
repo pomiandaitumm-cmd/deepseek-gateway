@@ -1,12 +1,1 @@
-.env
-.env.*
-!.env.example
-db.sqlite3
-data/db.sqlite3
-backups/
-__pycache__/
-*.pyc
-.venv/
-*.backup*
-*.tar.gz
-app.bak.*
+LmVudiAuZW52LiogIS5lbnYuZXhhbXBsZSBkYi5zcWxpdGUzIGRhdGEvZGIuc3FsaXRlMyBiYWNrdXBzLyBfX3B5Y2FjaGVfXy8gKi5weWMgLnZlbnYvIC5lbnYgLmVudi4qICEuZW52LmV4YW1wbGUgKi5iYWNrdXAqICoudGFyLmd6IGFwcC5iYWsuKiBkYXRhLw==

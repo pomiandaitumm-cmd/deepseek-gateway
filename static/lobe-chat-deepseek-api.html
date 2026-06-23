@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="How to connect LobeChat to DeepSeek API via ModelRelay API Gateway. OpenAI-compatible endpoint with per-key quota and usage tracking.">
+    <title>How to Use DeepSeek API with LobeChat ? ModelRelay API Gateway</title>
+    <link rel="canonical" href="https://modelrelayapis.cc/lobe-chat-deepseek-api.html">
+    <style>
+        :root { --bg: #fafafa; --card: #fff; --text: #1a1a1a; --muted: #555; --accent: #3b82f6; --border: #e5e5e5; --code-bg: #f0f0f0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+        nav { background: var(--card); border-bottom: 1px solid var(--border); padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; }
+        nav a { color: var(--text); text-decoration: none; margin-right: 16px; font-size: 14px; }
+        nav a:hover { color: var(--accent); }
+        .lang-toggle { display: flex; gap: 6px; }
+        .lang-toggle button { background: none; border: 1px solid var(--border); padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 13px; }
+        .lang-toggle button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+        .hero { padding: 40px 24px 20px; max-width: 800px; margin: 0 auto; }
+        .hero h1 { font-size: 26px; margin-bottom: 8px; }
+        .hero p { color: var(--muted); font-size: 15px; }
+        .disclaimer { background: #fef3c7; border: 1px solid #f59e0b; border-radius: 6px; padding: 10px 14px; max-width: 800px; margin: 0 auto 20px; font-size: 13px; color: #92400e; }
+        .content { max-width: 800px; margin: 0 auto; padding: 0 24px 40px; }
+        .section { margin-bottom: 28px; }
+        .section h2 { font-size: 18px; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+        .section ol, .section ul { padding-left: 20px; }
+        .section li { margin-bottom: 6px; font-size: 14px; }
+        code { background: var(--code-bg); padding: 2px 6px; border-radius: 3px; font-size: 13px; }
+        pre { background: #1e1e1e; color: #d4d4d4; padding: 16px; border-radius: 6px; overflow-x: auto; font-size: 13px; margin: 10px 0; }
+        .error-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .error-table th, .error-table td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+        .error-table th { background: #f5f5f5; }
+        .cta { background: var(--card); border: 2px solid var(--accent); border-radius: 8px; padding: 20px; text-align: center; margin-top: 32px; }
+        .cta h3 { margin-bottom: 8px; }
+        .cta a { display: inline-block; background: var(--accent); color: #fff; padding: 10px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; margin-top: 8px; }
+        .cta a:hover { opacity: 0.9; }
+        .zh { display: none; }
+        footer { max-width: 800px; margin: 0 auto; padding: 20px 24px; border-top: 1px solid var(--border); font-size: 12px; color: var(--muted); text-align: center; }
+</style>
+</head>
+<body>
+<nav>
+    <div>
+        <a href="/"><b>ModelRelay API</b></a>
+        <a href="/pricing.html">Pricing</a>
+        <a href="/docs.html">Docs</a>
+        <a href="/api-docs.html">API</a>
+        <a href="/dashboard.html">Dashboard</a>
+    </div>
+    <div class="lang-toggle">
+        <button onclick="setLang('en')" id="btn-en" class="active">EN</button>
+        <button onclick="setLang('zh')" id="btn-zh">??</button>
+    </div>
+</nav>
+
+<div class="hero">
+    <h1 class="en">How to Use DeepSeek API with LobeChat</h1>
+    <h1 class="zh" style="display:none">LobeChat ?? DeepSeek API ??</h1>
+    <p class="en">LobeChat is an open-source ChatGPT/LLM UI framework with plugin support. Connect it to our DeepSeek API Gateway for fast, affordable inference.</p>
+    <p class="zh" style="display:none">LobeChat ??? LLM ????????????? DeepSeek API ???????</p>
+</div>
+
+<div class="disclaimer en">Third-party API gateway. Not affiliated with or endorsed by DeepSeek. Not an official DeepSeek service.</div>
+<div class="disclaimer zh" style="display:none">??? API ???? DeepSeek ??????????</div>
+
+<div class="content">
+    <div class="section">
+        <h2 class="en">Base URL</h2>
+        <h2 class="zh" style="display:none">API ??</h2>
+        <pre>https://modelrelayapis.cc/v1</pre>
+    </div>
+
+    <div class="section">
+        <h2 class="en">Available Models</h2>
+        <h2 class="zh" style="display:none">????</h2>
+        <ul>
+            <li><code>deepseek-v4-flash</code> ? <span class="en">Fast, affordable (Trial / Starter / Standard / Pro)</span><span class="zh" style="display:none">?????Trial / Starter / Standard / Pro ????</span></li>
+            <li><code>deepseek-v4-pro</code> ? <span class="en">Higher quality (Pro plan only)</span><span class="zh" style="display:none">?????? Pro ???</span></li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2 class="en">Setup Steps</h2>
+        <h2 class="zh" style="display:none">????</h2>
+        <ol class="en">                    <li>Open LobeChat and go to Settings ? Language Model.</li>
+                    <li>Select <b>OpenAI</b> as the API provider.</li>
+                    <li>Set <b>API Base URL</b> to <code>https://modelrelayapis.cc/v1</code>.</li>
+                    <li>Enter your <b>sk-gateway API Key</b>.</li>
+                    <li>Set the model to <code>deepseek-v4-flash</code> (or <code>deepseek-v4-pro</code> for Pro plan users).</li>
+                    <li>Click Test Connection, then start chatting.</li></ol>
+        <ol class="zh" style="display:none">                    <li>?? LobeChat????? ? ?????</li>
+                    <li>API ????? OpenAI?</li>
+                    <li>API Base URL ?? https://modelrelayapis.cc/v1</li>
+                    <li>???? sk-gateway API Key?</li>
+                    <li>???? deepseek-v4-flash?Pro ???? deepseek-v4-pro??</li>
+                    <li>??????????????</li></ol>
+    </div>
+    <div class="section">
+        <h2 class="en">Python Example</h2>
+        <h2 class="zh" style="display:none">Python ??</h2>
+        <pre>from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://modelrelayapis.cc/v1",
+    api_key="sk-gateway-YOUR-KEY"
+)
+
+response = client.chat.completions.create(
+    model="deepseek-v4-flash",
+    messages=[{"role": "user", "content": "Hello, how are you?"}]
+)
+
+print(response.choices[0].message.content)</pre>
+    </div>
+    <div class="section">
+        <h2 class="en">Quick curl Test</h2>
+        <h2 class="zh" style="display:none">curl ????</h2>
+        <pre>curl https://modelrelayapis.cc/v1/chat/completions   -H "Content-Type: application/json"   -H "Authorization: Bearer sk-gateway-YOUR-KEY"   -d '{"model":"deepseek-v4-flash","messages":[{"role":"user","content":"Hello"}]}'</pre>
+    </div>
+
+    <div class="section">
+        <h2 class="en">Common Errors</h2>
+        <h2 class="zh" style="display:none">????</h2>
+        <table class="error-table">
+            <tr><th>HTTP</th><th class="en">Meaning</th><th class="zh" style="display:none">??</th></tr>
+            <tr><td>401</td><td class="en">Invalid or missing API key</td><td class="zh" style="display:none">API Key ?????</td></tr>
+            <tr><td>402</td><td class="en">API budget exhausted ? buy a new package</td><td class="zh" style="display:none">???????????</td></tr>
+            <tr><td>403</td><td class="en">Model not allowed for your plan</td><td class="zh" style="display:none">??????????</td></tr>
+            <tr><td>429</td><td class="en">Rate limit exceeded</td><td class="zh" style="display:none">??????</td></tr>
+            <tr><td>500/502</td><td class="en">Gateway error ? try again or contact support</td><td class="zh" style="display:none">?????????????</td></tr>
+        </table>
+    </div>
+
+    <div class="cta">
+        <h3 class="en">Get Your DeepSeek API Key ? From $1</h3>
+        <h3 class="zh" style="display:none">?? DeepSeek API Key??? $1 ?</h3>
+        <p class="en">Instant key delivery after PayPal payment. Check your usage anytime on the Dashboard.</p>
+        <p class="zh" style="display:none">PayPal ??????? Key???? Dashboard ?????</p>
+        <a href="/pricing.html" class="en">View Plans & Buy</a>
+        <a href="/pricing.html" class="zh" style="display:none">???????</a>
+    </div>
+</div>
+
+<footer>
+    <p>ModelRelay API Gateway &mdash; Independent third-party service. Not affiliated with DeepSeek.</p>
+</footer>
+
+<script>
+function setLang(lang) {
+    var en = document.querySelectorAll('.en'), zh = document.querySelectorAll('.zh');
+    var btnEn = document.getElementById('btn-en'), btnZh = document.getElementById('btn-zh');
+    if (lang === 'zh') {
+        en.forEach(function(el) { el.style.display = 'none'; });
+        zh.forEach(function(el) { el.style.display = ''; });
+        btnZh.classList.add('active'); btnEn.classList.remove('active');
+    } else {
+        en.forEach(function(el) { el.style.display = ''; });
+        zh.forEach(function(el) { el.style.display = 'none'; });
+        btnEn.classList.add('active'); btnZh.classList.remove('active');
+    }
+    localStorage.setItem('lang', lang);
+}
+var saved = localStorage.getItem('lang');
+if (saved === 'zh') setLang('zh');
+</script>
+</body>
+</html>

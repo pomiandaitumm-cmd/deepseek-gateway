@@ -129,6 +129,19 @@ SillyTavern works with this gateway out of the box:
 
 ---
 
+## Tools & Integrations
+
+Our gateway works with any OpenAI-compatible client. Step-by-step setup guides:
+
+| Tool | Guide |
+|---|---|
+| LobeChat | [Setup guide](https://modelrelayapis.cc/lobe-chat-deepseek-api.html) |
+| Dify | [Setup guide](https://modelrelayapis.cc/dify-deepseek-api.html) |
+| NextChat | [Setup guide](https://modelrelayapis.cc/nextchat-deepseek-api.html) |
+| Open WebUI | [Setup guide](https://modelrelayapis.cc/openwebui-deepseek-api.html) |
+| LangChain | [Setup guide](https://modelrelayapis.cc/langchain-deepseek-api.html) |
+| Chatbox AI | [Setup guide](https://modelrelayapis.cc/chatbox-deepseek-api.html) |
+
 ## FAQ
 
 **Is this the official DeepSeek API?**

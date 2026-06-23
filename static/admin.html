@@ -1,12 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin &mdash; DeepSeek Gateway</title>
+<title>管理后台 — DeepSeek Gateway</title>
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#0d1117;color:#c9d1d9;line-height:1.6}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei","PingFang SC",Roboto,"Helvetica Neue",Arial,sans-serif;background:#0d1117;color:#c9d1d9;line-height:1.6}
   .container{max-width:1200px;margin:0 auto;padding:24px}
   h1{font-size:1.4rem;color:#f0f6fc;margin-bottom:4px}
   .subtitle{font-size:0.82rem;color:#8b949e;margin-bottom:20px}
@@ -22,7 +22,7 @@
   .card{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:16px;margin-bottom:16px}
   .summary-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:20px}
   .summary-card{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:14px 16px}
-  .summary-card .label{font-size:0.72rem;color:#8b949e;text-transform:uppercase;letter-spacing:0.5px}
+  .summary-card .label{font-size:0.72rem;color:#8b949e;letter-spacing:0.5px}
   .summary-card .value{font-size:1.5rem;font-weight:700;color:#f0f6fc;margin-top:4px}
   .summary-card .value.green{color:#3fb950}
   .summary-card .value.yellow{color:#d29922}
@@ -49,90 +49,84 @@
   a{color:#58a6ff;text-decoration:none}
   a:hover{text-decoration:underline}
   .back-link{font-size:0.78rem;margin-bottom:16px;display:inline-block}
-  .tab-row{display:flex;gap:0;margin-bottom:16px}
-  .tab-btn{padding:6px 16px;background:transparent;border:1px solid #30363d;color:#8b949e;cursor:pointer;font-size:0.82rem;border-radius:0}
-  .tab-btn:first-child{border-radius:6px 0 0 6px}
-  .tab-btn:last-child{border-radius:0 6px 6px 0}
-  .tab-btn.active{background:#1f6feb;color:#fff;border-color:#1f6feb}
-  .tab-btn:hover:not(.active){background:#21262d}
   .overflow-x{overflow-x:auto}
   .truncate{max-width:160px;overflow:hidden;text-overflow:ellipsis}
 </style>
 </head>
 <body>
 <div class="container">
-  <a class="back-link" href="/">&larr; Back to Home</a>
-  <h1>Admin Dashboard</h1>
-  <p class="subtitle">Orders, keys, revenue, and usage overview.</p>
+  <a class="back-link" href="/">&larr; 返回首页</a>
+  <h1>管理后台</h1>
+  <p class="subtitle">订单、Key、收入、用量总览</p>
 
   <div id="auth-section">
-    <label for="admin-token">Admin Token</label>
+    <label for="admin-token">管理员令牌</label>
     <div style="display:flex;gap:8px">
-      <input type="text" id="admin-token" placeholder="Enter admin token..." autocomplete="off" style="flex:1;margin-bottom:0">
-      <button id="auth-btn" onclick="authAndLoad()">Unlock</button>
+      <input type="text" id="admin-token" placeholder="输入管理员令牌..." autocomplete="off" style="flex:1;margin-bottom:0">
+      <button id="auth-btn" onclick="authAndLoad()">解锁</button>
     </div>
-    <div style="font-size:0.72rem;color:#8b949e;margin-top:4px">Token is saved in your browser only.</div>
+    <div style="font-size:0.72rem;color:#8b949e;margin-top:4px">令牌仅保存在你的浏览器中。</div>
   </div>
 
   <div id="error"></div>
 
   <div id="dashboard" style="display:none">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <span style="font-size:0.78rem;color:#8b949e">Admin mode</span>
-      <button class="btn-sm btn-outline" onclick="refresh()">&#x21bb; Refresh</button>
+      <span style="font-size:0.78rem;color:#8b949e">管理模式</span>
+      <button class="btn-sm btn-outline" onclick="refresh()">&#x21bb; 刷新</button>
     </div>
 
     <div class="summary-grid" id="summary"></div>
 
-    <div class="section-title">Orders</div>
+    <div class="section-title">订单列表</div>
     <div class="toolbar">
-      <input type="text" id="order-search" placeholder="Search email or key..." onkeyup="debounceSearch('orders')">
+      <input type="text" id="order-search" placeholder="搜索邮箱或 Key..." onkeyup="debounceSearch('orders')">
       <select id="order-status" onchange="loadOrders()">
-        <option value="">All Status</option>
-        <option value="pending">Pending</option>
-        <option value="paid">Paid</option>
-        <option value="approved">Approved</option>
-        <option value="active">Active Key</option>
-        <option value="exhausted">Exhausted Key</option>
-        <option value="disabled">Disabled Key</option>
+        <option value="">全部状态</option>
+        <option value="pending">待处理</option>
+        <option value="paid">已付款</option>
+        <option value="approved">已批准</option>
+        <option value="active">Key 正常</option>
+        <option value="exhausted">Key 已耗尽</option>
+        <option value="disabled">Key 已禁用</option>
       </select>
     </div>
     <div class="overflow-x">
       <table id="orders-table">
         <thead><tr>
-          <th>Order#</th><th>Email</th><th>Package</th><th>Price</th>
-          <th>Budget</th><th>Used</th><th>Remain</th>
-          <th>Provider</th><th>Pay Status</th><th>Key</th><th>Key Status</th>
-          <th>Reqs</th><th>Created</th><th>Last Used</th>
+          <th>订单号</th><th>邮箱</th><th>套餐</th><th>售价</th>
+          <th>上游预算</th><th>已消耗</th><th>剩余</th>
+          <th>支付方式</th><th>付款状态</th><th>Key</th><th>Key 状态</th>
+          <th>请求数</th><th>创建时间</th><th>最后使用</th>
         </tr></thead>
         <tbody id="orders-tbody"></tbody>
       </table>
     </div>
-    <div id="orders-empty" class="empty" style="display:none">No orders found.</div>
+    <div id="orders-empty" class="empty" style="display:none">暂无订单。</div>
 
-    <div class="section-title">API Keys</div>
+    <div class="section-title">API Key 列表</div>
     <div class="toolbar">
-      <input type="text" id="key-search" placeholder="Search prefix or name..." onkeyup="debounceSearch('keys')">
+      <input type="text" id="key-search" placeholder="搜索 Key 前缀或名称..." onkeyup="debounceSearch('keys')">
       <select id="key-status" onchange="loadKeys()">
-        <option value="">All Status</option>
-        <option value="active">Active</option>
-        <option value="exhausted">Exhausted</option>
-        <option value="disabled">Disabled</option>
+        <option value="">全部状态</option>
+        <option value="active">正常</option>
+        <option value="exhausted">已耗尽</option>
+        <option value="disabled">已禁用</option>
       </select>
     </div>
     <div class="overflow-x">
       <table id="keys-table">
         <thead><tr>
-          <th>Key Prefix</th><th>Name</th><th>Status</th><th>Plan</th>
-          <th>Budget</th><th>Used Cost</th><th>Remain</th>
-          <th>Sale</th><th>Models</th><th>RPM</th>
-          <th>Reqs</th><th>Cache Hit</th><th>Cache Miss</th><th>Output</th>
-          <th>Last Used</th>
+          <th>Key 前缀</th><th>名称</th><th>状态</th><th>套餐</th>
+          <th>上游预算</th><th>已消耗</th><th>剩余</th>
+          <th>售价</th><th>可用模型</th><th>速率</th>
+          <th>请求数</th><th>缓存命中</th><th>缓存未命中</th><th>输出 Token</th>
+          <th>最后使用</th>
         </tr></thead>
         <tbody id="keys-tbody"></tbody>
       </table>
     </div>
-    <div id="keys-empty" class="empty" style="display:none">No keys found.</div>
+    <div id="keys-empty" class="empty" style="display:none">暂无 Key。</div>
   </div>
 </div>
 
@@ -141,7 +135,6 @@ const BASE = window.location.origin;
 let adminToken = "";
 let searchTimers = {};
 
-// Init
 (function(){
   const saved = localStorage.getItem("admin_token");
   if (saved) { document.getElementById("admin-token").value = saved; }
@@ -151,13 +144,13 @@ async function authAndLoad() {
   const token = document.getElementById("admin-token").value.trim();
   const errDiv = document.getElementById("error");
   errDiv.innerHTML = "";
-  if (!token) { errDiv.innerHTML = '<div class="error">Enter admin token</div>'; return; }
+  if (!token) { errDiv.innerHTML = '<div class="error">请输入管理员令牌</div>'; return; }
 
   try {
     const r = await fetch(BASE + "/api/admin/summary", { headers: { "Authorization": "Bearer " + token } });
-    if (r.status === 401) { errDiv.innerHTML = '<div class="error">Invalid admin token</div>'; return; }
-    if (r.status === 501) { errDiv.innerHTML = '<div class="error">Admin backend not configured on server</div>'; return; }
-    if (!r.ok) { errDiv.innerHTML = '<div class="error">Server error: ' + r.status + '</div>'; return; }
+    if (r.status === 401) { errDiv.innerHTML = '<div class="error">令牌无效，请检查后重试</div>'; return; }
+    if (r.status === 501) { errDiv.innerHTML = '<div class="error">服务器未配置管理后台</div>'; return; }
+    if (!r.ok) { errDiv.innerHTML = '<div class="error">服务器错误: ' + r.status + '</div>'; return; }
 
     adminToken = token;
     localStorage.setItem("admin_token", token);
@@ -165,7 +158,7 @@ async function authAndLoad() {
     document.getElementById("dashboard").style.display = "block";
     await Promise.all([loadSummary(), loadOrders(), loadKeys()]);
   } catch(e) {
-    errDiv.innerHTML = '<div class="error">Connection failed: ' + escapeHtml(e.message) + '</div>';
+    errDiv.innerHTML = '<div class="error">连接失败: ' + escapeHtml(e.message) + '</div>';
   }
 }
 
@@ -178,16 +171,16 @@ async function loadSummary() {
     const r = await fetch(BASE + "/api/admin/summary", { headers: { "Authorization": "Bearer " + adminToken } });
     const d = await r.json();
     const s = [
-      {label:"Total Orders",value:d.total_orders},
-      {label:"Paid Orders",value:d.paid_orders,cls:"green"},
-      {label:"Approved",value:d.approved_orders,cls:"green"},
-      {label:"Active Keys",value:d.active_keys,cls:"green"},
-      {label:"Exhausted",value:d.exhausted_keys,cls:"yellow"},
-      {label:"Disabled",value:d.disabled_keys,cls:"red"},
-      {label:"Total Sales",value:"$"+d.total_sales.toFixed(2),cls:"green"},
-      {label:"Total Budget",value:"$"+d.total_budget.toFixed(2)},
-      {label:"Total Used Cost",value:"$"+d.total_used_cost.toFixed(6)},
-      {label:"Margin",value:"$"+d.theoretical_margin.toFixed(2),cls:d.theoretical_margin>=0?"green":"red"},
+      {label:"总订单",value:d.total_orders},
+      {label:"已付款",value:d.paid_orders,cls:"green"},
+      {label:"已批准",value:d.approved_orders,cls:"green"},
+      {label:"活跃 Key",value:d.active_keys,cls:"green"},
+      {label:"已耗尽",value:d.exhausted_keys,cls:"yellow"},
+      {label:"已禁用",value:d.disabled_keys,cls:"red"},
+      {label:"总销售额",value:"$"+d.total_sales.toFixed(2),cls:"green"},
+      {label:"总上游预算",value:"$"+d.total_budget.toFixed(2)},
+      {label:"总已消耗成本",value:"$"+d.total_used_cost.toFixed(6)},
+      {label:"理论毛利",value:"$"+d.theoretical_margin.toFixed(2),cls:d.theoretical_margin>=0?"green":"red"},
     ];
     document.getElementById("summary").innerHTML = s.map(c =>
       '<div class="summary-card"><div class="label">'+c.label+'</div><div class="value'+(c.cls?' '+c.cls:'')+'">'+c.value+'</div></div>'
@@ -213,14 +206,15 @@ async function loadOrders() {
     tbody.innerHTML = d.orders.map(o => {
       const ks = o.key_status || "";
       let kb = "";
-      if (ks==="active") kb='<span class="badge badge-active">active</span>';
-      else if (ks==="exhausted") kb='<span class="badge badge-exhausted">exhausted</span>';
-      else if (ks==="disabled") kb='<span class="badge badge-disabled">disabled</span>';
+      if (ks==="active") kb='<span class="badge badge-active">正常</span>';
+      else if (ks==="exhausted") kb='<span class="badge badge-exhausted">已耗尽</span>';
+      else if (ks==="disabled") kb='<span class="badge badge-disabled">已禁用</span>';
       else kb='<span class="badge badge-pending">'+escapeHtml(ks||"-")+'</span>';
       const ps = o.payment_status || "";
       let pb = "";
-      if (ps==="paid"||ps==="approved") pb='<span class="badge badge-paid">'+ps+'</span>';
-      else if (ps==="pending") pb='<span class="badge badge-pending">pending</span>';
+      if (ps==="paid") pb='<span class="badge badge-paid">已付款</span>';
+      else if (ps==="approved") pb='<span class="badge badge-approved">已批准</span>';
+      else if (ps==="pending") pb='<span class="badge badge-pending">待付款</span>';
       else pb=escapeHtml(ps||"-");
       return '<tr>' +
         '<td>'+o.order_id+'</td>' +
@@ -259,9 +253,9 @@ async function loadKeys() {
     empty.style.display = "none";
     tbody.innerHTML = d.keys.map(k => {
       let sb = "";
-      if (k.status==="active") sb='<span class="badge badge-active">active</span>';
-      else if (k.status==="exhausted") sb='<span class="badge badge-exhausted">exhausted</span>';
-      else if (k.status==="disabled") sb='<span class="badge badge-disabled">disabled</span>';
+      if (k.status==="active") sb='<span class="badge badge-active">正常</span>';
+      else if (k.status==="exhausted") sb='<span class="badge badge-exhausted">已耗尽</span>';
+      else if (k.status==="disabled") sb='<span class="badge badge-disabled">已禁用</span>';
       else sb='<span class="badge badge-pending">'+escapeHtml(k.status||"-")+'</span>';
       return '<tr>' +
         '<td class="truncate">'+escapeHtml(k.key_prefix||"-")+'</td>' +

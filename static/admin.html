@@ -210,7 +210,7 @@ async function loadOrders() {
       if (ks==="active") kb='<span class="badge badge-active">正常</span>';
       else if (ks==="exhausted") kb='<span class="badge badge-exhausted">已耗尽</span>';
       else if (ks==="disabled") kb='<span class="badge badge-disabled">已禁用</span>';
-      else kb='<span class="badge badge-pending">'+escapeHtml(ks||"-")+'</span>';
+      else kb='<span class="badge badge-pending">'+escapeHtml(ks||"? key")+'</span>';
       const os = o.order_status || "";
       let ob = "";
       if (os==="approved") ob='<span class="badge badge-approved">已批准</span>';
@@ -225,14 +225,14 @@ async function loadOrders() {
         '<td>'+o.order_id+'</td>' +
         '<td class="truncate">'+escapeHtml(o.email||"-")+'</td>' +
         '<td>'+escapeHtml(o.package_name||"-")+'</td>' +
-        '<td>$'+(o.price_usd||0).toFixed(2)+'</td>' +
+        '<td>$'+(o.sale_price||0).toFixed(2)+'</td>' +
         '<td>$'+(o.upstream_budget||0).toFixed(2)+'</td>' +
-        '<td>$'+(o.upstream_cost_used||0).toFixed(6)+'</td>' +
+        '<td>$'+(o.used_upstream_cost||0).toFixed(6)+'</td>' +
         '<td>$'+(o.remaining_budget||0).toFixed(6)+'</td>' +
         '<td>'+escapeHtml(o.payment_provider||"-")+'</td>' +
         '<td>'+ob+'</td>' +
         '<td>'+pb+'</td>' +
-        '<td class="truncate">'+escapeHtml(o.key_prefix||"-")+'</td>' +
+        '<td class="truncate">'+(o.key_prefix ? escapeHtml(o.key_prefix) : '<span style="color:#8b949e">???</span>')+'</td>' +
         '<td>'+kb+'</td>' +
         '<td>'+(o.requests||0)+'</td>' +
         '<td>'+(o.created_at||"-").substring(0,16)+'</td>' +

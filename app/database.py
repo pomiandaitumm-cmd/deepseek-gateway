@@ -900,7 +900,7 @@ def get_admin_summary():
     row = conn.execute("""
         SELECT
             COUNT(DISTINCT o.id) as total_orders,
-            SUM(CASE WHEN o.payment_status='paid' OR o.status='paid' THEN 1 ELSE 0 END) as paid_orders,
+            SUM(CASE WHEN o.payment_status='paid' THEN 1 ELSE 0 END) as paid_orders,
             SUM(CASE WHEN o.status='approved' THEN 1 ELSE 0 END) as approved_orders,
             COUNT(DISTINCT k.id) as total_keys,
             SUM(CASE WHEN k.status='active' THEN 1 ELSE 0 END) as active_keys,
@@ -961,7 +961,11 @@ def get_admin_orders(search=None, status_filter=None):
         if status_filter in ("active", "exhausted", "disabled"):
             query += " AND k.status = ?"
             params.append(status_filter)
-        elif status_filter in ("pending", "paid", "approved"):
+        elif status_filter == "paid":
+            query += " AND o.payment_status = 'paid'"
+        elif status_filter == "unpaid":
+            query += " AND (o.payment_status IS NULL OR o.payment_status != 'paid')"
+        elif status_filter in ("pending", "approved"):
             query += " AND o.status = ?"
             params.append(status_filter)
     query += " ORDER BY o.id DESC LIMIT 200"

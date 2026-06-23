@@ -12,7 +12,7 @@
 I've been using a small third-party gateway that resells DeepSeek API with per-key quotas.
 It's OpenAI-compatible, works with SillyTavern out of the box.
 
-Trial is $1 for 100K tokens (flash only). No monthly commitment.
+Trial is $1 for 1M tokens (flash only). No monthly commitment.
 They're in alpha, manual approval. http://65.49.201.211
 
 Not official DeepSeek, just a community gateway.
@@ -31,10 +31,10 @@ Hey, I run a small DeepSeek API gateway (alpha, invite-only).
 OpenAI-compatible endpoint, per-key quota, usage dashboard.
 
 Plans:
-- Trial $1 / 100K tokens (flash)
-- Starter $3 / 500K tokens (flash)
-- Standard $6 / 1M tokens (flash)
-- Pro $12 / 1M tokens (flash + pro)
+- Trial $1 / 1M tokens (flash)
+- Starter $3 / 5M tokens (flash)
+- Standard $6 / 12M tokens (flash)
+- Pro $6 / 2M tokens (flash + pro)
 
 Base URL: http://65.49.201.211/v1
 Landing: http://65.49.201.211
@@ -55,7 +55,7 @@ Hey everyone! I'm running an alpha DeepSeek API gateway:
 - OpenAI-compatible (drop-in replace for OpenAI SDK)
 - Per-key token quota, no surprise bills
 - Usage dashboard to track remaining tokens
-- Plans from $1 (100K trial) to $12 (1M Pro)
+- Plans from $1 (100K trial) to $6 (2M Pro)
 
 Check it out: http://65.49.201.211
 Docs: http://65.49.201.211/api-docs.html
@@ -75,7 +75,7 @@ Docs: http://65.49.201.211/api-docs.html
 OpenAI-compatible DeepSeek API proxy with per-key quota management.
 
 - **Base URL:** http://65.49.201.211/v1
-- **Plans:** $1 Trial (100K) / $3 Starter (500K) / $6 Standard (1M) / $12 Pro (1M + reasoning)
+- **Plans:** $1 Trial (100K) / $3 Starter (500K) / $6 Standard (1M) / $6 Pro (2M + reasoning)
 - **Status:** Invite-only alpha, manual approval
 - **Docs:** http://65.49.201.211/api-docs.html
 
@@ -101,7 +101,7 @@ For SillyTavern + DeepSeek setup:
 
 Full guide: http://65.49.201.211/sillytavern-deepseek-setup.html
 
-Trial key is $1 for 100K tokens if you want to test.
+Trial key is $1 for 1M tokens if you want to test.
 ```
 
 ???SillyTavern ???????

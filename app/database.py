@@ -139,6 +139,8 @@ def init_db():
     _migrate_add(conn, "orders", "paid_at", "TEXT")
     _migrate_add(conn, "orders", "issued_key", "TEXT DEFAULT ''")
     _migrate_add(conn, "orders", "key_shown", "INTEGER DEFAULT 0")
+    _migrate_add(conn, "orders", "paypal_order_id", "TEXT DEFAULT ''")
+    _migrate_add(conn, "orders", "payment_provider", "TEXT DEFAULT ''")
     _seed_packages(conn)
     conn.close()
 
@@ -655,3 +657,132 @@ def expire_stale_orders():
     conn.close()
     return count
 
+
+# ===== v0.8 PayPal Integration =====
+
+def checkout_order_paypal(customer_email, plan_name, paypal_order_id, source="", ref=""):
+    """Create a checkout order linked to a PayPal order. Returns order dict."""
+    conn = get_db()
+    now = now_utc()
+    pkg = conn.execute("SELECT * FROM packages WHERE name=? AND is_active=1", (plan_name,)).fetchone()
+    if not pkg:
+        conn.close()
+        return None, f"Package '{plan_name}' not found"
+    package_id = pkg["id"]
+    price = pkg["price_usd"]
+    quota = pkg["token_quota"]
+
+    # Find or create customer
+    cust = conn.execute("SELECT id FROM customers WHERE email=?", (customer_email,)).fetchone()
+    if cust:
+        cust_id = cust["id"]
+    else:
+        cur = conn.execute("INSERT INTO customers (email,created_at) VALUES (?,?)", (customer_email, now))
+        cust_id = cur.lastrowid
+
+    # Create order with PayPal linkage
+    cur = conn.execute(
+        "INSERT INTO orders (customer_id,package_id,status,payment_status,price_usd,source,ref,paypal_order_id,payment_provider,created_at) VALUES (?,?,'pending','unpaid',?,?,?,?,?,?)",
+        (cust_id, package_id, price, source, ref, paypal_order_id, "paypal", now))
+    order_id = cur.lastrowid
+    conn.commit()
+    conn.close()
+
+    return {
+        "order_id": order_id,
+        "status": "pending",
+        "plan": plan_name,
+        "token_quota": quota,
+        "price_usd": price,
+        "paypal_order_id": paypal_order_id,
+        "email": customer_email,
+        "status_url": f"/order.html?order_id={order_id}",
+        "message": "PayPal order created. Complete payment to get your API key.",
+    }, None
+
+
+def capture_paypal_and_approve(local_order_id, paypal_order_id, payer_email=""):
+    """After PayPal capture succeeds: mark order paid, auto-approve, generate key.
+    Prevents duplicate key issuance: if already approved, returns existing key."""
+    conn = get_db()
+    order = conn.execute("SELECT * FROM orders WHERE id=?", (local_order_id,)).fetchone()
+    if not order:
+        conn.close()
+        return None, "Order not found"
+
+    # Prevent double-issuance
+    if order["status"] == "approved" and order["issued_key"]:
+        pkg = conn.execute("SELECT * FROM packages WHERE id=?", (order["package_id"],)).fetchone()
+        conn.close()
+        return {
+            "order_id": local_order_id,
+            "status": "approved",
+            "key_prefix": order["key_prefix"],
+            "full_key": order["issued_key"],
+            "token_quota": pkg["token_quota"] if pkg else 0,
+            "message": "Key already issued for this order.",
+        }, None
+
+    if order["status"] not in ("pending", "paid"):
+        conn.close()
+        return None, f"Order status is '{order['status']}', cannot capture"
+
+    now = now_utc()
+    # Mark as paid
+    conn.execute("""UPDATE orders SET payment_status='paid', paid_at=?, status='paid'
+                    WHERE id=?""", (now, local_order_id))
+    conn.commit()
+    conn.close()
+
+    # Auto-approve
+    return approve_order(local_order_id)
+
+
+def get_order_status_v08(order_id, email):
+    """v0.8 order status with PayPal payment info."""
+    conn = get_db()
+    row = conn.execute("""
+        SELECT o.*, c.email, p.name as package_name, p.token_quota, p.rate_limit, p.allowed_models
+        FROM orders o
+        JOIN customers c ON c.id = o.customer_id
+        JOIN packages p ON p.id = o.package_id
+        WHERE o.id = ?
+    """, (order_id,)).fetchone()
+    conn.close()
+
+    if not row:
+        return None, "Order not found"
+    if row["email"].lower() != email.lower():
+        return None, "Email does not match this order"
+
+    result = {
+        "order_id": row["id"],
+        "status": row["status"],
+        "payment_status": row["payment_status"] or "unpaid",
+        "payment_provider": row["payment_provider"] or "",
+        "paypal_order_id": row["paypal_order_id"] or "",
+        "selected_plan": row["package_name"],
+        "quota": row["token_quota"],
+        "rate_limit": row["rate_limit"],
+        "allowed_models": (row["allowed_models"] or "deepseek-v4-flash").split(","),
+        "price_usd": row["price_usd"] or 0,
+        "created_at": row["created_at"],
+        "approved_at": row["approved_at"],
+        "key_prefix": row["key_prefix"] or None,
+        "full_key": row["issued_key"] if (row["status"] == "approved" and row["issued_key"]) else None,
+        "dashboard_url": None,
+        "message": None,
+    }
+
+    if row["status"] == "approved" and row["key_prefix"]:
+        result["key_prefix"] = row["key_prefix"]
+        result["dashboard_url"] = f"{SITE_BASE_URL}/dashboard.html" if 'SITE_BASE_URL' in dir() else "http://65.49.201.211/dashboard.html"
+        result["message"] = "Your API key is ready. Save it now and go to Dashboard to check usage."
+    elif row["status"] == "expired":
+        result["message"] = "This order has expired. Please create a new order."
+    elif row["status"] in ("pending", "paid") and (row["payment_status"] or "unpaid") == "paid":
+        result["message"] = "Payment received. Generating your API key..."
+    elif row["status"] == "pending" and (row["payment_status"] or "unpaid") == "unpaid":
+        result["message"] = "Waiting for PayPal payment. Complete your payment to receive your API key."
+
+    return result, None

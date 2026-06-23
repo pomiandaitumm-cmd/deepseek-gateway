@@ -1,21 +1,32 @@
-from fastapi import FastAPI, Request, HTTPException, Depends, Query
+﻿from fastapi import FastAPI, Request, HTTPException, Depends, Query
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from .auth import verify_api_key
 from .proxy import proxy_chat_completions
 from .config import EXPOSED_MODELS
-from .database import (init_db, get_db, get_key_usage, create_order, get_order_status, get_lead_stats, checkout_order, get_order_status_v07)
+from .paypal import (
+    is_configured as paypal_configured,
+    PAYPAL_CLIENT_ID,
+    PAYPAL_CURRENCY,
+    PAYPAL_MODE,
+    create_paypal_order as paypal_create,
+    capture_paypal_order as paypal_capture,
+)
+from .database import (
+    init_db, get_db, get_key_usage, create_order, get_order_status,
+    get_lead_stats, checkout_order, get_order_status_v07,
+    checkout_order_paypal, capture_paypal_and_approve, get_order_status_v08,
+)
 
 # Initialize database on startup
 init_db()
 
-app = FastAPI(title="DeepSeek API Gateway", version="0.7.0")
+app = FastAPI(title="DeepSeek API Gateway", version="0.8.0")
 
 
 @app.get("/v1/models")
 async def list_models(key_info: dict = Depends(verify_api_key)):
     """Return list of models available for this key (based on plan)."""
-    # Use key's allowed_models from DB (set during approve_order)
     conn = get_db()
     row = conn.execute("SELECT allowed_models FROM api_keys WHERE id=?", (key_info["id"],)).fetchone()
     conn.close()
@@ -41,7 +52,6 @@ async def chat_completions(request: Request, key_info: dict = Depends(verify_api
         raise HTTPException(status_code=400, detail="Invalid JSON body")
 
     model = body.get("model", "")
-    # Check if key's plan allows this model
     allowed = key_info.get("allowed_models", "")
     if allowed:
         allowed_list = [m.strip() for m in allowed.split(",") if m.strip()]
@@ -50,7 +60,6 @@ async def chat_completions(request: Request, key_info: dict = Depends(verify_api
                 status_code=403,
                 detail="Your plan does not include this model",
             )
-    # Fallback: check against global exposed models
     if model not in EXPOSED_MODELS:
         raise HTTPException(
             status_code=400,
@@ -116,7 +125,7 @@ async def apply_for_access(request: Request):
         if pkg:
             package_id = pkg["id"]
     if not package_id:
-        package_id = 1  # default to Trial
+        package_id = 1
 
     order = create_order(email, telegram_or_discord, use_case, expected_daily_tokens, package_id, source=source, ref=ref)
     return JSONResponse(content={
@@ -136,7 +145,7 @@ async def order_status(order_id: int = Query(...), email: str = Query(...)):
     """Public order status lookup. Requires matching email."""
     if not email or "@" not in email:
         raise HTTPException(status_code=400, detail="Valid email is required")
-    result, err = get_order_status_v07(order_id, email)
+    result, err = get_order_status_v08(order_id, email)
     if err:
         if "not found" in err.lower():
             raise HTTPException(status_code=404, detail=err)
@@ -151,12 +160,23 @@ async def health():
     return {"status": "ok"}
 
 
+# ===== v0.8 PayPal Endpoints =====
 
-# v0.7 Payment endpoints
+@app.get("/api/paypal/config")
+async def paypal_config():
+    """Return PayPal configuration for frontend. Does NOT expose client_secret."""
+    return JSONResponse(content={
+        "client_id": PAYPAL_CLIENT_ID,
+        "currency": PAYPAL_CURRENCY,
+        "mode": PAYPAL_MODE,
+        "enabled": paypal_configured(),
+    })
 
-@app.post("/api/checkout")
-async def api_checkout(request: Request):
-    """Create a checkout order with unique payment amount."""
+
+@app.post("/api/paypal/create-order")
+async def paypal_create_order(request: Request):
+    """Create a PayPal order and a local pending order.
+    Frontend calls PayPal SDK with the returned paypal_order_id."""
     try:
         body = await request.json()
     except Exception:
@@ -169,28 +189,140 @@ async def api_checkout(request: Request):
     source = (body.get("source") or "").strip()
     ref = (body.get("ref") or "").strip()
 
-    order, err = checkout_order(email, plan, source=source, ref=ref)
+    # First create local order to get an order_id for PayPal reference
+    local_order, err = checkout_order_paypal(email, plan, "__pending__", source=source, ref=ref)
+    if err:
+        raise HTTPException(status_code=400, detail=err)
+
+    local_order_id = local_order["order_id"]
+    price_usd = local_order["price_usd"]
+
+    # Now create PayPal order using our local_order_id as reference
+    pp_result, pp_err = await paypal_create(str(local_order_id), price_usd)
+    if pp_err:
+        raise HTTPException(status_code=502, detail=f"PayPal error: {pp_err}")
+
+    paypal_order_id = pp_result.get("id")
+    if not paypal_order_id:
+        raise HTTPException(status_code=502, detail="PayPal did not return an order ID")
+
+    # Update local order with real PayPal order ID
+    conn = get_db()
+    conn.execute(
+        "UPDATE orders SET paypal_order_id=? WHERE id=?",
+        (paypal_order_id, local_order_id))
+    conn.commit()
+    conn.close()
+
+    return JSONResponse(content={
+        "order_id": local_order_id,
+        "paypal_order_id": paypal_order_id,
+        "status": "pending",
+        "plan": plan,
+        "price_usd": price_usd,
+        "token_quota": local_order["token_quota"],
+        "email": email,
+        "status_url": f"/order.html?order_id={local_order_id}&email={email}",
+        "message": "Complete your PayPal payment to receive your API key.",
+    })
+
+
+@app.post("/api/paypal/capture-order")
+async def paypal_capture_order(request: Request):
+    """Capture a PayPal order after user approval in PayPal UI.
+    Auto-approves the local order and generates API key."""
+    try:
+        body = await request.json()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid JSON body")
+
+    paypal_order_id = (body.get("paypal_order_id") or "").strip()
+    if not paypal_order_id:
+        raise HTTPException(status_code=400, detail="paypal_order_id is required")
+    email = (body.get("email") or "").strip()
+    if not email or "@" not in email:
+        raise HTTPException(status_code=400, detail="Valid email is required")
+
+    # Find local order by paypal_order_id
+    conn = get_db()
+    order_row = conn.execute(
+        "SELECT o.*, c.email FROM orders o JOIN customers c ON c.id=o.customer_id WHERE o.paypal_order_id=?",
+        (paypal_order_id,)).fetchone()
+    conn.close()
+
+    if not order_row:
+        raise HTTPException(status_code=404, detail="Order not found for this PayPal order ID")
+
+    # Verify email matches
+    if order_row["email"].lower() != email.lower():
+        raise HTTPException(status_code=403, detail="Email does not match this order")
+
+    local_order_id = order_row["id"]
+
+    # If already approved, return existing key
+    if order_row["status"] == "approved" and order_row["issued_key"]:
+        pkg = get_db().execute("SELECT token_quota FROM packages WHERE id=?", (order_row["package_id"],)).fetchone()
+        return JSONResponse(content={
+            "order_id": local_order_id,
+            "status": "approved",
+            "full_key": order_row["issued_key"],
+            "key_prefix": order_row["key_prefix"],
+            "token_quota": pkg["token_quota"] if pkg else 0,
+            "status_url": f"/order.html?order_id={local_order_id}&email={email}",
+            "message": "Your API key is ready. Save it now.",
+        })
+
+    # Capture the PayPal order
+    capture_result, capture_err = await paypal_capture(paypal_order_id)
+    if capture_err:
+        raise HTTPException(status_code=502, detail=f"PayPal capture failed: {capture_err}")
+
+    # Mark paid and auto-approve
+    result, err = capture_paypal_and_approve(local_order_id, paypal_order_id)
+    if err:
+        raise HTTPException(status_code=500, detail=f"Approval failed: {err}")
+
+    return JSONResponse(content={
+        "order_id": local_order_id,
+        "status": "approved",
+        "full_key": result.get("full_key", ""),
+        "key_prefix": result.get("key_prefix", ""),
+        "token_quota": result.get("token_quota", 0),
+        "status_url": f"/order.html?order_id={local_order_id}&email={email}",
+        "message": "Payment confirmed! Your API key is ready.",
+    })
+
+
+# ===== Legacy checkout (kept for backward compat) =====
+
+@app.post("/api/checkout")
+async def api_checkout(request: Request):
+    """Create a checkout order. Uses PayPal flow if configured, else falls back to manual."""
+    try:
+        body = await request.json()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid JSON body")
+
+    email = (body.get("email") or "").strip()
+    if not email or "@" not in email:
+        raise HTTPException(status_code=400, detail="Valid email is required")
+    plan = (body.get("plan") or "Trial").strip()
+    source = (body.get("source") or "").strip()
+    ref = (body.get("ref") or "").strip()
+
+    # Legacy fallback – creates order without payment linkage
+    order, err = checkout_order_paypal(email, plan, "", source=source, ref=ref)
     if err:
         raise HTTPException(status_code=400, detail=err)
     return JSONResponse(content=order)
 
-
-@app.get("/api/payment/config")
-async def payment_config():
-    """Return payment configuration for frontend display."""
-    import os
-    return JSONResponse(content={
-        "network": os.getenv("PAYMENT_NETWORK", "TRC20"),
-        "token": os.getenv("PAYMENT_TOKEN", "USDT"),
-        "enabled": bool(os.getenv("PAYMENT_ADDRESS", "")),
-        "expiry_minutes": int(os.getenv("ORDER_EXPIRY_MINUTES", "30")),
-    })
 
 # Static file mount (after all API routes)
 import os as _os
 _static_dir = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "static")
 if _os.path.isdir(_static_dir):
     app.mount("/", StaticFiles(directory=_static_dir, html=True), name="static")
+
 
 @app.get("/api/admin/lead-stats")
 async def lead_stats(key_info: dict = Depends(verify_api_key)):

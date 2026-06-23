@@ -15,7 +15,14 @@ EXPOSED_MODELS = ["deepseek-v4-flash", "deepseek-v4-pro"]
 
 # Whether to expose reasoning content (default false = filter it out)
 EXPOSE_REASONING_CONTENT = os.getenv("EXPOSE_REASONING_CONTENT", "false").lower() == "true"
-# v0.7 Payment System
+# v0.8 PayPal Integration
+PAYPAL_MODE = os.getenv("PAYPAL_MODE", "sandbox").lower()
+PAYPAL_CLIENT_ID = os.getenv("PAYPAL_CLIENT_ID", "")
+PAYPAL_CLIENT_SECRET = os.getenv("PAYPAL_CLIENT_SECRET", "")
+PAYPAL_CURRENCY = os.getenv("PAYPAL_CURRENCY", "USD")
+SITE_BASE_URL = os.getenv("SITE_BASE_URL", "http://65.49.201.211")
+
+# Legacy v0.7 Payment System
 PAYMENT_ADDRESS = os.getenv("PAYMENT_ADDRESS", "")
 PAYMENT_NETWORK = os.getenv("PAYMENT_NETWORK", "TRC20")
 PAYMENT_TOKEN = os.getenv("PAYMENT_TOKEN", "USDT")

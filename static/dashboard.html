@@ -107,7 +107,7 @@ async function checkUsage() {
       btn.disabled = false; btn.textContent = "Check Usage"; return;
     }
     if (resp.status === 403) {
-      errorDiv.innerHTML = '<div class="error">This API key has been disabled. Contact support.</div>';
+      errorDiv.innerHTML = '<div class="error">This API key has been disabled or exhausted. Contact support or purchase a new package.</div>';
       btn.disabled = false; btn.textContent = "Check Usage"; return;
     }
 
@@ -117,13 +117,20 @@ async function checkUsage() {
       btn.disabled = false; btn.textContent = "Check Usage"; return;
     }
 
-    const qt = data.total_quota || 0;
-    const qu = data.used_quota || 0;
-    const pct = qt > 0 ? Math.min(100, Math.round(qu / qt * 100)) : 0;
-    const remaining = data.remaining_quota || 0;
+    const budget = data.upstream_budget || 0;
+    const usedCost = data.used_upstream_cost || 0;
+    const remainingBudget = data.remaining_budget || 0;
+    const salePrice = data.sale_price || 0;
+    const pct = budget > 0 ? Math.min(100, Math.round(usedCost / budget * 100)) : 0;
+
     let remainingClass = "good";
-    if (qt > 0 && remaining < qt * 0.1) remainingClass = "bad";
-    else if (qt > 0 && remaining < qt * 0.2) remainingClass = "warn";
+    if (budget > 0 && remainingBudget < budget * 0.1) remainingClass = "bad";
+    else if (budget > 0 && remainingBudget < budget * 0.2) remainingClass = "warn";
+
+    let statusClass = "good";
+    if (data.status === "exhausted") statusClass = "bad";
+    else if (data.status === "disabled") statusClass = "bad";
+    else if (data.status !== "active") statusClass = "warn";
 
     let modelsHtml = "";
     if (data.allowed_models && data.allowed_models.length > 0) {
@@ -135,26 +142,41 @@ async function checkUsage() {
     else if (pct > 80) barColor = "#d29922";
 
     let lowWarning = "";
-    if (qt > 0 && remaining < qt * 0.2) {
-      lowWarning = '<div class="low-balance"><strong>&#9888; Low balance.</strong> Less than 20% remaining. <a class="topup-btn" href="/apply.html">Top up / Upgrade</a></div>';
+    if (budget > 0 && remainingBudget < budget * 0.2) {
+      lowWarning = '<div class="low-balance"><strong>&#9888; Low balance.</strong> Less than 20% budget remaining. <a class="topup-btn" href="/pricing.html">Top up / Upgrade</a></div>';
     }
+    let exhaustedWarning = "";
+    if (data.status === "exhausted") {
+      exhaustedWarning = '<div class="low-balance" style="background:#1b1114;border-color:#f8514944;color:#f85149;"><strong>Budget exhausted.</strong> Purchase a new package to continue. <a class="topup-btn" href="/pricing.html">Buy More</a></div>';
+    }
+
+    const cacheHit = data.cache_hit_tokens || 0;
+    const cacheMiss = data.cache_miss_tokens || 0;
+    const outputTk = data.output_tokens || 0;
+    const totalTk = data.total_tokens || 0;
 
     resultDiv.innerHTML = `
       <div class="card">
         <h3>${escapeHtml(data.prefix)}... (${escapeHtml(data.name)})</h3>
         <div class="stat-row"><span class="stat-label">Plan</span><span class="stat-value">${escapeHtml(data.package || "N/A")}</span></div>
-        <div class="stat-row"><span class="stat-label">Status</span><span class="stat-value ${data.status === 'active' ? 'good' : 'bad'}">${data.status}</span></div>
+        <div class="stat-row"><span class="stat-label">Status</span><span class="stat-value ${statusClass}">${data.status}</span></div>
         <div class="stat-row"><span class="stat-label">Models</span><span class="stat-value">${modelsHtml || "N/A"}</span></div>
         <div class="stat-row"><span class="stat-label">Rate Limit</span><span class="stat-value">${data.rate_limit} RPM</span></div>
         <div class="stat-row"><span class="stat-label">Requests</span><span class="stat-value">${data.request_count}</span></div>
-        <div class="stat-row"><span class="stat-label">Total Quota</span><span class="stat-value">${qt > 0 ? qt.toLocaleString() : "unlimited"} tokens</span></div>
-        <div class="stat-row"><span class="stat-label">Used</span><span class="stat-value">${qu.toLocaleString()} tokens</span></div>
-        <div class="stat-row"><span class="stat-label">Remaining</span><span class="stat-value ${remainingClass}">${qt > 0 ? remaining.toLocaleString() : "unlimited"} tokens</span></div>
+        <div class="stat-row"><span class="stat-label">Paid</span><span class="stat-value">$${salePrice.toFixed(2)} ${escapeHtml(data.currency || 'USD')}</span></div>
+        <div class="stat-row"><span class="stat-label">API Budget</span><span class="stat-value">$${budget.toFixed(2)}</span></div>
+        <div class="stat-row"><span class="stat-label">Used Cost</span><span class="stat-value">$${usedCost.toFixed(6)}</span></div>
+        <div class="stat-row"><span class="stat-label">Remaining</span><span class="stat-value ${remainingClass}">$${remainingBudget.toFixed(6)}</span></div>
+        <div class="stat-row"><span class="stat-label">Cache Hits</span><span class="stat-value">${cacheHit.toLocaleString()} tk</span></div>
+        <div class="stat-row"><span class="stat-label">Cache Misses</span><span class="stat-value">${cacheMiss.toLocaleString()} tk</span></div>
+        <div class="stat-row"><span class="stat-label">Output</span><span class="stat-value">${outputTk.toLocaleString()} tk</span></div>
+        <div class="stat-row"><span class="stat-label">Total Tokens</span><span class="stat-value">${totalTk.toLocaleString()} tk</span></div>
         <div class="stat-row"><span class="stat-label">Last Used</span><span class="stat-value">${data.last_used || 'N/A'}</span></div>
-        ${qt > 0 ? '<div class="progress-bar"><div class="progress-fill" style="width:' + pct + '%;background:' + barColor + ';"></div></div>' : ''}
-        ${qt > 0 ? '<div style="font-size:0.75rem;color:#8b949e;margin-top:4px;">' + pct + '% used</div>' : ''}
+        ${budget > 0 ? '<div class="progress-bar"><div class="progress-fill" style="width:' + pct + '%;background:' + barColor + ';"></div></div>' : ''}
+        ${budget > 0 ? '<div style="font-size:0.75rem;color:#8b949e;margin-top:4px;">' + pct + '% budget used</div>' : ''}
       </div>
       ${lowWarning}
+      ${exhaustedWarning}
     `;
   } catch (e) {
     errorDiv.innerHTML = '<div class="error">Connection failed: ' + escapeHtml(e.message) + '</div>';

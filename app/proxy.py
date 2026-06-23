@@ -2,7 +2,7 @@ import json, httpx
 from fastapi import HTTPException
 from fastapi.responses import StreamingResponse, JSONResponse
 from .config import DEEPSEEK_API_KEY, DEEPSEEK_CHAT_URL, EXPOSE_REASONING_CONTENT
-from .database import log_usage, deduct_quota
+from .database import log_usage, deduct_upstream_cost, calculate_upstream_cost
 
 def _strip_reasoning(data):
     if EXPOSE_REASONING_CONTENT: return data
@@ -51,9 +51,10 @@ async def _psync(headers, body, timeout, key_info, model):
             raise HTTPException(502, detail=f"Upstream failed: {str(e)[:200]}")
         if r.status_code == 200:
             usage = data.get("usage",{})
-            log_usage(ki.get("id",0), ki.get("key_prefix","?"), model, usage, 200)
-            tt = usage.get("total_tokens",0)
-            if tt > 0 and ki.get("id"): deduct_quota(ki["id"], tt)
+            cost = calculate_upstream_cost(model, usage)
+            log_usage(ki.get("id",0), ki.get("key_prefix","?"), model, usage, 200, upstream_cost=cost)
+            if cost > 0 and ki.get("id"):
+                deduct_upstream_cost(ki["id"], cost)
             return JSONResponse(content=_strip_reasoning(data))
         else:
             em = data.get("error",{}).get("message", r.text[:500])
@@ -109,9 +110,9 @@ async def _ps(headers, body, timeout, key_info, model):
     import asyncio
     async def after():
         await asyncio.sleep(0)
-        log_usage(ki.get("id",0), ki.get("key_prefix","?"), model, ud, fs, em)
+        cost = calculate_upstream_cost(model, ud) if fs == 200 else 0.0
+        log_usage(ki.get("id",0), ki.get("key_prefix","?"), model, ud, fs, em, upstream_cost=cost)
         if fs == 200 and ki.get("id"):
-            tt = ud.get("total_tokens",0)
-            if tt > 0: deduct_quota(ki["id"], tt)
+            if cost > 0: deduct_upstream_cost(ki["id"], cost)
     resp.background = after
     return resp

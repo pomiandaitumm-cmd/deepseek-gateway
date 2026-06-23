@@ -15,6 +15,7 @@ async def verify_api_key(request: Request, credentials: HTTPAuthorizationCredent
     key_info = lookup_key(raw_key)
     if key_info is None: raise HTTPException(status_code=401, detail="Invalid API key")
     if key_info["status"] == "disabled": raise HTTPException(status_code=403, detail="API key has been disabled")
+    if key_info["status"] == "exhausted": raise HTTPException(status_code=402, detail="API budget exhausted. Purchase more quota to continue.")
     if key_info["status"] != "active": raise HTTPException(status_code=403, detail="API key is not active")
 
     limit = key_info.get("rate_limit_per_minute", 60)
@@ -22,7 +23,22 @@ async def verify_api_key(request: Request, credentials: HTTPAuthorizationCredent
         raise HTTPException(status_code=429, detail="Rate limit exceeded. Try again later.")
 
     if not check_quota(key_info):
-        raise HTTPException(status_code=402, detail="Token quota exceeded")
+        raise HTTPException(status_code=402, detail="API budget exhausted. Your key has been marked exhausted. Purchase more quota to continue.")
 
     touch_key(key_info["id"])
+    return key_info
+
+async def verify_key_light(request: Request, credentials: HTTPAuthorizationCredentials | None = Depends(security)) -> dict:
+    """Light auth: validates key + status, but skips quota check. Used by /usage endpoint."""
+    if credentials and credentials.credentials:
+        raw_key = credentials.credentials
+    else:
+        auth = request.headers.get("Authorization", "")
+        if auth.startswith("Bearer "): raw_key = auth[7:]
+        else: raise HTTPException(status_code=401, detail="Missing or invalid Authorization header")
+
+    key_info = lookup_key(raw_key)
+    if key_info is None: raise HTTPException(status_code=401, detail="Invalid API key")
+    if key_info["status"] == "disabled": raise HTTPException(status_code=403, detail="API key has been disabled")
+    if key_info["status"] not in ("active", "exhausted"): raise HTTPException(status_code=403, detail="API key is not active")
     return key_info

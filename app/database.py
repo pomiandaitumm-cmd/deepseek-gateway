@@ -151,28 +151,29 @@ def _seed_packages(conn):
     if existing == 0:
         now = now_utc()
         pkgs = [
-            ("Trial",      2000000,  30,  1.0,  "deepseek-v4-flash", "Quick test"),
-            ("Starter",    10000000,  30,  3.0,  "deepseek-v4-flash", "Personal projects"),
-            ("Standard",   20000000, 60,  6.0,  "deepseek-v4-flash", "Team / indie devs"),
-            ("Pro",        5000000, 30,  6.0, "deepseek-v4-flash,deepseek-v4-pro", "Production + reasoning"),
+            # (name, token_quota, rate_limit, price_usd, allowed_models, description, sale_price, upstream_budget, currency)
+            ("Trial",      2000000,  30,  1.0,  "deepseek-v4-flash", "Quick test. Pay $1.0, get $0.70 API budget.", 1.0, 0.70, "USD"),
+            ("Starter",    10000000,  30,  3.0,  "deepseek-v4-flash", "Personal projects. Pay $3.0, get $2.30 API budget.", 3.0, 2.30, "USD"),
+            ("Standard",   20000000, 60,  6.0,  "deepseek-v4-flash", "Team / indie devs. Pay $6.0, get $4.80 API budget.", 6.0, 4.80, "USD"),
+            ("Pro",        5000000, 30,  6.0, "deepseek-v4-flash,deepseek-v4-pro", "Production. Pay $6.0, get $3.80 API budget (pro costs more).", 6.0, 3.80, "USD"),
         ]
-        for name, quota, rl, price, models, desc in pkgs:
+        for name, quota, rl, price, models, desc, sale_price, upstream_budget, currency in pkgs:
             conn.execute(
-                "INSERT INTO packages (name,token_quota,rate_limit,price_usd,allowed_models,description,created_at) VALUES (?,?,?,?,?,?,?)",
-                (name, quota, rl, price, models, desc, now))
+                "INSERT INTO packages (name,token_quota,rate_limit,price_usd,allowed_models,description,sale_price,upstream_budget,currency,created_at) VALUES (?,?,?,?,?,?,?,?,?,?)",
+                (name, quota, rl, price, models, desc, sale_price, upstream_budget, currency, now))
         conn.commit()
-    elif existing == 4:
-        # Upgrade existing v0.3/v0.4 packages to v0.5 pricing
+    elif existing >= 4:
+        # Upgrade existing packages to v0.9 budget-based pricing
         upgrades = [
-            (1, "Trial",    2000000,  30,  1.0,  "deepseek-v4-flash", "Quick test"),
-            (2, "Starter",  10000000,  30,  3.0,  "deepseek-v4-flash", "Personal projects"),
-            (3, "Standard", 20000000, 60,  6.0,  "deepseek-v4-flash", "Team / indie devs"),
-            (4, "Pro",      5000000, 30,  6.0, "deepseek-v4-flash,deepseek-v4-pro", "Production + reasoning"),
+            (1, "Trial",    2000000,  30,  1.0,  "deepseek-v4-flash", "Quick test. Pay $1.0, get $0.70 API budget.", 1.0, 0.70, "USD"),
+            (2, "Starter",  10000000,  30,  3.0,  "deepseek-v4-flash", "Personal projects. Pay $3.0, get $2.30 API budget.", 3.0, 2.30, "USD"),
+            (3, "Standard", 20000000, 60,  6.0,  "deepseek-v4-flash", "Team / indie devs. Pay $6.0, get $4.80 API budget.", 6.0, 4.80, "USD"),
+            (4, "Pro",      5000000, 30,  6.0, "deepseek-v4-flash,deepseek-v4-pro", "Production. Pay $6.0, get $3.80 API budget (pro costs more).", 6.0, 3.80, "USD"),
         ]
-        for pid, name, quota, rl, price, models, desc in upgrades:
+        for pid, name, quota, rl, price, models, desc, sale_price, upstream_budget, currency in upgrades:
             conn.execute(
-                "UPDATE packages SET name=?, token_quota=?, rate_limit=?, price_usd=?, allowed_models=?, description=? WHERE id=?",
-                (name, quota, rl, price, models, desc, pid))
+                "UPDATE packages SET name=?, token_quota=?, rate_limit=?, price_usd=?, allowed_models=?, description=?, sale_price=?, upstream_budget=?, currency=? WHERE id=?",
+                (name, quota, rl, price, models, desc, sale_price, upstream_budget, currency, pid))
         conn.commit()
 
 def _migrate_add(conn, table, column, col_def):
@@ -180,6 +181,40 @@ def _migrate_add(conn, table, column, col_def):
     if column not in cols:
         conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {col_def}")
         conn.commit()
+
+
+
+# --- Pricing: per-token cost in USD (DeepSeek official rates) ---
+MODEL_PRICING = {
+    "deepseek-v4-flash": {
+        "cache_miss_input": 0.00000014,   # $0.14 / 1M tokens
+        "cache_hit_input":  0.000000014,  # $0.014 / 1M tokens
+        "output":           0.00000028,   # $0.28 / 1M tokens
+    },
+    "deepseek-v4-pro": {
+        "cache_miss_input": 0.00000027,   # $0.27 / 1M tokens
+        "cache_hit_input":  0.000000027,  # $0.027 / 1M tokens
+        "output":           0.00000087,   # $0.87 / 1M tokens
+    },
+}
+
+def calculate_upstream_cost(model, usage):
+    """Calculate upstream cost in USD from DeepSeek usage response.
+    Uses cache_hit_tokens, cache_miss_tokens, completion_tokens from usage."""
+    if not usage or not model:
+        return 0.0
+    pricing = MODEL_PRICING.get(model)
+    if not pricing:
+        # Fallback: use flash pricing
+        pricing = MODEL_PRICING["deepseek-v4-flash"]
+    prompt_tokens = usage.get("prompt_tokens", 0) or 0
+    cache_hit = usage.get("prompt_tokens_details", {}).get("cached_tokens", 0) or usage.get("prompt_cache_hit_tokens", 0) or 0
+    cache_miss = max(0, prompt_tokens - cache_hit)
+    completion = usage.get("completion_tokens", 0) or 0
+    cost = (cache_miss * pricing["cache_miss_input"] +
+            cache_hit * pricing["cache_hit_input"] +
+            completion * pricing["output"])
+    return round(cost, 8)
 
 def hash_key(key): return hashlib.sha256(key.encode()).hexdigest()
 def now_utc(): return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -196,16 +231,23 @@ def touch_key(key_id):
     conn.execute("UPDATE api_keys SET last_used_at=? WHERE id=?", (now_utc(), key_id))
     conn.commit(); conn.close()
 
-def log_usage(key_id, key_prefix, model, usage, status_code=200, error_message=None):
+def log_usage(key_id, key_prefix, model, usage, status_code=200, error_message=None, upstream_cost=0.0):
     conn = get_db()
+    prompt_tokens = usage.get("prompt_tokens", 0) if usage else 0
+    completion_tokens = usage.get("completion_tokens", 0) if usage else 0
+    total_tokens = usage.get("total_tokens", 0) if usage else 0
+    prompt_details = usage.get("prompt_tokens_details", {}) if usage else {}
+    cache_hit = prompt_details.get("cached_tokens", 0) or usage.get("prompt_cache_hit_tokens", 0) or 0 if usage else 0
+    cache_miss = max(0, prompt_tokens - cache_hit) if usage else 0
     conn.execute("""
         INSERT INTO usage_logs (api_key_id, key_prefix, model, provider,
-            prompt_tokens, completion_tokens, total_tokens, status_code, error_message, created_at)
-        VALUES (?,?,?,'deepseek',?,?,?,?,?,?)
+            prompt_tokens, completion_tokens, total_tokens,
+            cache_hit_tokens, cache_miss_tokens, upstream_cost,
+            status_code, error_message, created_at)
+        VALUES (?,?,?,'deepseek',?,?,?,?,?,?,?,?,?)
     """, (key_id, key_prefix, model,
-        usage.get("prompt_tokens",0) if usage else 0,
-        usage.get("completion_tokens",0) if usage else 0,
-        usage.get("total_tokens",0) if usage else 0,
+        prompt_tokens, completion_tokens, total_tokens,
+        cache_hit, cache_miss, upstream_cost,
         status_code, error_message, now_utc()))
     conn.commit(); conn.close()
 
@@ -219,12 +261,17 @@ def check_rate_limit(key_id, limit_per_minute):
 
 
 def get_key_usage(key_id):
-    """Return usage stats for a given key_id."""
+    """Return usage stats for a given key_id with budget-based metrics."""
     conn = get_db()
     row = conn.execute("""
         SELECT k.key_prefix, k.name, k.status, k.token_quota_total, k.token_quota_used,
+               k.upstream_budget, k.upstream_cost_used, k.sale_price, k.currency,
                k.rate_limit_per_minute, k.last_used_at, k.allowed_models, k.package_name,
-               COUNT(l.id) as req_count
+               COUNT(l.id) as req_count,
+               SUM(l.cache_hit_tokens) as total_cache_hit,
+               SUM(l.cache_miss_tokens) as total_cache_miss,
+               SUM(l.completion_tokens) as total_output,
+               SUM(l.total_tokens) as total_all_tokens
         FROM api_keys k
         LEFT JOIN usage_logs l ON l.api_key_id = k.id
         WHERE k.id = ?
@@ -233,20 +280,31 @@ def get_key_usage(key_id):
     conn.close()
     if not row:
         return None
-    qt = row["token_quota_total"] or 0
-    qu = row["token_quota_used"] or 0
+    budget = row["upstream_budget"] or 0
+    used_cost = row["upstream_cost_used"] or 0
+    remaining = max(0, budget - used_cost)
     return {
         "prefix": row["key_prefix"],
         "name": row["name"],
         "status": row["status"],
-        "total_quota": qt if qt > 0 else 0,
-        "used_quota": qu,
-        "remaining_quota": max(0, qt - qu),
+        "sale_price": row["sale_price"] or 0,
+        "currency": row["currency"] or "USD",
+        "upstream_budget": budget,
+        "used_upstream_cost": round(used_cost, 8),
+        "remaining_budget": round(remaining, 8),
         "request_count": row["req_count"],
         "last_used": row["last_used_at"],
         "rate_limit": row["rate_limit_per_minute"],
         "allowed_models": (row["allowed_models"] or "deepseek-v4-flash").split(","),
         "package": row["package_name"] or "",
+        "cache_hit_tokens": row["total_cache_hit"] or 0,
+        "cache_miss_tokens": row["total_cache_miss"] or 0,
+        "output_tokens": row["total_output"] or 0,
+        "total_tokens": row["total_all_tokens"] or 0,
+        # Legacy fields for backward compat
+        "total_quota": row["token_quota_total"] or 0,
+        "used_quota": row["token_quota_used"] or 0,
+        "remaining_quota": max(0, (row["token_quota_total"] or 0) - (row["token_quota_used"] or 0)),
     }
 
 def create_order(customer_email, telegram_or_discord, use_case, expected_daily_tokens, package_id, source="", ref=""):
@@ -388,7 +446,7 @@ def approve_order(order_id):
     Accepts pending or paid orders."""
     import secrets, string, hashlib
     conn = get_db()
-    order = conn.execute("SELECT o.*, p.token_quota, p.rate_limit, p.name as pkg_name, p.allowed_models, c.email as customer_name "
+    order = conn.execute("SELECT o.*, p.token_quota, p.rate_limit, p.name as pkg_name, p.allowed_models, p.sale_price, p.upstream_budget, p.currency, c.email as customer_name "
                          "FROM orders o JOIN packages p ON p.id=o.package_id JOIN customers c ON c.id=o.customer_id "
                          "WHERE o.id=?", (order_id,)).fetchone()
     if not order:
@@ -404,8 +462,11 @@ def approve_order(order_id):
     now = now_utc()
     allowed = order["allowed_models"] if order["allowed_models"] else "deepseek-v4-flash"
     pkg_name = order["pkg_name"] if order["pkg_name"] else ""
-    conn.execute("INSERT INTO api_keys (key_hash,key_prefix,name,status,rate_limit_per_minute,token_quota_total,allowed_models,package_name,created_at) VALUES (?,?,?,'active',?,?,?,?,?)",
-                 (kh, kp, order["customer_name"], order["rate_limit"], order["token_quota"], allowed, pkg_name, now))
+    sale_price = order["sale_price"] if order["sale_price"] else order["price_usd"] or 0
+    upstream_budget = order["upstream_budget"] if order["upstream_budget"] else 0
+    currency = order["currency"] if order["currency"] else "USD"
+    conn.execute("INSERT INTO api_keys (key_hash,key_prefix,name,status,rate_limit_per_minute,token_quota_total,allowed_models,package_name,sale_price,upstream_budget,currency,created_at) VALUES (?,?,?,'active',?,?,?,?,?,?,?,?)",
+                 (kh, kp, order["customer_name"], order["rate_limit"], order["token_quota"], allowed, pkg_name, sale_price, upstream_budget, currency, now))
     conn.execute("UPDATE orders SET status='approved', key_prefix=?, issued_key=?, approved_at=? WHERE id=?",
                  (kp, fk, now, order_id))
     conn.commit()
@@ -417,19 +478,45 @@ def approve_order(order_id):
         "full_key": fk,
         "name": order["customer_name"],
         "token_quota": order["token_quota"],
+        "upstream_budget": upstream_budget,
+        "sale_price": sale_price,
+        "currency": currency,
         "rate_limit": order["rate_limit"],
     }, None
 
 def check_quota(key_info):
-    total = key_info.get("token_quota_total", 0)
-    used = key_info.get("token_quota_used", 0)
-    if total == 0 or total is None: return True
-    return used < total
+    """Check if key has remaining upstream budget. Returns True if can proceed."""
+    budget = key_info.get("upstream_budget", 0) or 0
+    if budget == 0:
+        # Fallback to legacy token quota for backward compat
+        total = key_info.get("token_quota_total", 0) or 0
+        used = key_info.get("token_quota_used", 0) or 0
+        if total == 0: return True
+        return used < total
+    used_cost = key_info.get("upstream_cost_used", 0) or 0
+    remaining = budget - used_cost
+    if remaining <= 0:
+        # Mark key as exhausted if not already
+        conn = get_db()
+        conn.execute("UPDATE api_keys SET status='exhausted' WHERE id=? AND status='active'", (key_info["id"],))
+        conn.commit(); conn.close()
+        return False
+    return True
 
 def deduct_quota(key_id, tokens):
+    """Legacy: deduct token quota. Kept for backward compat."""
     if tokens <= 0: return
     conn = get_db()
     conn.execute("UPDATE api_keys SET token_quota_used=token_quota_used+? WHERE id=?", (tokens, key_id))
+    conn.commit(); conn.close()
+
+def deduct_upstream_cost(key_id, cost):
+    """Deduct upstream_cost from key's upstream_budget."""
+    if cost <= 0: return
+    conn = get_db()
+    conn.execute("UPDATE api_keys SET upstream_cost_used=upstream_cost_used+? WHERE id=?", (cost, key_id))
+    # Also update legacy token_quota for backward compat
+    conn.execute("UPDATE api_keys SET token_quota_used=token_quota_used+? WHERE id=?", (int(cost * 1000000), key_id))
     conn.commit(); conn.close()
 
 def get_lead_stats():

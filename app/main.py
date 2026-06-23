@@ -1,7 +1,7 @@
 ﻿from fastapi import FastAPI, Request, HTTPException, Depends, Query
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
-from .auth import verify_api_key
+from .auth import verify_api_key, verify_key_light
 from .proxy import proxy_chat_completions
 from .config import EXPOSED_MODELS
 from .paypal import (
@@ -25,7 +25,7 @@ app = FastAPI(title="DeepSeek API Gateway", version="0.8.0")
 
 
 @app.get("/v1/models")
-async def list_models(key_info: dict = Depends(verify_api_key)):
+async def list_models(key_info: dict = Depends(verify_key_light)):
     """Return list of models available for this key (based on plan)."""
     conn = get_db()
     row = conn.execute("SELECT allowed_models FROM api_keys WHERE id=?", (key_info["id"],)).fetchone()
@@ -71,7 +71,7 @@ async def chat_completions(request: Request, key_info: dict = Depends(verify_api
 
 
 @app.get("/v1/key/usage")
-async def key_usage(key_info: dict = Depends(verify_api_key)):
+async def key_usage(key_info: dict = Depends(verify_key_light)):
     """Return usage stats for the authenticated API key."""
     usage = get_key_usage(key_info["id"])
     if usage is None:
@@ -84,7 +84,7 @@ async def list_all_packages():
     """Return available packages with pricing (public endpoint)."""
     conn = get_db()
     rows = conn.execute(
-        "SELECT id, name, token_quota, rate_limit, price_usd, allowed_models, description FROM packages WHERE is_active=1 ORDER BY id"
+        "SELECT id, name, token_quota, rate_limit, price_usd, sale_price, upstream_budget, currency, allowed_models, description FROM packages WHERE is_active=1 ORDER BY id"
     ).fetchall()
     conn.close()
     pkgs = []

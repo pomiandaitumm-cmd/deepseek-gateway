@@ -54,49 +54,56 @@
   <div class="pricing-grid" id="plan-grid">
     <div class="plan">
       <h3>Trial</h3>
-      <div class="price">$1</div>
+      <div class="price">$1.0</div>
       <div class="price-note">one-time</div>
-      <div class="tokens">2M tokens</div>
+      <div class="budget-label">API Budget</div>
+      <div class="budget">$0.70</div>
       <div class="spec"><strong>Model:</strong> deepseek-v4-flash</div>
       <div class="spec"><strong>Rate:</strong> 30 RPM</div>
-      <div class="desc">Quick test. Verify compatibility with your app before committing.</div>
+      <div class="desc">Quick test. Billed by actual usage. Cache hits save you money.</div>
       <a class="apply-btn" href="/checkout.html?plan=Trial">Buy Now</a>
     </div>
     <div class="plan featured">
       <h3>Starter <span class="badge badge-popular">Popular</span></h3>
-      <div class="price">$3</div>
+      <div class="price">$3.0</div>
       <div class="price-note">one-time</div>
-      <div class="tokens">10M tokens</div>
+      <div class="budget-label">API Budget</div>
+      <div class="budget">$2.30</div>
       <div class="spec"><strong>Model:</strong> deepseek-v4-flash</div>
       <div class="spec"><strong>Rate:</strong> 30 RPM</div>
-      <div class="desc">Personal projects, small bots, SillyTavern. Enough for daily use.</div>
+      <div class="desc">Personal projects, small bots. Budget-based billing per token.</div>
       <a class="apply-btn" href="/checkout.html?plan=Starter">Buy Now</a>
     </div>
     <div class="plan">
       <h3>Standard</h3>
-      <div class="price">$6</div>
+      <div class="price">$6.0</div>
       <div class="price-note">one-time</div>
-      <div class="tokens">20M tokens</div>
+      <div class="budget-label">API Budget</div>
+      <div class="budget">$4.80</div>
       <div class="spec"><strong>Model:</strong> deepseek-v4-flash</div>
       <div class="spec"><strong>Rate:</strong> 60 RPM</div>
-      <div class="desc">Indie devs, team tools, higher throughput. Double the rate limit.</div>
+      <div class="desc">Indie devs, team tools. Double rate limit + higher budget.</div>
       <a class="apply-btn" href="/checkout.html?plan=Standard">Buy Now</a>
     </div>
     <div class="plan">
       <h3>Pro</h3>
-      <div class="price">$6</div>
+      <div class="price">$6.0</div>
       <div class="price-note">one-time</div>
-      <div class="tokens">5M tokens</div>
+      <div class="budget-label">API Budget</div>
+      <div class="budget">$3.80</div>
       <div class="spec"><strong>Models:</strong> flash + pro</div>
       <div class="spec"><strong>Rate:</strong> 30 RPM</div>
-      <div class="desc">Production workloads. Access deepseek-v4-pro for reasoning-heavy tasks. 5M tokens.</div>
+      <div class="desc">Production + reasoning. deepseek-v4-pro costs more per token.</div>
       <a class="apply-btn" href="/checkout.html?plan=Pro">Buy Now</a>
     </div>
   </div>
 
   <div class="disclaimer">
-    <strong>Alpha Phase</strong> &mdash; This is an <strong>independent third-party gateway</strong>, not an official DeepSeek service.<br>
-    Manual payment confirmation during alpha. Prices may change. All plans include OpenAI-compatible endpoint, streaming, and usage dashboard.
+    <strong>Budget-Based Billing</strong> &mdash; You purchase an API budget (USD). Each request deducts from your budget based on
+    real DeepSeek token pricing: input cache-miss <span class="cost-label">$0.14/M</span>,
+    input cache-hit <span class="cost-label">$0.014/M</span>, output <span class="cost-label">$0.28/M</span>.
+    Pro model costs more. Cache hits are <strong>10x cheaper</strong> &mdash; use system prompts to save.<br>
+    <strong>Third-party gateway</strong>, not an official DeepSeek service. Prices may change.
   </div>
 </div>
 </body>

@@ -104,15 +104,15 @@ const params = new URLSearchParams(window.location.search);
 const PLAN = params.get("plan") || "Trial";
 
 const PLAN_INFO = {
-  "Trial":    { tokens: "2M", price: "$1", models: "deepseek-v4-flash" },
-  "Starter":  { tokens: "10M", price: "$3", models: "deepseek-v4-flash" },
-  "Standard": { tokens: "20M", price: "$6", models: "deepseek-v4-flash" },
-  "Pro":      { tokens: "5M", price: "$6", models: "flash + pro" },
+  "Trial":    { budget: "$0.70", price: "$1.0", models: "deepseek-v4-flash" },
+  "Starter":  { budget: "$2.30", price: "$3.0", models: "deepseek-v4-flash" },
+  "Standard": { budget: "$4.80", price: "$6.0", models: "deepseek-v4-flash" },
+  "Pro":      { budget: "$3.80", price: "$6.0", models: "flash + pro" },
 };
 
 const info = PLAN_INFO[PLAN] || PLAN_INFO["Trial"];
 document.getElementById("preview-plan").textContent = PLAN;
-document.getElementById("preview-tokens").textContent = info.tokens;
+document.getElementById("preview-tokens").textContent = info.budget;
 document.getElementById("preview-models").textContent = info.models;
 document.getElementById("preview-price").textContent = info.price;
 
@@ -209,7 +209,7 @@ function renderPayPalButtons(currency) {
         document.getElementById("step-form").classList.add("hidden");
         document.getElementById("approved-key").textContent = result.full_key || "See order status page.";
         document.getElementById("approved-plan").textContent = PLAN;
-        document.getElementById("approved-quota").textContent = (result.token_quota || 0).toLocaleString();
+        document.getElementById("approved-quota").textContent = "$" + (result.upstream_budget || 0).toFixed(2) + " budget";
         document.getElementById("approved-models").textContent = info.models;
         document.getElementById("step-approved").classList.remove("hidden");
       } catch(e) {

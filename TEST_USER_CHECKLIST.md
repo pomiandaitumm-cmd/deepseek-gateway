@@ -44,13 +44,13 @@ Template message:
 ```
 Here's your test key:
 
-Base URL: http://65.49.201.211/v1
+Base URL: http://modelrelayapis.cc/v1
 API Key: sk-gateway-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 Model: deepseek-v4-flash
 Rate Limit: 30 req/min
 Test Tokens: 100,000
 
-Usage guide: http://65.49.201.211/
+Usage guide: http://modelrelayapis.cc/
 (Customer doc also at the /v1 base path)
 
 This is an invite-only alpha. Domain + HTTPS coming soon.

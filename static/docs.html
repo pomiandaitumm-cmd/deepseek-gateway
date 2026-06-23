@@ -67,7 +67,7 @@
 <pre><code>from openai import OpenAI
 
 client = OpenAI(
-    base_url="http://65.49.201.211/v1",
+    base_url="http://modelrelayapis.cc/v1",
     api_key="sk-gateway-YOUR-KEY",
 )
 
@@ -88,7 +88,7 @@ for chunk in stream:
         print(chunk.choices[0].delta.content, end="")</code></pre>
 
 <h2>4. curl Example</h2>
-<pre><code>curl http://65.49.201.211/v1/chat/completions \
+<pre><code>curl http://modelrelayapis.cc/v1/chat/completions \
   -H "Authorization: Bearer sk-gateway-YOUR-KEY" \
   -H "Content-Type: application/json" \
   -d '{"model":"deepseek-v4-flash","messages":[{"role":"user","content":"Hello"}],"max_tokens":100}'</code></pre>
@@ -126,7 +126,7 @@ for chunk in stream:
 <ol>
 <li>Open SillyTavern, go to <strong>API Connections</strong>.</li>
 <li>Select <strong>OpenAI Compatible</strong> as the API type.</li>
-<li>Set <strong>Base URL</strong> to: <code>http://65.49.201.211/v1</code></li>
+<li>Set <strong>Base URL</strong> to: <code>http://modelrelayapis.cc/v1</code></li>
 <li>Set <strong>API Key</strong> to your <code>sk-gateway-xxx</code> key.</li>
 <li>Set <strong>Model</strong> to <code>deepseek-v4-flash</code> (or <code>deepseek-v4-pro</code> if you have Pro).</li>
 <li>Save and test the connection.</li>
@@ -171,7 +171,7 @@ Payments are processed by PayPal. Prices may change. Do not share your API key.
 <pre><code>from openai import OpenAI
 
 client = OpenAI(
-    base_url="http://65.49.201.211/v1",
+    base_url="http://modelrelayapis.cc/v1",
     api_key="sk-gateway-YOUR-KEY",
 )
 
@@ -192,7 +192,7 @@ for chunk in stream:
         print(chunk.choices[0].delta.content, end="")</code></pre>
 
 <h2>4. curl 示例</h2>
-<pre><code>curl http://65.49.201.211/v1/chat/completions \
+<pre><code>curl http://modelrelayapis.cc/v1/chat/completions \
   -H "Authorization: Bearer sk-gateway-YOUR-KEY" \
   -H "Content-Type: application/json" \
   -d '{"model":"deepseek-v4-flash","messages":[{"role":"user","content":"你好"}],"max_tokens":100}'</code></pre>
@@ -230,7 +230,7 @@ for chunk in stream:
 <ol>
 <li>打开 SillyTavern，进入<strong>API 连接</strong>设置。</li>
 <li>API 类型选择 <strong>OpenAI Compatible</strong>。</li>
-<li><strong>Base URL</strong> 填：<code>http://65.49.201.211/v1</code></li>
+<li><strong>Base URL</strong> 填：<code>http://modelrelayapis.cc/v1</code></li>
 <li><strong>API Key</strong> 填你的 <code>sk-gateway-xxx</code> key。</li>
 <li><strong>Model</strong> 填 <code>deepseek-v4-flash</code>（专业版用户可填 <code>deepseek-v4-pro</code>）。</li>
 <li>保存并测试连接。</li>

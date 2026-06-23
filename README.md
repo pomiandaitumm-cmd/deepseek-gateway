@@ -3,7 +3,7 @@
 OpenAI-compatible API Gateway for DeepSeek models. Managed access with per-key quotas, rate limiting, and usage tracking.
 
 **Status:** Alpha ? Invite Only
-**Base URL:** http://65.49.201.211/v1
+**Base URL:** http://modelrelayapis.cc/v1
 **Domain + HTTPS:** Pending
 
 ## Features
@@ -44,7 +44,7 @@ OpenAI-compatible API Gateway for DeepSeek models. Managed access with per-key q
 from openai import OpenAI
 
 client = OpenAI(
-    base_url="http://65.49.201.211/v1",
+    base_url="http://modelrelayapis.cc/v1",
     api_key="sk-gateway-YOUR-KEY",
 )
 

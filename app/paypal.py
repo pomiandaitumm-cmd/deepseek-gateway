@@ -11,7 +11,7 @@ PAYPAL_MODE = os.getenv("PAYPAL_MODE", "sandbox").lower()
 PAYPAL_CLIENT_ID = os.getenv("PAYPAL_CLIENT_ID", "")
 PAYPAL_CLIENT_SECRET = os.getenv("PAYPAL_CLIENT_SECRET", "")
 PAYPAL_CURRENCY = os.getenv("PAYPAL_CURRENCY", "USD")
-SITE_BASE_URL = os.getenv("SITE_BASE_URL", "http://65.49.201.211")
+SITE_BASE_URL = os.getenv("SITE_BASE_URL", "http://modelrelayapis.cc")
 
 SANDBOX_API = "https://api-m.sandbox.paypal.com"
 LIVE_API = "https://api-m.paypal.com"

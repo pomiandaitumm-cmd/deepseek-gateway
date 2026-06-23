@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -23,12 +23,9 @@ input:focus,select:focus{outline:none;border-color:#58a6ff}
 .order-summary .row{display:flex;justify-content:space-between;padding:6px 0;font-size:0.9rem}
 .order-summary .row .label{color:#8b949e}
 .order-summary .row .value{color:#f0f6fc;font-weight:600}
-.payment-box{background:#0d1117;border:2px solid #58a6ff;border-radius:8px;padding:20px;margin:20px 0}
-.payment-box .addr{font-family:"SF Mono","Consolas",monospace;font-size:0.8rem;word-break:break-all;color:#58a6ff;padding:8px;background:#161b22;border-radius:4px;margin:8px 0}
-.payment-box .amount{font-size:2rem;font-weight:700;color:#f0f6fc;text-align:center;margin:12px 0}
-.payment-box .countdown{text-align:center;font-size:0.9rem;color:#f85149;margin:8px 0}
-.warning{background:#f8514911;border:1px solid #f8514944;border-radius:6px;padding:12px;margin:16px 0;font-size:0.82rem;color:#f85149}
-.warning strong{display:block;margin-bottom:4px}
+.paypal-notice{background:#0d1117;border:2px solid #58a6ff;border-radius:8px;padding:20px;margin:20px 0}
+.paypal-notice .notice-title{font-size:1rem;color:#58a6ff;font-weight:600;margin-bottom:8px}
+.paypal-notice p{font-size:0.88rem;color:#8b949e;margin:6px 0}
 .status-badge{display:inline-block;padding:4px 12px;border-radius:12px;font-size:0.8rem;font-weight:600}
 .badge-pending{background:#d2992211;color:#d29922}
 .badge-paid{background:#1f6feb22;color:#58a6ff}
@@ -62,36 +59,29 @@ a:hover{text-decoration:underline}
       <label for="email">Email address</label>
       <input type="email" id="email" placeholder="you@example.com" required>
     </div>
-    <button class="btn" id="btn-create" onclick="createOrder()">Create Order &amp; Get Payment Address</button>
+    <button class="btn" id="btn-create" onclick="createOrder()">Create Order</button>
     <div id="form-error" style="color:#f85149;margin-top:8px;font-size:0.85rem" class="hidden"></div>
   </div>
 </div>
 
-<!-- Step 2: Payment -->
-<div id="step-payment" class="hidden">
+<!-- Step 2: Order Created — Waiting -->
+<div id="step-waiting" class="hidden">
   <div class="card">
-    <h2>Send Payment</h2>
-    <div class="order-summary">
-      <div class="row"><span class="label">Order ID</span><span class="value" id="pay-order-id">—</span></div>
-      <div class="row"><span class="label">Plan</span><span class="value" id="pay-plan">—</span></div>
-      <div class="row"><span class="label">Tokens</span><span class="value" id="pay-tokens">—</span></div>
+    <h2>Order Created</h2>
+    <span class="status-badge badge-pending">Pending</span>
+    <div class="order-summary" style="margin-top:12px">
+      <div class="row"><span class="label">Order ID</span><span class="value" id="wait-order-id">—</span></div>
+      <div class="row"><span class="label">Plan</span><span class="value" id="wait-plan">—</span></div>
+      <div class="row"><span class="label">Tokens</span><span class="value" id="wait-tokens">—</span></div>
     </div>
-    <div class="payment-box">
-      <div style="text-align:center;color:#8b949e;font-size:0.85rem">Send exactly</div>
-      <div class="amount" id="pay-amount">—</div>
-      <div style="text-align:center;color:#8b949e;font-size:0.8rem">USDT on TRC20 network</div>
-      <div style="text-align:center;color:#8b949e;font-size:0.78rem;margin-top:4px">to address:</div>
-      <div class="addr" id="pay-address">—</div>
-      <div class="countdown" id="pay-countdown">—</div>
+    <div class="paypal-notice">
+      <div class="notice-title">PayPal Payment</div>
+      <p>PayPal payment is being enabled.</p>
+      <p>Please submit your order first. We will send you a PayPal invoice or payment link after review.</p>
+      <p style="margin-top:8px;font-size:0.8rem;color:#8b949e;">(Chinese: PayPal 收款正在开通中。请先提交订单。审核后我们会通过 PayPal 账单或付款链接联系你付款。)</p>
     </div>
-    <div class="warning">
-      <strong>Important:</strong>
-      Send exact amount only. TRC20 USDT only.<br>
-      Do not send other tokens or other networks.<br>
-      Your key will appear here automatically after payment is confirmed.
-    </div>
-    <div id="pay-status" style="text-align:center;font-size:0.9rem;color:#8b949e">
-      Checking for payment...
+    <div id="wait-status" style="text-align:center;font-size:0.9rem;color:#8b949e">
+      Waiting for review...
     </div>
   </div>
 </div>
@@ -150,7 +140,6 @@ document.getElementById("preview-price").textContent = info.price;
 
 let orderData = null;
 let pollTimer = null;
-let countdownTimer = null;
 
 function showError(msg) {
   const el = document.getElementById("form-error");
@@ -174,46 +163,24 @@ async function createOrder() {
       body: JSON.stringify({ email, plan: PLAN, source: "web" })
     });
     const data = await resp.json();
-    if (!resp.ok) { showError(data.detail || "Failed to create order"); btn.disabled = false; btn.textContent = "Create Order & Get Payment Address"; return; }
+    if (!resp.ok) { showError(data.detail || "Failed to create order"); btn.disabled = false; btn.textContent = "Create Order"; return; }
 
     orderData = data;
     document.getElementById("step-form").classList.add("hidden");
-    showPayment(data);
+    showWaiting(data);
+    startPolling(data.order_id, email);
   } catch(e) {
     showError("Network error. Please try again.");
     btn.disabled = false;
-    btn.textContent = "Create Order & Get Payment Address";
+    btn.textContent = "Create Order";
   }
 }
 
-function showPayment(data) {
-  document.getElementById("step-payment").classList.remove("hidden");
-  document.getElementById("pay-order-id").textContent = "#" + data.order_id;
-  document.getElementById("pay-plan").textContent = data.plan;
-  document.getElementById("pay-tokens").textContent = (data.token_quota / 1000000).toFixed(0) + "M";
-  document.getElementById("pay-amount").textContent = data.expected_amount + " USDT";
-  document.getElementById("pay-address").textContent = data.payment_address;
-
-  startCountdown(data.expires_at);
-  startPolling(data.order_id, data.email || document.getElementById("email").value.trim());
-}
-
-function startCountdown(expiresAt) {
-  function update() {
-    const now = Date.now();
-    const end = new Date(expiresAt + "Z").getTime();
-    const diff = end - now;
-    if (diff <= 0) {
-      document.getElementById("pay-countdown").textContent = "EXPIRED";
-      clearInterval(countdownTimer);
-      return;
-    }
-    const m = Math.floor(diff / 60000);
-    const s = Math.floor((diff % 60000) / 1000);
-    document.getElementById("pay-countdown").textContent = `Time remaining: ${m}:${String(s).padStart(2,"0")}`;
-  }
-  update();
-  countdownTimer = setInterval(update, 1000);
+function showWaiting(data) {
+  document.getElementById("step-waiting").classList.remove("hidden");
+  document.getElementById("wait-order-id").textContent = "#" + data.order_id;
+  document.getElementById("wait-plan").textContent = data.plan;
+  document.getElementById("wait-tokens").textContent = (data.token_quota / 1000000).toFixed(0) + "M";
 }
 
 function startPolling(orderId, email) {
@@ -223,34 +190,31 @@ function startPolling(orderId, email) {
       .then(data => {
         if (data.status === "approved") {
           clearInterval(pollTimer);
-          clearInterval(countdownTimer);
-          document.getElementById("step-payment").classList.add("hidden");
-          if (data.full_key) {
-            document.getElementById("approved-key").textContent = data.full_key;
-          } else {
-            document.getElementById("approved-key").textContent = "Check order status page for your API key.";
-          }
-          document.getElementById("approved-plan").textContent = data.selected_plan || "—";
-          document.getElementById("approved-quota").textContent = (data.quota || 0).toLocaleString();
-          document.getElementById("approved-models").textContent = (data.allowed_models || []).join(", ");
-          document.getElementById("approved-rpm").textContent = (data.rate_limit || "—") + " RPM";
-          document.getElementById("step-approved").classList.remove("hidden");
-          document.getElementById("pay-status").textContent = "Payment confirmed! Key ready.";
+          document.getElementById("step-waiting").classList.add("hidden");
+          showApproved(data);
         } else if (data.status === "paid") {
-          document.getElementById("pay-status").textContent = "Payment received. Generating your API key...";
+          document.getElementById("wait-status").textContent = "Payment received. Generating your API key...";
         } else if (data.status === "expired") {
           clearInterval(pollTimer);
-          clearInterval(countdownTimer);
-          document.getElementById("step-payment").classList.add("hidden");
+          document.getElementById("step-waiting").classList.add("hidden");
           document.getElementById("step-expired").classList.remove("hidden");
         } else {
-          document.getElementById("pay-status").textContent = "Waiting for payment confirmation...";
+          document.getElementById("wait-status").textContent = "Waiting for review...";
         }
       })
-      .catch(() => { document.getElementById("pay-status").textContent = "Checking..."; });
+      .catch(() => { document.getElementById("wait-status").textContent = "Checking..."; });
   }
   poll();
   pollTimer = setInterval(poll, 10000);
+}
+
+function showApproved(data) {
+  document.getElementById("step-approved").classList.remove("hidden");
+  document.getElementById("approved-key").textContent = data.full_key || "Check order status page for your API key.";
+  document.getElementById("approved-plan").textContent = data.selected_plan || "—";
+  document.getElementById("approved-quota").textContent = (data.quota || 0).toLocaleString();
+  document.getElementById("approved-models").textContent = (data.allowed_models || []).join(", ");
+  document.getElementById("approved-rpm").textContent = (data.rate_limit || "—") + " RPM";
 }
 </script>
 </body>

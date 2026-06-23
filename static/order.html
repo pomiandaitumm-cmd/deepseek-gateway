@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Order Status &mdash; DeepSeek Gateway</title>
+<title>Order Status — DeepSeek Gateway</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -38,6 +38,10 @@
   .badge-paid { background: #1f6feb22; color: #58a6ff; }
   .badge-approved { background: #3fb95022; color: #3fb950; }
   .badge-rejected { background: #f8514922; color: #f85149; }
+  .paypal-notice {
+    background: #0d1117; border: 1px solid #58a6ff44; border-radius: 6px; padding: 12px 16px;
+    font-size: 0.85rem; color: #58a6ff; margin: 8px 0;
+  }
   .key-box {
     background: #0d1117; border: 1px solid #3fb95044; border-radius: 6px; padding: 12px 16px;
     font-family: "SF Mono", "Fira Code", monospace; font-size: 0.85rem; color: #3fb950;
@@ -129,7 +133,7 @@ function renderStatus(data) {
   let html = `<div class="status-card">
     <h3>Order #${data.order_id} <span class="status-badge ${badgeClass}">${status.toUpperCase()}</span></h3>
     <div class="row"><span class="label">Plan</span><span class="value">${escapeHtml(data.selected_plan || "")}</span></div>
-    <div class="row"><span class="label">Price</span><span class="value">$${data.price_usd || "0"} (${data.expected_amount || "?"} USDT)</span></div>
+    <div class="row"><span class="label">Price</span><span class="value">$${data.price_usd || "0"}</span></div>
     <div class="row"><span class="label">Token Quota</span><span class="value">${(data.quota || 0).toLocaleString()}</span></div>
     <div class="row"><span class="label">Allowed Models</span><span class="value">${escapeHtml(models)}</span></div>
     <div class="row"><span class="label">Rate Limit</span><span class="value">${data.rate_limit} RPM</span></div>
@@ -138,18 +142,17 @@ function renderStatus(data) {
 
   if (status === "pending" && data.payment_status !== "paid") {
     html += `</div>
-      <div class="status-card" style="margin-top:12px;border-color:#d2992244;">
-        <h3 style="color:#d29922;">Payment Required</h3>
-        <div class="row"><span class="label">Network</span><span class="value">${escapeHtml(data.payment_network || "TRC20")} ${escapeHtml(data.payment_token || "USDT")}</span></div>
-        <div class="row"><span class="label">Amount</span><span class="value" style="color:#f0f6fc;font-weight:700;">${data.expected_amount} USDT</span></div>
-        <div class="row"><span class="label">Address</span><span class="value" style="font-family:monospace;font-size:0.78rem;word-break:break-all;color:#58a6ff;">${escapeHtml(data.payment_address || "")}</span></div>
-        <div class="row"><span class="label">Expires</span><span class="value" style="color:#f85149;">${formatExpiry(data.expires_at)}</span></div>
-        <div style="margin-top:8px;font-size:0.82rem;color:#f85149;">
-          <strong>Send exact amount. Do not send other tokens or networks.</strong>
-        </div>
-        <div style="margin-top:4px;font-size:0.78rem;color:#8b949e;" id="poll-status">
-          Auto-refreshing every 10s...
-        </div>
+      <div class="paypal-notice" style="margin-top:12px;">
+        <strong>PayPal Payment — Waiting</strong>
+        <p style="margin:4px 0;font-size:0.82rem;color:#8b949e;">
+          PayPal payment is being enabled. After review we will send you a PayPal invoice or payment link.
+        </p>
+        <p style="margin:4px 0;font-size:0.78rem;color:#8b949e;">
+          (PayPal 收款正在开通中。审核后我们会通过 PayPal 账单或付款链接联系你付款。)
+        </p>
+      </div>
+      <div style="margin-top:4px;font-size:0.78rem;color:#8b949e;" id="poll-status">
+        Auto-refreshing every 10s...
       </div>`;
     // Start auto-polling for pending orders
     startAutoPoll(document.getElementById("order-id").value, document.getElementById("email").value);
@@ -207,7 +210,7 @@ function renderStatus(data) {
 let autoPollTimer = null;
 
 function startAutoPoll(orderId, email) {
-  if (autoPollTimer) return; // already polling
+  if (autoPollTimer) { clearInterval(autoPollTimer); autoPollTimer = null; }
   autoPollTimer = setInterval(() => {
     const statusEl = document.getElementById("poll-status");
     if (statusEl) statusEl.textContent = "Refreshing...";
@@ -232,24 +235,10 @@ function startAutoPoll(orderId, email) {
   }, 10000);
 }
 
-function formatExpiry(expiresAt) {
-  if (!expiresAt) return "?";
-  try {
-    const d = new Date(expiresAt + "Z");
-    const now = Date.now();
-    const diff = d.getTime() - now;
-    if (diff <= 0) return "EXPIRED";
-    const m = Math.floor(diff / 60000);
-    const s = Math.floor((diff % 60000) / 1000);
-    if (m > 0) return m + "m " + s + "s";
-    return s + "s";
-  } catch(e) { return expiresAt; }
-}
-
-
 function escapeHtml(str) {
+  if (!str) return "";
   const div = document.createElement("div");
-  div.textContent = str;
+  div.textContent = String(str);
   return div.innerHTML;
 }
 </script>

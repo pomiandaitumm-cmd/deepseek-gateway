@@ -3,85 +3,100 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pricing ? DeepSeek Gateway</title>
+<title>Pricing &mdash; DeepSeek Gateway</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     background: #0d1117; color: #c9d1d9; line-height: 1.6;
   }
-  .container { max-width: 800px; margin: 0 auto; padding: 60px 24px; }
-  h1 { font-size: 1.8rem; font-weight: 700; color: #f0f6fc; margin-bottom: 8px; text-align: center; }
+  .container { max-width: 960px; margin: 0 auto; padding: 48px 24px; }
+  h1 { font-size: 1.8rem; font-weight: 700; color: #f0f6fc; margin-bottom: 6px; text-align: center; }
   .subtitle { font-size: 0.95rem; color: #8b949e; margin-bottom: 40px; text-align: center; }
-  .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 16px; margin-bottom: 40px; }
+  .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 40px; }
   .plan {
-    background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 24px 20px; text-align: center;
-    transition: border-color 0.2s;
+    background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 24px 20px;
+    transition: border-color 0.2s; display: flex; flex-direction: column;
   }
   .plan:hover { border-color: #58a6ff; }
   .plan.featured { border-color: #58a6ff; border-width: 2px; }
-  .plan h3 { font-size: 1rem; color: #f0f6fc; margin-bottom: 4px; }
-  .plan .tokens { font-size: 1.6rem; font-weight: 700; color: #58a6ff; margin: 8px 0; }
-  .plan .price { font-size: 0.85rem; color: #8b949e; margin: 4px 0 12px; min-height: 20px; }
-  .plan .desc { font-size: 0.82rem; color: #8b949e; margin-bottom: 16px; }
-  .plan .rate { font-size: 0.78rem; color: #484f58; margin-bottom: 16px; }
+  .plan h3 { font-size: 1.05rem; color: #f0f6fc; margin-bottom: 2px; }
+  .plan .price { font-size: 1.8rem; font-weight: 700; color: #58a6ff; margin: 8px 0 2px; }
+  .plan .price-note { font-size: 0.78rem; color: #8b949e; margin-bottom: 4px; }
+  .plan .tokens { font-size: 0.95rem; color: #c9d1d9; font-weight: 600; margin: 4px 0; }
+  .plan .spec { font-size: 0.82rem; color: #8b949e; margin: 2px 0; }
+  .plan .spec strong { color: #c9d1d9; }
+  .plan .desc { font-size: 0.82rem; color: #8b949e; margin: 10px 0 16px; flex: 1; }
   .plan .apply-btn {
-    display: inline-block; background: #1f6feb; color: #fff; padding: 8px 20px; border-radius: 6px;
-    font-weight: 600; font-size: 0.85rem; text-decoration: none; cursor: pointer;
+    display: block; text-align: center; background: #1f6feb; color: #fff; padding: 10px 0;
+    border-radius: 6px; font-weight: 600; font-size: 0.9rem; text-decoration: none; cursor: pointer;
+    margin-top: auto;
   }
   .plan .apply-btn:hover { background: #388bfd; }
-  .note { font-size: 0.82rem; color: #8b949e; text-align: center; margin-top: 24px; padding: 16px; background: #161b22; border: 1px solid #30363d; border-radius: 6px; }
+  .disclaimer {
+    font-size: 0.82rem; color: #8b949e; text-align: center; margin-top: 32px; padding: 16px;
+    background: #161b22; border: 1px solid #30363d; border-radius: 6px;
+  }
+  .disclaimer strong { color: #c9d1d9; }
   a { color: #58a6ff; text-decoration: none; }
   a:hover { text-decoration: underline; }
   .back-link { font-size: 0.82rem; margin-bottom: 20px; display: inline-block; }
+  .badge { display: inline-block; font-size: 0.7rem; font-weight: 600; padding: 2px 8px; border-radius: 12px; margin-left: 6px; }
+  .badge-popular { background: #1f6feb22; color: #58a6ff; }
 </style>
 </head>
 <body>
 <div class="container">
-  <a class="back-link" href="/">? Back to Home</a>
-  <h1>Plans & Pricing</h1>
-  <p class="subtitle">OpenAI-compatible DeepSeek API Gateway. Pay for what you use. No surprise bills.</p>
+  <a class="back-link" href="/">&larr; Back to Home</a>
+  <h1>Plans &amp; Pricing</h1>
+  <p class="subtitle">OpenAI-compatible DeepSeek API Gateway. Per-key quota, usage tracking, no surprise bills.</p>
 
   <div class="pricing-grid" id="plan-grid">
     <div class="plan">
       <h3>Trial</h3>
-      <div class="tokens">100K</div>
-      <div class="price">Alpha ? TODO</div>
-      <div class="desc">Test the API</div>
-      <div class="rate">30 req/min</div>
-      <a class="apply-btn" href="/apply.html?plan=Trial">Apply</a>
+      <div class="price">$1</div>
+      <div class="price-note">one-time</div>
+      <div class="tokens">100K tokens</div>
+      <div class="spec"><strong>Model:</strong> deepseek-v4-flash</div>
+      <div class="spec"><strong>Rate:</strong> 30 RPM</div>
+      <div class="desc">Quick test. Verify compatibility with your app before committing.</div>
+      <a class="apply-btn" href="/apply.html?plan=Trial">Apply for Trial</a>
     </div>
     <div class="plan featured">
-      <h3>Starter</h3>
-      <div class="tokens">1M</div>
-      <div class="price">Alpha ? TODO</div>
-      <div class="desc">Personal projects</div>
-      <div class="rate">30 req/min</div>
-      <a class="apply-btn" href="/apply.html?plan=Starter">Apply</a>
+      <h3>Starter <span class="badge badge-popular">Popular</span></h3>
+      <div class="price">$3</div>
+      <div class="price-note">one-time</div>
+      <div class="tokens">500K tokens</div>
+      <div class="spec"><strong>Model:</strong> deepseek-v4-flash</div>
+      <div class="spec"><strong>Rate:</strong> 30 RPM</div>
+      <div class="desc">Personal projects, small bots, SillyTavern. Enough for daily use.</div>
+      <a class="apply-btn" href="/apply.html?plan=Starter">Apply for Starter</a>
     </div>
     <div class="plan">
       <h3>Standard</h3>
-      <div class="tokens">5M</div>
-      <div class="price">Alpha ? TODO</div>
-      <div class="desc">Team usage</div>
-      <div class="rate">60 req/min</div>
-      <a class="apply-btn" href="/apply.html?plan=Standard">Apply</a>
+      <div class="price">$6</div>
+      <div class="price-note">one-time</div>
+      <div class="tokens">1M tokens</div>
+      <div class="spec"><strong>Model:</strong> deepseek-v4-flash</div>
+      <div class="spec"><strong>Rate:</strong> 60 RPM</div>
+      <div class="desc">Indie devs, team tools, higher throughput. Double the rate limit.</div>
+      <a class="apply-btn" href="/apply.html?plan=Standard">Apply for Standard</a>
     </div>
     <div class="plan">
       <h3>Pro</h3>
-      <div class="tokens">10M</div>
-      <div class="price">Alpha ? TODO</div>
-      <div class="desc">Production workloads</div>
-      <div class="rate">120 req/min</div>
-      <a class="apply-btn" href="/apply.html?plan=Pro">Apply</a>
+      <div class="price">$12</div>
+      <div class="price-note">one-time</div>
+      <div class="tokens">1M tokens</div>
+      <div class="spec"><strong>Models:</strong> flash + pro</div>
+      <div class="spec"><strong>Rate:</strong> 30 RPM</div>
+      <div class="desc">Production workloads. Access deepseek-v4-pro for reasoning-heavy tasks.</div>
+      <a class="apply-btn" href="/apply.html?plan=Pro">Apply for Pro</a>
     </div>
   </div>
 
-  <div class="note">
-    <strong>Alpha Phase:</strong> This is an invite-only third-party gateway. Prices are not final.
-    All plans include OpenAI-compatible API, streaming support, per-key rate limiting, and usage tracking.
-    <br><br>
-    This is <strong>not an official DeepSeek service</strong>. We provide managed API access with per-key quotas and usage tracking.
+  <div class="disclaimer">
+    <strong>Alpha Phase</strong> &mdash; This is an <strong>independent third-party gateway</strong>, not an official DeepSeek service.<br>
+    Manual payment confirmation during alpha. Prices may change. All plans include OpenAI-compatible endpoint, streaming, and usage dashboard.
   </div>
 </div>
 </body>

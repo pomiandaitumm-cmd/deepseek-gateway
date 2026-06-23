@@ -4,22 +4,30 @@ from fastapi.staticfiles import StaticFiles
 from .auth import verify_api_key
 from .proxy import proxy_chat_completions
 from .config import EXPOSED_MODELS
-from .database import init_db, get_db, get_key_usage, create_order, get_order_status
+from .database import init_db, get_db, get_key_usage, create_order, get_order_status, get_lead_stats
 
 # Initialize database on startup
 init_db()
 
-app = FastAPI(title="DeepSeek API Gateway", version="0.4.0")
+app = FastAPI(title="DeepSeek API Gateway", version="0.5.0")
 
 
 @app.get("/v1/models")
 async def list_models(key_info: dict = Depends(verify_api_key)):
-    """Return list of supported models (OpenAI-compatible format)."""
+    """Return list of models available for this key (based on plan)."""
+    # Use key's allowed_models from DB (set during approve_order)
+    conn = get_db()
+    row = conn.execute("SELECT allowed_models FROM api_keys WHERE id=?", (key_info["id"],)).fetchone()
+    conn.close()
+    if row and row["allowed_models"]:
+        models = [m.strip() for m in row["allowed_models"].split(",") if m.strip()]
+    else:
+        models = list(EXPOSED_MODELS)
     return JSONResponse(content={
         "object": "list",
         "data": [
             {"id": m, "object": "model", "owned_by": "deepseek-gateway"}
-            for m in EXPOSED_MODELS
+            for m in models
         ],
     })
 
@@ -33,10 +41,20 @@ async def chat_completions(request: Request, key_info: dict = Depends(verify_api
         raise HTTPException(status_code=400, detail="Invalid JSON body")
 
     model = body.get("model", "")
+    # Check if key's plan allows this model
+    allowed = key_info.get("allowed_models", "")
+    if allowed:
+        allowed_list = [m.strip() for m in allowed.split(",") if m.strip()]
+        if model not in allowed_list:
+            raise HTTPException(
+                status_code=403,
+                detail="Your plan does not include this model",
+            )
+    # Fallback: check against global exposed models
     if model not in EXPOSED_MODELS:
         raise HTTPException(
             status_code=400,
-            detail=f"Model {model!r} not supported. Available: {chr(44).join(EXPOSED_MODELS)}",
+            detail=f"Model {model!r} not supported. Available: {', '.join(EXPOSED_MODELS)}",
         )
 
     stream = body.get("stream", False)
@@ -54,13 +72,18 @@ async def key_usage(key_info: dict = Depends(verify_api_key)):
 
 @app.get("/api/packages")
 async def list_all_packages():
-    """Return available packages (public endpoint)."""
+    """Return available packages with pricing (public endpoint)."""
     conn = get_db()
     rows = conn.execute(
-        "SELECT id, name, token_quota, rate_limit, description FROM packages WHERE is_active=1 ORDER BY id"
+        "SELECT id, name, token_quota, rate_limit, price_usd, allowed_models, description FROM packages WHERE is_active=1 ORDER BY id"
     ).fetchall()
     conn.close()
-    return JSONResponse(content={"packages": [dict(r) for r in rows]})
+    pkgs = []
+    for r in rows:
+        d = dict(r)
+        d["allowed_models"] = [m.strip() for m in (d.get("allowed_models") or "").split(",") if m.strip()]
+        pkgs.append(d)
+    return JSONResponse(content={"packages": pkgs})
 
 
 @app.post("/api/apply")
@@ -74,13 +97,17 @@ async def apply_for_access(request: Request):
     email = (body.get("email") or "").strip()
     if not email or "@" not in email:
         raise HTTPException(status_code=400, detail="Valid email is required")
-    telegram_or_discord = (body.get("telegram_or_discord") or "").strip()
-    use_case = (body.get("use_case") or "").strip()
+    telegram_or_discord = (body.get("telegram_or_discord") or body.get("contact") or "").strip()
+    use_case = (body.get("use_case") or body.get("intended_use") or "").strip()
     try:
         expected_daily_tokens = int(body.get("expected_daily_tokens", 0))
     except (ValueError, TypeError):
         expected_daily_tokens = 0
-    selected_plan = body.get("selected_plan", "")
+    source = (body.get("source") or "").strip()
+    ref = (body.get("ref") or "").strip()
+    if not source and ref:
+        source = ref
+    selected_plan = body.get("selected_plan", body.get("plan", ""))
     package_id = None
     if selected_plan:
         conn = get_db()
@@ -91,13 +118,14 @@ async def apply_for_access(request: Request):
     if not package_id:
         package_id = 1  # default to Trial
 
-    order = create_order(email, telegram_or_discord, use_case, expected_daily_tokens, package_id)
+    order = create_order(email, telegram_or_discord, use_case, expected_daily_tokens, package_id, source=source, ref=ref)
     return JSONResponse(content={
         "order_id": order["order_id"],
         "status": order["status"],
         "package": order["package_name"],
         "token_quota": order["token_quota"],
         "payment_status": "unpaid",
+        "price_usd": order.get("price_usd", 0),
         "order_url": f"/order.html?order_id={order['order_id']}",
         "message": "Your application has been received. Save your Order ID to check status.",
     })
@@ -128,3 +156,9 @@ import os as _os
 _static_dir = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "static")
 if _os.path.isdir(_static_dir):
     app.mount("/", StaticFiles(directory=_static_dir, html=True), name="static")
+
+@app.get("/api/admin/lead-stats")
+async def lead_stats(key_info: dict = Depends(verify_api_key)):
+    """Admin: return lead source statistics. Requires valid API key."""
+    stats = get_lead_stats()
+    return JSONResponse(content=stats)

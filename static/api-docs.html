@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>API Docs &mdash; DeepSeek Gateway</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: #0d1117; color: #c9d1d9; line-height: 1.6;
+  }
+  .container { max-width: 800px; margin: 0 auto; padding: 48px 24px; }
+  h1 { font-size: 1.8rem; font-weight: 700; color: #f0f6fc; margin-bottom: 4px; }
+  h2 { font-size: 1.2rem; font-weight: 600; color: #f0f6fc; margin: 32px 0 12px; padding-bottom: 6px; border-bottom: 1px solid #21262d; }
+  h3 { font-size: 1rem; font-weight: 600; color: #c9d1d9; margin: 20px 0 8px; }
+  .subtitle { font-size: 0.95rem; color: #8b949e; margin-bottom: 32px; }
+  p { font-size: 0.9rem; margin: 8px 0; }
+  code { background: #161b22; padding: 2px 6px; border-radius: 3px; font-size: 0.85em; color: #58a6ff; }
+  pre {
+    background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 14px 18px;
+    font-family: "SF Mono", "Fira Code", monospace; font-size: 0.82rem; line-height: 1.5;
+    overflow-x: auto; margin: 10px 0; white-space: pre-wrap;
+  }
+  pre .comment { color: #8b949e; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; font-size: 0.88rem; }
+  th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid #21262d; }
+  th { color: #f0f6fc; font-weight: 600; }
+  td { color: #c9d1d9; }
+  td code { font-size: 0.82em; }
+  .error-code { display: inline-block; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 0.82rem; }
+  .ec-401 { background: #d2992222; color: #d29922; }
+  .ec-402 { background: #f8514922; color: #f85149; }
+  .ec-403 { background: #f8514922; color: #f85149; }
+  .ec-429 { background: #d2992222; color: #d29922; }
+  .card {
+    background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 16px 20px; margin: 12px 0;
+  }
+  a { color: #58a6ff; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .back-link { font-size: 0.82rem; margin-bottom: 20px; display: inline-block; }
+  .cta {
+    display: inline-block; background: #1f6feb; color: #fff; padding: 10px 24px; border-radius: 6px;
+    font-weight: 600; font-size: 0.9rem; text-decoration: none; margin-top: 16px;
+  }
+  .cta:hover { background: #388bfd; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-link" href="/">&larr; Back to Home</a>
+  <h1>API Documentation</h1>
+  <p class="subtitle">OpenAI-compatible DeepSeek API Gateway. Drop-in replacement for OpenAI SDK.</p>
+
+  <h2>Base URL</h2>
+  <pre>http://65.49.201.211/v1</pre>
+  <p>All endpoints below are relative to this base URL.</p>
+
+  <h2>Available Models</h2>
+  <table>
+    <tr><th>Model ID</th><th>Description</th><th>Plans</th></tr>
+    <tr><td><code>deepseek-v4-flash</code></td><td>Fast, affordable chat model</td><td>All plans</td></tr>
+    <tr><td><code>deepseek-v4-pro</code></td><td>Reasoning-heavy tasks, higher quality</td><td>Pro only</td></tr>
+  </table>
+
+  <h2>Chat Completions</h2>
+  <pre><span class="comment"># curl</span>
+curl http://65.49.201.211/v1/chat/completions \
+  -H "Authorization: Bearer YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"deepseek-v4-flash","messages":[{"role":"user","content":"Hello!"}],"max_tokens":100}'</pre>
+
+  <h3>Python (OpenAI SDK)</h3>
+  <pre>from openai import OpenAI
+
+client = OpenAI(
+    base_url="http://65.49.201.211/v1",
+    api_key="YOUR_KEY",
+)
+
+response = client.chat.completions.create(
+    model="deepseek-v4-flash",
+    messages=[{"role": "user", "content": "Hello!"}],
+    max_tokens=100,
+)
+print(response.choices[0].message.content)</pre>
+
+  <h3>Node.js</h3>
+  <pre>import OpenAI from "openai";
+
+const client = new OpenAI({
+  baseURL: "http://65.49.201.211/v1",
+  apiKey: "YOUR_KEY",
+});
+
+const response = await client.chat.completions.create({
+  model: "deepseek-v4-flash",
+  messages: [{ role: "user", content: "Hello!" }],
+  max_tokens: 100,
+});
+console.log(response.choices[0].message.content);</pre>
+
+  <h2>List Models</h2>
+  <pre>curl http://65.49.201.211/v1/models \
+  -H "Authorization: Bearer YOUR_KEY"</pre>
+  <p>Returns only the models your plan has access to.</p>
+
+  <h2>Key Usage</h2>
+  <pre>curl http://65.49.201.211/v1/key/usage \
+  -H "Authorization: Bearer YOUR_KEY"</pre>
+  <p>Returns your current token usage, quota, rate limit, and plan details.</p>
+
+  <h2>Error Codes</h2>
+  <table>
+    <tr><th>Code</th><th>Meaning</th></tr>
+    <tr><td><span class="error-code ec-401">401</span></td><td>Invalid or missing API key</td></tr>
+    <tr><td><span class="error-code ec-402">402</span></td><td>Token quota exceeded. Top up to continue.</td></tr>
+    <tr><td><span class="error-code ec-403">403</span></td><td>Key disabled, or your plan does not include this model</td></tr>
+    <tr><td><span class="error-code ec-429">429</span></td><td>Rate limit exceeded. Wait and retry.</td></tr>
+    <tr><td>502</td><td>Upstream error. The service may be temporarily unavailable.</td></tr>
+  </table>
+
+  <h2>Streaming</h2>
+  <p>Set <code>"stream": true</code> in your request body. Works with all OpenAI SDK streaming methods.</p>
+
+  <div class="card" style="margin-top:32px;">
+    <strong>Alpha Phase</strong> &mdash; This is an independent third-party gateway, not an official DeepSeek service.
+    Manual payment confirmation. Domain + HTTPS pending.
+  </div>
+
+  <a class="cta" href="/pricing.html">View Plans &amp; Pricing</a>
+</div>
+</body>
+</html>

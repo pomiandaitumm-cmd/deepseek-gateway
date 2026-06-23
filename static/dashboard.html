@@ -3,41 +3,50 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard ? DeepSeek Gateway</title>
+<title>Dashboard &mdash; DeepSeek Gateway</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     background: #0d1117; color: #c9d1d9; line-height: 1.6;
   }
-  .container { max-width: 600px; margin: 0 auto; padding: 60px 24px; }
-  h1 { font-size: 1.5rem; font-weight: 700; color: #f0f6fc; margin-bottom: 8px; }
-  .subtitle { font-size: 0.9rem; color: #8b949e; margin-bottom: 32px; }
+  .container { max-width: 600px; margin: 0 auto; padding: 48px 24px; }
+  h1 { font-size: 1.5rem; font-weight: 700; color: #f0f6fc; margin-bottom: 4px; }
+  .subtitle { font-size: 0.9rem; color: #8b949e; margin-bottom: 28px; }
   label { display: block; font-size: 0.85rem; font-weight: 500; color: #f0f6fc; margin-bottom: 6px; }
   input[type="text"] {
     width: 100%; padding: 10px 14px; background: #161b22; border: 1px solid #30363d;
     border-radius: 6px; color: #c9d1d9; font-size: 0.9rem; margin-bottom: 12px;
   }
-  input[type="text"]:focus { outline: none; border-color: #58a6ff; }
+  input:focus { outline: none; border-color: #58a6ff; }
   button {
     background: #1f6feb; color: #fff; border: none; padding: 10px 24px;
-    border-radius: 6px; font-weight: 600; font-size: 0.9rem; cursor: pointer; margin-bottom: 24px;
+    border-radius: 6px; font-weight: 600; font-size: 0.9rem; cursor: pointer; margin-bottom: 20px;
   }
   button:hover { background: #388bfd; }
   button:disabled { background: #21262d; color: #484f58; cursor: not-allowed; }
   .card {
-    background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 24px; margin-bottom: 16px;
+    background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 20px; margin-bottom: 14px;
   }
-  .card h3 { font-size: 1rem; color: #f0f6fc; margin-bottom: 16px; }
-  .stat-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.88rem; border-bottom: 1px solid #21262d; }
+  .card h3 { font-size: 1rem; color: #f0f6fc; margin-bottom: 12px; }
+  .stat-row { display: flex; justify-content: space-between; padding: 5px 0; font-size: 0.88rem; border-bottom: 1px solid #21262d; }
   .stat-row:last-child { border-bottom: none; }
   .stat-label { color: #8b949e; }
   .stat-value { color: #c9d1d9; font-weight: 500; }
   .stat-value.good { color: #3fb950; }
   .stat-value.warn { color: #d29922; }
   .stat-value.bad { color: #f85149; }
-  .error { background: #161b22; border: 1px solid #f8514944; border-radius: 6px; padding: 12px 16px; color: #f85149; font-size: 0.88rem; margin-bottom: 16px; }
+  .error { background: #161b22; border: 1px solid #f8514944; border-radius: 6px; padding: 12px 16px; color: #f85149; font-size: 0.88rem; margin-bottom: 14px; }
+  .low-balance {
+    background: #1b1a14; border: 1px solid #d2992244; border-radius: 6px; padding: 12px 16px;
+    color: #d29922; font-size: 0.85rem; margin-top: 12px;
+  }
   .warning { font-size: 0.82rem; color: #d29922; margin: 12px 0; padding: 10px; background: #1b1a14; border: 1px solid #d2992244; border-radius: 6px; }
+  .topup-btn {
+    display: inline-block; background: #21262d; color: #58a6ff; padding: 8px 18px; border-radius: 6px;
+    font-size: 0.85rem; font-weight: 600; text-decoration: none; margin-top: 8px;
+  }
+  .topup-btn:hover { background: #30363d; }
   a { color: #58a6ff; text-decoration: none; }
   a:hover { text-decoration: underline; }
   .back-link { font-size: 0.82rem; margin-bottom: 20px; display: inline-block; }
@@ -45,20 +54,24 @@
     height: 8px; background: #21262d; border-radius: 4px; margin-top: 8px; overflow: hidden;
   }
   .progress-fill { height: 100%; background: #3fb950; border-radius: 4px; transition: width 0.3s; }
+  .model-tag {
+    display: inline-block; font-size: 0.72rem; padding: 2px 8px; border-radius: 10px;
+    background: #1f6feb22; color: #58a6ff; margin-right: 4px;
+  }
 </style>
 </head>
 <body>
 <div class="container">
-  <a class="back-link" href="/">? Back to Home</a>
+  <a class="back-link" href="/">&larr; Back to Home</a>
   <h1>Usage Dashboard</h1>
-  <p class="subtitle">Check your API key usage in real time. Works with any OpenAI-compatible client.</p>
+  <p class="subtitle">Check your API key usage, quota, and plan details in real time.</p>
 
   <label for="key-input">Your API Key (sk-gateway-...)</label>
   <input type="text" id="key-input" placeholder="sk-gateway-..." autocomplete="off">
   <button id="check-btn" onclick="checkUsage()">Check Usage</button>
 
   <div class="warning">
-    <strong>Do not share your API key.</strong> Your key is only sent to this server and is not saved.
+    <strong>Do not share your API key.</strong> Your key is only sent to this server and is not stored.
   </div>
 
   <div id="result"></div>
@@ -91,23 +104,17 @@ async function checkUsage() {
 
     if (resp.status === 401) {
       errorDiv.innerHTML = '<div class="error">Invalid API key. Please check and try again.</div>';
-      btn.disabled = false;
-      btn.textContent = "Check Usage";
-      return;
+      btn.disabled = false; btn.textContent = "Check Usage"; return;
     }
     if (resp.status === 403) {
       errorDiv.innerHTML = '<div class="error">This API key has been disabled. Contact support.</div>';
-      btn.disabled = false;
-      btn.textContent = "Check Usage";
-      return;
+      btn.disabled = false; btn.textContent = "Check Usage"; return;
     }
 
     const data = await resp.json();
     if (!resp.ok) {
-      errorDiv.innerHTML = '<div class="error">' + (data.detail || "Unknown error") + "</div>";
-      btn.disabled = false;
-      btn.textContent = "Check Usage";
-      return;
+      errorDiv.innerHTML = '<div class="error">' + escapeHtml(data.detail || "Unknown error") + '</div>';
+      btn.disabled = false; btn.textContent = "Check Usage"; return;
     }
 
     const qt = data.total_quota || 0;
@@ -116,21 +123,38 @@ async function checkUsage() {
     const remaining = data.remaining_quota || 0;
     let remainingClass = "good";
     if (qt > 0 && remaining < qt * 0.1) remainingClass = "bad";
-    else if (qt > 0 && remaining < qt * 0.3) remainingClass = "warn";
+    else if (qt > 0 && remaining < qt * 0.2) remainingClass = "warn";
+
+    let modelsHtml = "";
+    if (data.allowed_models && data.allowed_models.length > 0) {
+      modelsHtml = data.allowed_models.map(m => '<span class="model-tag">' + escapeHtml(m) + '</span>').join("");
+    }
+
+    let barColor = "#3fb950";
+    if (pct > 90) barColor = "#f85149";
+    else if (pct > 80) barColor = "#d29922";
+
+    let lowWarning = "";
+    if (qt > 0 && remaining < qt * 0.2) {
+      lowWarning = '<div class="low-balance"><strong>&#9888; Low balance.</strong> Less than 20% remaining. <a class="topup-btn" href="/apply.html">Top up / Upgrade</a></div>';
+    }
 
     resultDiv.innerHTML = `
       <div class="card">
-        <h3>Key: ${escapeHtml(data.prefix)}... (${escapeHtml(data.name)})</h3>
+        <h3>${escapeHtml(data.prefix)}... (${escapeHtml(data.name)})</h3>
+        <div class="stat-row"><span class="stat-label">Plan</span><span class="stat-value">${escapeHtml(data.package || "N/A")}</span></div>
         <div class="stat-row"><span class="stat-label">Status</span><span class="stat-value ${data.status === 'active' ? 'good' : 'bad'}">${data.status}</span></div>
-        <div class="stat-row"><span class="stat-label">Rate Limit</span><span class="stat-value">${data.rate_limit} req/min</span></div>
+        <div class="stat-row"><span class="stat-label">Models</span><span class="stat-value">${modelsHtml || "N/A"}</span></div>
+        <div class="stat-row"><span class="stat-label">Rate Limit</span><span class="stat-value">${data.rate_limit} RPM</span></div>
         <div class="stat-row"><span class="stat-label">Requests</span><span class="stat-value">${data.request_count}</span></div>
-        <div class="stat-row"><span class="stat-label">Total Quota</span><span class="stat-value">${qt > 0 ? qt.toLocaleString() : 'unlimited'} tokens</span></div>
+        <div class="stat-row"><span class="stat-label">Total Quota</span><span class="stat-value">${qt > 0 ? qt.toLocaleString() : "unlimited"} tokens</span></div>
         <div class="stat-row"><span class="stat-label">Used</span><span class="stat-value">${qu.toLocaleString()} tokens</span></div>
-        <div class="stat-row"><span class="stat-label">Remaining</span><span class="stat-value ${remainingClass}">${qt > 0 ? remaining.toLocaleString() : 'unlimited'} tokens</span></div>
+        <div class="stat-row"><span class="stat-label">Remaining</span><span class="stat-value ${remainingClass}">${qt > 0 ? remaining.toLocaleString() : "unlimited"} tokens</span></div>
         <div class="stat-row"><span class="stat-label">Last Used</span><span class="stat-value">${data.last_used || 'N/A'}</span></div>
-        ${qt > 0 ? '<div class="progress-bar"><div class="progress-fill" style="width:' + pct + '%"></div></div>' : ''}
+        ${qt > 0 ? '<div class="progress-bar"><div class="progress-fill" style="width:' + pct + '%;background:' + barColor + ';"></div></div>' : ''}
         ${qt > 0 ? '<div style="font-size:0.75rem;color:#8b949e;margin-top:4px;">' + pct + '% used</div>' : ''}
       </div>
+      ${lowWarning}
     `;
   } catch (e) {
     errorDiv.innerHTML = '<div class="error">Connection failed: ' + escapeHtml(e.message) + '</div>';

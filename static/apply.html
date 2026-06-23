@@ -1,152 +1,183 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Apply for Access ? DeepSeek Gateway</title>
+<title>Apply &mdash; DeepSeek Gateway</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     background: #0d1117; color: #c9d1d9; line-height: 1.6;
   }
-  .container { max-width: 560px; margin: 0 auto; padding: 60px 24px; }
-  h1 { font-size: 1.5rem; font-weight: 700; color: #f0f6fc; margin-bottom: 8px; }
-  .subtitle { font-size: 0.9rem; color: #8b949e; margin-bottom: 32px; }
-  label { display: block; font-size: 0.85rem; font-weight: 500; color: #f0f6fc; margin-bottom: 6px; margin-top: 16px; }
-  input, select, textarea {
-    width: 100%; padding: 10px 14px; background: #161b22; border: 1px solid #30363d;
-    border-radius: 6px; color: #c9d1d9; font-size: 0.9rem; font-family: inherit;
+  .container { max-width: 560px; margin: 0 auto; padding: 48px 24px; }
+  h1 { font-size: 1.5rem; font-weight: 700; color: #f0f6fc; margin-bottom: 4px; }
+  .subtitle { font-size: 0.9rem; color: #8b949e; margin-bottom: 28px; }
+  .plan-summary {
+    background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 16px 20px; margin-bottom: 24px;
   }
-  textarea { min-height: 80px; resize: vertical; }
-  input:focus, select:focus, textarea:focus { outline: none; border-color: #58a6ff; }
+  .plan-summary h3 { font-size: 1rem; color: #f0f6fc; margin-bottom: 6px; }
+  .plan-summary .detail { font-size: 0.85rem; color: #8b949e; }
+  .plan-summary .detail strong { color: #c9d1d9; }
+  .plan-summary .price-tag { font-size: 1.3rem; font-weight: 700; color: #3fb950; float: right; }
+  label { display: block; font-size: 0.85rem; font-weight: 500; color: #f0f6fc; margin-bottom: 4px; margin-top: 14px; }
+  input[type="text"], input[type="email"], textarea, select {
+    width: 100%; padding: 10px 14px; background: #161b22; border: 1px solid #30363d;
+    border-radius: 6px; color: #c9d1d9; font-size: 0.9rem;
+  }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: #58a6ff; }
+  textarea { min-height: 70px; resize: vertical; }
+  select { cursor: pointer; }
   button {
-    display: block; width: 100%; background: #1f6feb; color: #fff; border: none; padding: 12px 24px;
-    border-radius: 6px; font-weight: 600; font-size: 0.95rem; cursor: pointer; margin-top: 24px;
+    width: 100%; background: #1f6feb; color: #fff; border: none; padding: 12px;
+    border-radius: 6px; font-weight: 600; font-size: 0.95rem; cursor: pointer; margin-top: 20px;
   }
   button:hover { background: #388bfd; }
   button:disabled { background: #21262d; color: #484f58; cursor: not-allowed; }
   .success {
-    background: #161b22; border: 1px solid #3fb95044; border-radius: 8px; padding: 24px;
-    color: #3fb950; font-size: 0.9rem; margin-top: 24px; display: none;
+    background: #161b22; border: 1px solid #3fb95044; border-radius: 8px; padding: 20px; margin-top: 20px;
   }
-  .success h3 { color: #f0f6fc; margin-bottom: 8px; }
-  .success p { color: #c9d1d9; margin: 4px 0; font-size: 0.88rem; }
-  .error { background: #161b22; border: 1px solid #f8514944; border-radius: 6px; padding: 12px 16px; color: #f85149; font-size: 0.88rem; margin-top: 16px; display: none; }
-  .note { font-size: 0.8rem; color: #8b949e; margin-top: 20px; text-align: center; }
+  .success h3 { color: #3fb950; font-size: 1rem; margin-bottom: 8px; }
+  .success p { font-size: 0.88rem; color: #8b949e; margin: 4px 0; }
+  .success .order-id { font-size: 1.1rem; font-weight: 700; color: #58a6ff; font-family: monospace; }
+  .success .key-info { margin-top: 12px; padding: 12px; background: #0d1117; border-radius: 6px; font-size: 0.82rem; }
+  .error { background: #161b22; border: 1px solid #f8514944; border-radius: 6px; padding: 12px 16px; color: #f85149; font-size: 0.88rem; margin-top: 12px; }
   a { color: #58a6ff; text-decoration: none; }
   a:hover { text-decoration: underline; }
   .back-link { font-size: 0.82rem; margin-bottom: 20px; display: inline-block; }
-  select option { background: #161b22; color: #c9d1d9; }
 </style>
 </head>
 <body>
 <div class="container">
-  <a class="back-link" href="/">? Back to Home</a>
-  <h1>Apply for Alpha Access</h1>
-  <p class="subtitle">Fill out this form to request an API key. We review applications within 24 hours.</p>
+  <a class="back-link" href="/pricing.html">&larr; Back to Pricing</a>
+  <h1>Apply for API Access</h1>
+  <p class="subtitle">Fill in the form below. You'll receive an Order ID to track your application.</p>
 
-  <form id="apply-form" onsubmit="submitForm(event)">
+  <div class="plan-summary" id="plan-summary">
+    <div class="price-tag" id="plan-price">--</div>
+    <h3 id="plan-name">Select a plan</h3>
+    <div class="detail"><strong>Tokens:</strong> <span id="plan-tokens">--</span></div>
+    <div class="detail"><strong>Models:</strong> <span id="plan-models">--</span></div>
+    <div class="detail"><strong>Rate Limit:</strong> <span id="plan-rate">--</span> RPM</div>
+  </div>
+
+  <form id="apply-form" onsubmit="submitApply(event)">
     <label for="email">Email *</label>
-    <input type="email" id="email" name="email" placeholder="you@example.com" required>
+    <input type="email" id="email" required placeholder="you@example.com">
 
-    <label for="telegram">Telegram or Discord (optional)</label>
-    <input type="text" id="telegram" name="telegram_or_discord" placeholder="@username or Discord#0000">
+    <label for="contact">Telegram / Discord / Reddit username</label>
+    <input type="text" id="contact" placeholder="@yourhandle">
 
-    <label for="use_case">What will you build? *</label>
-    <textarea id="use_case" name="use_case" placeholder="e.g. AI chatbot, SillyTavern, coding assistant, SaaS product..." required></textarea>
+    <label for="use_case">What will you use the API for?</label>
+    <textarea id="use_case" placeholder="SillyTavern, AI bot, SaaS, testing..."></textarea>
 
-    <label for="expected_tokens">Expected daily token usage</label>
-    <input type="number" id="expected_tokens" name="expected_daily_tokens" placeholder="e.g. 50000" min="0" value="50000">
-
-    <label for="plan">Select Plan</label>
-    <select id="plan" name="selected_plan">
-      <option value="Trial">Trial ? 100K tokens</option>
-      <option value="Starter">Starter ? 1M tokens</option>
-      <option value="Standard">Standard ? 5M tokens</option>
-      <option value="Pro">Pro ? 10M tokens</option>
+    <label for="source">Where did you hear about us?</label>
+    <select id="source">
+      <option value="">Direct / Other</option>
+      <option value="reddit">Reddit</option>
+      <option value="discord">Discord</option>
+      <option value="telegram">Telegram</option>
+      <option value="github">GitHub</option>
+      <option value="search">Search Engine</option>
+      <option value="friend">Friend Referral</option>
     </select>
 
     <button type="submit" id="submit-btn">Submit Application</button>
   </form>
 
-  <div id="error-box" class="error"></div>
-  <div id="success-box" class="success">
-    <h3>Application Received!</h3>
-    <p><strong>Order ID:</strong> <span id="order-id"></span></p>
-    <p><strong>Package:</strong> <span id="order-package"></span></p>
-    <p><strong>Token Quota:</strong> <span id="order-quota"></span></p>
-    <p style="margin-top:12px;">We will review your application and send your API key within 24 hours. Check your email for updates.</p>
-    <p style="margin-top:8px;color:#8b949e;">You can check your order status by contacting us on Telegram/Discord.</p>
-  </div>
-
-  <div class="note">
-    This is a <strong>third-party gateway</strong>, not an official DeepSeek service.
-    Your API key will work with any OpenAI-compatible client.
-  </div>
+  <div id="result"></div>
+  <div id="error"></div>
 </div>
 
 <script>
-function submitForm(e) {
+const PLANS = {
+  "Trial":    { tokens: "100K",  price: "$1",  models: "deepseek-v4-flash", rpm: 30 },
+  "Starter":  { tokens: "500K",  price: "$3",  models: "deepseek-v4-flash", rpm: 30 },
+  "Standard": { tokens: "1M",    price: "$6",  models: "deepseek-v4-flash", rpm: 60 },
+  "Pro":      { tokens: "1M",    price: "$12", models: "flash + pro",       rpm: 30 },
+};
+
+const params = new URLSearchParams(window.location.search);
+const planName = params.get("plan") || "Trial";
+const plan = PLANS[planName] || PLANS["Trial"];
+
+document.getElementById("plan-name").textContent = planName + " Plan";
+document.getElementById("plan-price").textContent = plan.price;
+document.getElementById("plan-tokens").textContent = plan.tokens;
+document.getElementById("plan-models").textContent = plan.models;
+document.getElementById("plan-rate").textContent = plan.rpm;
+
+// Read ref= from URL for tracking
+const urlRef = params.get("ref") || "";
+if (urlRef && !document.getElementById("source").value) {
+  document.getElementById("source").value = urlRef;
+}
+
+async function submitApply(e) {
   e.preventDefault();
   const btn = document.getElementById("submit-btn");
-  const errorBox = document.getElementById("error-box");
-  const successBox = document.getElementById("success-box");
-  const form = document.getElementById("apply-form");
+  const resultDiv = document.getElementById("result");
+  const errorDiv = document.getElementById("error");
+  resultDiv.innerHTML = "";
+  errorDiv.innerHTML = "";
 
-  errorBox.style.display = "none";
-  successBox.style.display = "none";
+  const email = document.getElementById("email").value.trim();
+  const contact = document.getElementById("contact").value.trim();
+  const use_case = document.getElementById("use_case").value.trim();
+  const source = document.getElementById("source").value;
+
   btn.disabled = true;
   btn.textContent = "Submitting...";
 
-  const data = {
-    email: document.getElementById("email").value.trim(),
-    telegram_or_discord: document.getElementById("telegram").value.trim(),
-    use_case: document.getElementById("use_case").value.trim(),
-    expected_daily_tokens: parseInt(document.getElementById("expected_tokens").value) || 0,
-    selected_plan: document.getElementById("plan").value,
-  };
-
-  fetch("/api/apply", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  })
-  .then(r => r.json())
-  .then(resp => {
-    if (resp.order_id) {
-      document.getElementById("order-id").textContent = resp.order_id;
-      document.getElementById("order-package").textContent = resp.package;
-      document.getElementById("order-quota").textContent = (resp.token_quota || 0).toLocaleString() + " tokens";
-      document.getElementById('order-link').href = '/order.html?order_id=' + resp.order_id;
-      form.style.display = "none";
-      successBox.style.display = "block";
-    } else {
-      errorBox.textContent = resp.detail || "Submission failed. Please try again.";
-      errorBox.style.display = "block";
+  try {
+    const baseUrl = window.location.origin;
+    const resp = await fetch(baseUrl + "/api/apply", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: email,
+        telegram_or_discord: contact,
+        use_case: use_case,
+        selected_plan: planName,
+        source: source,
+        ref: urlRef,
+      }),
+    });
+    const data = await resp.json();
+    if (!resp.ok) {
+      errorDiv.innerHTML = '<div class="error">' + escapeHtml(data.detail || "Submission failed") + '</div>';
+      return;
     }
-  })
-  .catch(err => {
-    errorBox.textContent = "Connection failed: " + err.message;
-    errorBox.style.display = "block";
-  })
-  .finally(() => {
+
+    const orderId = data.order_id;
+    resultDiv.innerHTML = `
+      <div class="success">
+        <h3>&#10003; Application Submitted</h3>
+        <p>Your Order ID: <span class="order-id">${orderId}</span></p>
+        <p>Plan: <strong>${escapeHtml(data.package || planName)}</strong></p>
+        <p>Price: <strong>$${data.price_usd || plan.price.replace("$","")}</strong></p>
+        <div class="key-info">
+          <strong>Next steps:</strong><br>
+          1. Save your Order ID above.<br>
+          2. <a href="/order.html?order_id=${orderId}">Check your order status</a> anytime.<br>
+          3. Manual payment confirmation during alpha. Contact us with your Order ID.
+        </div>
+      </div>
+    `;
+    document.getElementById("apply-form").style.display = "none";
+    document.querySelector(".plan-summary").style.display = "none";
+  } catch (e) {
+    errorDiv.innerHTML = '<div class="error">Connection failed: ' + escapeHtml(e.message) + '</div>';
+  } finally {
     btn.disabled = false;
     btn.textContent = "Submit Application";
-  });
+  }
 }
 
-// Pre-select plan from URL query
-const params = new URLSearchParams(window.location.search);
-const planFromUrl = params.get("plan");
-if (planFromUrl) {
-  const select = document.getElementById("plan");
-  for (let i = 0; i < select.options.length; i++) {
-    if (select.options[i].value === planFromUrl) {
-      select.selectedIndex = i;
-      break;
-    }
-  }
+function escapeHtml(str) {
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
 }
 </script>
 </body>

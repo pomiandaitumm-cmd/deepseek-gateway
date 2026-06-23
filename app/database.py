@@ -36,6 +36,8 @@ def init_db():
             token_quota_used INTEGER NOT NULL DEFAULT 0,
             request_quota_total INTEGER,
             request_quota_used INTEGER DEFAULT 0,
+            allowed_models TEXT DEFAULT 'deepseek-v4-flash',
+            package_name TEXT DEFAULT '',
             created_at TEXT NOT NULL,
             last_used_at TEXT
         );
@@ -71,6 +73,8 @@ def init_db():
             name TEXT NOT NULL,
             token_quota INTEGER NOT NULL,
             rate_limit INTEGER DEFAULT 30,
+            price_usd REAL DEFAULT 0,
+            allowed_models TEXT DEFAULT 'deepseek-v4-flash',
             description TEXT DEFAULT '',
             is_active INTEGER DEFAULT 1,
             created_at TEXT NOT NULL
@@ -82,6 +86,10 @@ def init_db():
             status TEXT NOT NULL DEFAULT 'pending',
             payment_status TEXT DEFAULT 'unpaid',
             key_prefix TEXT,
+            price_usd REAL DEFAULT 0,
+            source TEXT DEFAULT '',
+            ref TEXT DEFAULT '',
+            note TEXT DEFAULT '',
             created_at TEXT NOT NULL,
             approved_at TEXT,
             FOREIGN KEY (customer_id) REFERENCES customers(id),
@@ -95,23 +103,47 @@ def init_db():
     _migrate_add(conn, "api_keys", "token_quota_used", "INTEGER NOT NULL DEFAULT 0")
     _migrate_add(conn, "api_keys", "request_quota_total", "INTEGER")
     _migrate_add(conn, "api_keys", "request_quota_used", "INTEGER DEFAULT 0")
+    _migrate_add(conn, "api_keys", "allowed_models", "TEXT DEFAULT 'deepseek-v4-flash'")
+    _migrate_add(conn, "api_keys", "package_name", "TEXT DEFAULT ''")
     _migrate_add(conn, "orders", "payment_status", "TEXT DEFAULT 'unpaid'")
+    _migrate_add(conn, "orders", "price_usd", "REAL DEFAULT 0")
+    _migrate_add(conn, "orders", "source", "TEXT DEFAULT ''")
+    _migrate_add(conn, "orders", "ref", "TEXT DEFAULT ''")
+    _migrate_add(conn, "orders", "note", "TEXT DEFAULT ''")
+    _migrate_add(conn, "packages", "price_usd", "REAL DEFAULT 0")
+    _migrate_add(conn, "packages", "allowed_models", "TEXT DEFAULT 'deepseek-v4-flash'")
     _seed_packages(conn)
     conn.close()
 
 
 def _seed_packages(conn):
-    if conn.execute("SELECT COUNT(*) FROM packages").fetchone()[0] == 0:
+    """Seed v0.5 packages with pricing and model restrictions."""
+    existing = conn.execute("SELECT COUNT(*) FROM packages").fetchone()[0]
+    if existing == 0:
         now = now_utc()
         pkgs = [
-            ("Trial", 100000, 30, "Test the API"),
-            ("Starter", 1000000, 30, "Personal projects"),
-            ("Standard", 5000000, 60, "Team usage"),
-            ("Pro", 10000000, 120, "Production workloads"),
+            ("Trial",      100000,  30,  1.0,  "deepseek-v4-flash", "Quick test"),
+            ("Starter",    500000,  30,  3.0,  "deepseek-v4-flash", "Personal projects"),
+            ("Standard",   1000000, 60,  6.0,  "deepseek-v4-flash", "Team / indie devs"),
+            ("Pro",        1000000, 30,  12.0, "deepseek-v4-flash,deepseek-v4-pro", "Production + reasoning"),
         ]
-        for name, quota, rl, desc in pkgs:
-            conn.execute("INSERT INTO packages (name,token_quota,rate_limit,description,created_at) VALUES (?,?,?,?,?)",
-                         (name, quota, rl, desc, now))
+        for name, quota, rl, price, models, desc in pkgs:
+            conn.execute(
+                "INSERT INTO packages (name,token_quota,rate_limit,price_usd,allowed_models,description,created_at) VALUES (?,?,?,?,?,?,?)",
+                (name, quota, rl, price, models, desc, now))
+        conn.commit()
+    elif existing == 4:
+        # Upgrade existing v0.3/v0.4 packages to v0.5 pricing
+        upgrades = [
+            (1, "Trial",    100000,  30,  1.0,  "deepseek-v4-flash", "Quick test"),
+            (2, "Starter",  500000,  30,  3.0,  "deepseek-v4-flash", "Personal projects"),
+            (3, "Standard", 1000000, 60,  6.0,  "deepseek-v4-flash", "Team / indie devs"),
+            (4, "Pro",      1000000, 30,  12.0, "deepseek-v4-flash,deepseek-v4-pro", "Production + reasoning"),
+        ]
+        for pid, name, quota, rl, price, models, desc in upgrades:
+            conn.execute(
+                "UPDATE packages SET name=?, token_quota=?, rate_limit=?, price_usd=?, allowed_models=?, description=? WHERE id=?",
+                (name, quota, rl, price, models, desc, pid))
         conn.commit()
 
 def _migrate_add(conn, table, column, col_def):
@@ -162,7 +194,7 @@ def get_key_usage(key_id):
     conn = get_db()
     row = conn.execute("""
         SELECT k.key_prefix, k.name, k.status, k.token_quota_total, k.token_quota_used,
-               k.rate_limit_per_minute, k.last_used_at,
+               k.rate_limit_per_minute, k.last_used_at, k.allowed_models, k.package_name,
                COUNT(l.id) as req_count
         FROM api_keys k
         LEFT JOIN usage_logs l ON l.api_key_id = k.id
@@ -184,9 +216,11 @@ def get_key_usage(key_id):
         "request_count": row["req_count"],
         "last_used": row["last_used_at"],
         "rate_limit": row["rate_limit_per_minute"],
+        "allowed_models": (row["allowed_models"] or "deepseek-v4-flash").split(","),
+        "package": row["package_name"] or "",
     }
 
-def create_order(customer_email, telegram_or_discord, use_case, expected_daily_tokens, package_id):
+def create_order(customer_email, telegram_or_discord, use_case, expected_daily_tokens, package_id, source="", ref=""):
     """Create a customer+order from application. Returns order dict."""
     conn = get_db()
     now = now_utc()
@@ -199,8 +233,10 @@ def create_order(customer_email, telegram_or_discord, use_case, expected_daily_t
         cur = conn.execute("INSERT INTO customers (email,telegram_or_discord,use_case,expected_daily_tokens,created_at) VALUES (?,?,?,?,?)",
                            (customer_email, telegram_or_discord, use_case, expected_daily_tokens, now))
         cust_id = cur.lastrowid
-    cur = conn.execute("INSERT INTO orders (customer_id,package_id,status,payment_status,created_at) VALUES (?,?,'pending','unpaid',?)",
-                       (cust_id, package_id, now))
+    pkg_price = conn.execute("SELECT price_usd FROM packages WHERE id=?", (package_id,)).fetchone()
+    price = pkg_price["price_usd"] if pkg_price else 0
+    cur = conn.execute("INSERT INTO orders (customer_id,package_id,status,payment_status,price_usd,source,ref,created_at) VALUES (?,?,'pending','unpaid',?,?,?,?)",
+                 (cust_id, package_id, price, source, ref, now))
     order_id = cur.lastrowid
     conn.commit()
     pkg = conn.execute("SELECT * FROM packages WHERE id=?", (package_id,)).fetchone()
@@ -211,6 +247,7 @@ def create_order(customer_email, telegram_or_discord, use_case, expected_daily_t
         "customer_email": customer_email,
         "package_name": pkg["name"] if pkg else "unknown",
         "token_quota": pkg["token_quota"] if pkg else 0,
+        "price_usd": price if pkg else 0,
     }
 
 def get_order(order_id):
@@ -228,7 +265,7 @@ def get_order(order_id):
 def list_orders(status=None):
     conn = get_db()
     q = """
-        SELECT o.*, c.email, c.telegram_or_discord, p.name as package_name, p.token_quota
+        SELECT o.*, c.email, c.telegram_or_discord, p.name as package_name, p.token_quota, p.allowed_models, o.source, o.ref, o.note, o.price_usd
         FROM orders o
         JOIN customers c ON c.id = o.customer_id
         JOIN packages p ON p.id = o.package_id
@@ -252,7 +289,7 @@ def get_order_status(order_id, email):
     conn = get_db()
     row = conn.execute("""
         SELECT o.id, o.status, o.payment_status, o.key_prefix, o.created_at, o.approved_at,
-               c.email, p.name as package_name, p.token_quota, p.rate_limit
+               c.email, p.name as package_name, p.token_quota, p.rate_limit, p.allowed_models, p.price_usd
         FROM orders o
         JOIN customers c ON c.id = o.customer_id
         JOIN packages p ON p.id = o.package_id
@@ -270,6 +307,8 @@ def get_order_status(order_id, email):
         "selected_plan": row["package_name"],
         "quota": row["token_quota"],
         "rate_limit": row["rate_limit"],
+        "allowed_models": (row["allowed_models"] or "deepseek-v4-flash").split(","),
+        "price_usd": row["price_usd"] or 0,
         "created_at": row["created_at"],
         "approved_at": row["approved_at"],
         "key_prefix": None,
@@ -320,7 +359,7 @@ def approve_order(order_id):
     Accepts pending or paid orders."""
     import secrets, string, hashlib
     conn = get_db()
-    order = conn.execute("SELECT o.*, p.token_quota, p.rate_limit, p.name as pkg_name, c.email as customer_name "
+    order = conn.execute("SELECT o.*, p.token_quota, p.rate_limit, p.name as pkg_name, p.allowed_models, c.email as customer_name "
                          "FROM orders o JOIN packages p ON p.id=o.package_id JOIN customers c ON c.id=o.customer_id "
                          "WHERE o.id=?", (order_id,)).fetchone()
     if not order:
@@ -334,8 +373,10 @@ def approve_order(order_id):
     kh = hashlib.sha256(fk.encode()).hexdigest()
     kp = fk[:16]
     now = now_utc()
-    conn.execute("INSERT INTO api_keys (key_hash,key_prefix,name,status,rate_limit_per_minute,token_quota_total,created_at) VALUES (?,?,?,'active',?,?,?)",
-                 (kh, kp, order["customer_name"], order["rate_limit"], order["token_quota"], now))
+    allowed = order["allowed_models"] if order["allowed_models"] else "deepseek-v4-flash"
+    pkg_name = order["pkg_name"] if order["pkg_name"] else ""
+    conn.execute("INSERT INTO api_keys (key_hash,key_prefix,name,status,rate_limit_per_minute,token_quota_total,allowed_models,package_name,created_at) VALUES (?,?,?,'active',?,?,?,?,?)",
+                 (kh, kp, order["customer_name"], order["rate_limit"], order["token_quota"], allowed, pkg_name, now))
     conn.execute("UPDATE orders SET status='approved', key_prefix=?, approved_at=? WHERE id=?",
                  (kp, now, order_id))
     conn.commit()
@@ -361,3 +402,22 @@ def deduct_quota(key_id, tokens):
     conn = get_db()
     conn.execute("UPDATE api_keys SET token_quota_used=token_quota_used+? WHERE id=?", (tokens, key_id))
     conn.commit(); conn.close()
+
+def get_lead_stats():
+    """Return order counts grouped by source channel."""
+    conn = get_db()
+    rows = conn.execute("""
+        SELECT 
+            CASE WHEN source IS NULL OR source = '' THEN 'direct'
+                 ELSE source END as channel,
+            COUNT(*) as cnt
+        FROM orders
+        GROUP BY channel
+        ORDER BY cnt DESC
+    """).fetchall()
+    conn.close()
+    total = sum(r["cnt"] for r in rows)
+    return {
+        "total": total,
+        "channels": [{"channel": r["channel"], "count": r["cnt"]} for r in rows]
+    }

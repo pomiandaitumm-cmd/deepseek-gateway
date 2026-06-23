@@ -283,6 +283,23 @@ def get_key_usage(key_id):
     budget = row["upstream_budget"] or 0
     used_cost = row["upstream_cost_used"] or 0
     remaining = max(0, budget - used_cost)
+    # Get last usage breakdown
+    conn2 = get_db()
+    last_log = conn2.execute(
+        "SELECT cache_hit_tokens, cache_miss_tokens, completion_tokens, total_tokens, upstream_cost FROM usage_logs WHERE api_key_id=? ORDER BY id DESC LIMIT 1",
+        (key_id,)).fetchone()
+    conn2.close()
+
+    last_usage = None
+    if last_log:
+        last_usage = {
+            "prompt_cache_hit_tokens": last_log["cache_hit_tokens"] or 0,
+            "prompt_cache_miss_tokens": last_log["cache_miss_tokens"] or 0,
+            "completion_tokens": last_log["completion_tokens"] or 0,
+            "total_tokens": last_log["total_tokens"] or 0,
+            "upstream_cost": str(round(last_log["upstream_cost"] or 0, 8)),
+        }
+
     return {
         "prefix": row["key_prefix"],
         "name": row["name"],
@@ -301,6 +318,7 @@ def get_key_usage(key_id):
         "cache_miss_tokens": row["total_cache_miss"] or 0,
         "output_tokens": row["total_output"] or 0,
         "total_tokens": row["total_all_tokens"] or 0,
+        "last_usage": last_usage,
         # Legacy fields for backward compat
         "total_quota": row["token_quota_total"] or 0,
         "used_quota": row["token_quota_used"] or 0,
@@ -873,3 +891,111 @@ def get_order_status_v08(order_id, email):
         result["message"] = "Waiting for PayPal payment. Complete your payment to receive your API key."
 
     return result, None
+
+# ===== v0.9 Admin Backend =====
+
+def get_admin_summary():
+    """Return aggregate stats for admin dashboard."""
+    conn = get_db()
+    row = conn.execute("""
+        SELECT
+            COUNT(DISTINCT o.id) as total_orders,
+            SUM(CASE WHEN o.payment_status='paid' OR o.status='paid' THEN 1 ELSE 0 END) as paid_orders,
+            SUM(CASE WHEN o.status='approved' THEN 1 ELSE 0 END) as approved_orders,
+            COUNT(DISTINCT k.id) as total_keys,
+            SUM(CASE WHEN k.status='active' THEN 1 ELSE 0 END) as active_keys,
+            SUM(CASE WHEN k.status='exhausted' THEN 1 ELSE 0 END) as exhausted_keys,
+            SUM(CASE WHEN k.status='disabled' THEN 1 ELSE 0 END) as disabled_keys,
+            COALESCE(SUM(k.sale_price), 0) as total_sales,
+            COALESCE(SUM(k.upstream_budget), 0) as total_budget,
+            COALESCE(SUM(k.upstream_cost_used), 0) as total_used_cost
+        FROM orders o
+        LEFT JOIN api_keys k ON k.key_prefix = o.key_prefix
+    """).fetchone()
+    conn.close()
+    if not row:
+        return {"total_orders": 0, "paid_orders": 0, "approved_orders": 0,
+                "total_keys": 0, "active_keys": 0, "exhausted_keys": 0, "disabled_keys": 0,
+                "total_sales": 0, "total_budget": 0, "total_used_cost": 0, "theoretical_margin": 0}
+    total_sales = row["total_sales"] or 0
+    total_used = row["total_used_cost"] or 0
+    return {
+        "total_orders": row["total_orders"] or 0,
+        "paid_orders": row["paid_orders"] or 0,
+        "approved_orders": row["approved_orders"] or 0,
+        "total_keys": row["total_keys"] or 0,
+        "active_keys": row["active_keys"] or 0,
+        "exhausted_keys": row["exhausted_keys"] or 0,
+        "disabled_keys": row["disabled_keys"] or 0,
+        "total_sales": round(total_sales, 2),
+        "total_budget": round(row["total_budget"] or 0, 2),
+        "total_used_cost": round(total_used, 8),
+        "theoretical_margin": round(total_sales - total_used, 2),
+    }
+
+
+def get_admin_orders(search=None, status_filter=None):
+    """Return all orders with customer/key info for admin dashboard."""
+    conn = get_db()
+    query = """
+        SELECT o.id as order_id, c.email, p.name as package_name,
+               o.price_usd, p.currency,
+               p.upstream_budget, k.upstream_cost_used,
+               (p.upstream_budget - COALESCE(k.upstream_cost_used, 0)) as remaining_budget,
+               o.payment_provider, o.payment_status,
+               o.key_prefix, k.status as key_status,
+               COALESCE((SELECT COUNT(*) FROM usage_logs l WHERE l.api_key_id = k.id), 0) as requests,
+               o.created_at, k.last_used_at
+        FROM orders o
+        JOIN customers c ON c.id = o.customer_id
+        JOIN packages p ON p.id = o.package_id
+        LEFT JOIN api_keys k ON k.key_prefix = o.key_prefix
+        WHERE 1=1
+    """
+    params = []
+    if search:
+        query += " AND (c.email LIKE ? OR o.key_prefix LIKE ?)"
+        like = f"%{search}%"
+        params.extend([like, like])
+    if status_filter:
+        if status_filter in ("active", "exhausted", "disabled"):
+            query += " AND k.status = ?"
+            params.append(status_filter)
+        elif status_filter in ("pending", "paid", "approved"):
+            query += " AND o.status = ?"
+            params.append(status_filter)
+    query += " ORDER BY o.id DESC LIMIT 200"
+    rows = conn.execute(query, params).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def get_admin_keys(search=None, status_filter=None):
+    """Return all API keys with customer info for admin dashboard."""
+    conn = get_db()
+    query = """
+        SELECT k.id, k.key_prefix, k.name, k.status,
+               k.upstream_budget, k.upstream_cost_used,
+               (COALESCE(k.upstream_budget,0) - COALESCE(k.upstream_cost_used,0)) as remaining_budget,
+               k.sale_price, k.currency, k.allowed_models, k.package_name,
+               k.rate_limit_per_minute, k.last_used_at,
+               COUNT(l.id) as requests,
+               COALESCE(SUM(l.cache_hit_tokens), 0) as cache_hit,
+               COALESCE(SUM(l.cache_miss_tokens), 0) as cache_miss,
+               COALESCE(SUM(l.completion_tokens), 0) as output_tk
+        FROM api_keys k
+        LEFT JOIN usage_logs l ON l.api_key_id = k.id
+        WHERE 1=1
+    """
+    params = []
+    if search:
+        query += " AND (k.key_prefix LIKE ? OR k.name LIKE ?)"
+        like = f"%{search}%"
+        params.extend([like, like])
+    if status_filter:
+        query += " AND k.status = ?"
+        params.append(status_filter)
+    query += " GROUP BY k.id ORDER BY k.id DESC LIMIT 200"
+    rows = conn.execute(query, params).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]

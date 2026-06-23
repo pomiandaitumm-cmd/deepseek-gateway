@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin &mdash; DeepSeek Gateway</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#0d1117;color:#c9d1d9;line-height:1.6}
+  .container{max-width:1200px;margin:0 auto;padding:24px}
+  h1{font-size:1.4rem;color:#f0f6fc;margin-bottom:4px}
+  .subtitle{font-size:0.82rem;color:#8b949e;margin-bottom:20px}
+  label{display:block;font-size:0.8rem;font-weight:500;color:#f0f6fc;margin-bottom:4px}
+  input[type=text]{width:100%;padding:8px 12px;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#c9d1d9;font-size:0.85rem;margin-bottom:10px}
+  input:focus{outline:none;border-color:#58a6ff}
+  button{background:#1f6feb;color:#fff;border:none;padding:8px 20px;border-radius:6px;font-weight:600;font-size:0.85rem;cursor:pointer}
+  button:hover{background:#388bfd}
+  button:disabled{background:#21262d;color:#484f58;cursor:not-allowed}
+  .btn-sm{padding:4px 12px;font-size:0.75rem}
+  .btn-outline{background:transparent;border:1px solid #30363d;color:#c9d1d9}
+  .btn-outline:hover{background:#21262d}
+  .card{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:16px;margin-bottom:16px}
+  .summary-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:20px}
+  .summary-card{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:14px 16px}
+  .summary-card .label{font-size:0.72rem;color:#8b949e;text-transform:uppercase;letter-spacing:0.5px}
+  .summary-card .value{font-size:1.5rem;font-weight:700;color:#f0f6fc;margin-top:4px}
+  .summary-card .value.green{color:#3fb950}
+  .summary-card .value.yellow{color:#d29922}
+  .summary-card .value.red{color:#f85149}
+  table{width:100%;border-collapse:collapse;font-size:0.78rem}
+  th{text-align:left;padding:8px 10px;background:#0d1117;color:#8b949e;font-weight:600;border-bottom:2px solid #30363d;position:sticky;top:0;white-space:nowrap}
+  td{padding:6px 10px;border-bottom:1px solid #21262d;white-space:nowrap}
+  tr:hover td{background:#1a1f2b}
+  .badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:0.7rem;font-weight:600}
+  .badge-active{background:#3fb95022;color:#3fb950}
+  .badge-exhausted{background:#d2992222;color:#d29922}
+  .badge-disabled{background:#f8514922;color:#f85149}
+  .badge-pending{background:#8b949e22;color:#8b949e}
+  .badge-paid{background:#58a6ff22;color:#58a6ff}
+  .badge-approved{background:#3fb95022;color:#3fb950}
+  .toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+  .toolbar input{width:200px;margin-bottom:0}
+  .toolbar select{padding:6px 10px;background:#161b22;border:1px solid #30363d;border-radius:6px;color:#c9d1d9;font-size:0.8rem}
+  .toolbar select:focus{outline:none;border-color:#58a6ff}
+  .section-title{font-size:1rem;color:#f0f6fc;margin:20px 0 10px;padding-bottom:6px;border-bottom:1px solid #21262d}
+  .error{background:#161b22;border:1px solid #f8514944;border-radius:6px;padding:10px 14px;color:#f85149;font-size:0.82rem;margin-bottom:10px}
+  .loading{color:#8b949e;font-size:0.85rem;padding:20px 0}
+  .empty{color:#8b949e;text-align:center;padding:30px;font-size:0.85rem}
+  a{color:#58a6ff;text-decoration:none}
+  a:hover{text-decoration:underline}
+  .back-link{font-size:0.78rem;margin-bottom:16px;display:inline-block}
+  .tab-row{display:flex;gap:0;margin-bottom:16px}
+  .tab-btn{padding:6px 16px;background:transparent;border:1px solid #30363d;color:#8b949e;cursor:pointer;font-size:0.82rem;border-radius:0}
+  .tab-btn:first-child{border-radius:6px 0 0 6px}
+  .tab-btn:last-child{border-radius:0 6px 6px 0}
+  .tab-btn.active{background:#1f6feb;color:#fff;border-color:#1f6feb}
+  .tab-btn:hover:not(.active){background:#21262d}
+  .overflow-x{overflow-x:auto}
+  .truncate{max-width:160px;overflow:hidden;text-overflow:ellipsis}
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-link" href="/">&larr; Back to Home</a>
+  <h1>Admin Dashboard</h1>
+  <p class="subtitle">Orders, keys, revenue, and usage overview.</p>
+
+  <div id="auth-section">
+    <label for="admin-token">Admin Token</label>
+    <div style="display:flex;gap:8px">
+      <input type="text" id="admin-token" placeholder="Enter admin token..." autocomplete="off" style="flex:1;margin-bottom:0">
+      <button id="auth-btn" onclick="authAndLoad()">Unlock</button>
+    </div>
+    <div style="font-size:0.72rem;color:#8b949e;margin-top:4px">Token is saved in your browser only.</div>
+  </div>
+
+  <div id="error"></div>
+
+  <div id="dashboard" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <span style="font-size:0.78rem;color:#8b949e">Admin mode</span>
+      <button class="btn-sm btn-outline" onclick="refresh()">&#x21bb; Refresh</button>
+    </div>
+
+    <div class="summary-grid" id="summary"></div>
+
+    <div class="section-title">Orders</div>
+    <div class="toolbar">
+      <input type="text" id="order-search" placeholder="Search email or key..." onkeyup="debounceSearch('orders')">
+      <select id="order-status" onchange="loadOrders()">
+        <option value="">All Status</option>
+        <option value="pending">Pending</option>
+        <option value="paid">Paid</option>
+        <option value="approved">Approved</option>
+        <option value="active">Active Key</option>
+        <option value="exhausted">Exhausted Key</option>
+        <option value="disabled">Disabled Key</option>
+      </select>
+    </div>
+    <div class="overflow-x">
+      <table id="orders-table">
+        <thead><tr>
+          <th>Order#</th><th>Email</th><th>Package</th><th>Price</th>
+          <th>Budget</th><th>Used</th><th>Remain</th>
+          <th>Provider</th><th>Pay Status</th><th>Key</th><th>Key Status</th>
+          <th>Reqs</th><th>Created</th><th>Last Used</th>
+        </tr></thead>
+        <tbody id="orders-tbody"></tbody>
+      </table>
+    </div>
+    <div id="orders-empty" class="empty" style="display:none">No orders found.</div>
+
+    <div class="section-title">API Keys</div>
+    <div class="toolbar">
+      <input type="text" id="key-search" placeholder="Search prefix or name..." onkeyup="debounceSearch('keys')">
+      <select id="key-status" onchange="loadKeys()">
+        <option value="">All Status</option>
+        <option value="active">Active</option>
+        <option value="exhausted">Exhausted</option>
+        <option value="disabled">Disabled</option>
+      </select>
+    </div>
+    <div class="overflow-x">
+      <table id="keys-table">
+        <thead><tr>
+          <th>Key Prefix</th><th>Name</th><th>Status</th><th>Plan</th>
+          <th>Budget</th><th>Used Cost</th><th>Remain</th>
+          <th>Sale</th><th>Models</th><th>RPM</th>
+          <th>Reqs</th><th>Cache Hit</th><th>Cache Miss</th><th>Output</th>
+          <th>Last Used</th>
+        </tr></thead>
+        <tbody id="keys-tbody"></tbody>
+      </table>
+    </div>
+    <div id="keys-empty" class="empty" style="display:none">No keys found.</div>
+  </div>
+</div>
+
+<script>
+const BASE = window.location.origin;
+let adminToken = "";
+let searchTimers = {};
+
+// Init
+(function(){
+  const saved = localStorage.getItem("admin_token");
+  if (saved) { document.getElementById("admin-token").value = saved; }
+})();
+
+async function authAndLoad() {
+  const token = document.getElementById("admin-token").value.trim();
+  const errDiv = document.getElementById("error");
+  errDiv.innerHTML = "";
+  if (!token) { errDiv.innerHTML = '<div class="error">Enter admin token</div>'; return; }
+
+  try {
+    const r = await fetch(BASE + "/api/admin/summary", { headers: { "Authorization": "Bearer " + token } });
+    if (r.status === 401) { errDiv.innerHTML = '<div class="error">Invalid admin token</div>'; return; }
+    if (r.status === 501) { errDiv.innerHTML = '<div class="error">Admin backend not configured on server</div>'; return; }
+    if (!r.ok) { errDiv.innerHTML = '<div class="error">Server error: ' + r.status + '</div>'; return; }
+
+    adminToken = token;
+    localStorage.setItem("admin_token", token);
+    document.getElementById("auth-section").style.display = "none";
+    document.getElementById("dashboard").style.display = "block";
+    await Promise.all([loadSummary(), loadOrders(), loadKeys()]);
+  } catch(e) {
+    errDiv.innerHTML = '<div class="error">Connection failed: ' + escapeHtml(e.message) + '</div>';
+  }
+}
+
+async function refresh() {
+  await Promise.all([loadSummary(), loadOrders(), loadKeys()]);
+}
+
+async function loadSummary() {
+  try {
+    const r = await fetch(BASE + "/api/admin/summary", { headers: { "Authorization": "Bearer " + adminToken } });
+    const d = await r.json();
+    const s = [
+      {label:"Total Orders",value:d.total_orders},
+      {label:"Paid Orders",value:d.paid_orders,cls:"green"},
+      {label:"Approved",value:d.approved_orders,cls:"green"},
+      {label:"Active Keys",value:d.active_keys,cls:"green"},
+      {label:"Exhausted",value:d.exhausted_keys,cls:"yellow"},
+      {label:"Disabled",value:d.disabled_keys,cls:"red"},
+      {label:"Total Sales",value:"$"+d.total_sales.toFixed(2),cls:"green"},
+      {label:"Total Budget",value:"$"+d.total_budget.toFixed(2)},
+      {label:"Total Used Cost",value:"$"+d.total_used_cost.toFixed(6)},
+      {label:"Margin",value:"$"+d.theoretical_margin.toFixed(2),cls:d.theoretical_margin>=0?"green":"red"},
+    ];
+    document.getElementById("summary").innerHTML = s.map(c =>
+      '<div class="summary-card"><div class="label">'+c.label+'</div><div class="value'+(c.cls?' '+c.cls:'')+'">'+c.value+'</div></div>'
+    ).join("");
+  } catch(e) { console.error(e); }
+}
+
+async function loadOrders() {
+  const search = document.getElementById("order-search").value.trim();
+  const status = document.getElementById("order-status").value;
+  const tbody = document.getElementById("orders-tbody");
+  const empty = document.getElementById("orders-empty");
+  let url = BASE + "/api/admin/orders?";
+  if (search) url += "search=" + encodeURIComponent(search) + "&";
+  if (status) url += "status=" + encodeURIComponent(status) + "&";
+  try {
+    const r = await fetch(url, { headers: { "Authorization": "Bearer " + adminToken } });
+    const d = await r.json();
+    if (!d.orders || d.orders.length === 0) {
+      tbody.innerHTML = ""; empty.style.display = "block"; return;
+    }
+    empty.style.display = "none";
+    tbody.innerHTML = d.orders.map(o => {
+      const ks = o.key_status || "";
+      let kb = "";
+      if (ks==="active") kb='<span class="badge badge-active">active</span>';
+      else if (ks==="exhausted") kb='<span class="badge badge-exhausted">exhausted</span>';
+      else if (ks==="disabled") kb='<span class="badge badge-disabled">disabled</span>';
+      else kb='<span class="badge badge-pending">'+escapeHtml(ks||"-")+'</span>';
+      const ps = o.payment_status || "";
+      let pb = "";
+      if (ps==="paid"||ps==="approved") pb='<span class="badge badge-paid">'+ps+'</span>';
+      else if (ps==="pending") pb='<span class="badge badge-pending">pending</span>';
+      else pb=escapeHtml(ps||"-");
+      return '<tr>' +
+        '<td>'+o.order_id+'</td>' +
+        '<td class="truncate">'+escapeHtml(o.email||"-")+'</td>' +
+        '<td>'+escapeHtml(o.package_name||"-")+'</td>' +
+        '<td>$'+(o.price_usd||0).toFixed(2)+'</td>' +
+        '<td>$'+(o.upstream_budget||0).toFixed(2)+'</td>' +
+        '<td>$'+(o.upstream_cost_used||0).toFixed(6)+'</td>' +
+        '<td>$'+(o.remaining_budget||0).toFixed(6)+'</td>' +
+        '<td>'+escapeHtml(o.payment_provider||"-")+'</td>' +
+        '<td>'+pb+'</td>' +
+        '<td class="truncate">'+escapeHtml(o.key_prefix||"-")+'</td>' +
+        '<td>'+kb+'</td>' +
+        '<td>'+(o.requests||0)+'</td>' +
+        '<td>'+(o.created_at||"-").substring(0,16)+'</td>' +
+        '<td>'+(o.last_used_at||"-").substring(0,16)+'</td>' +
+        '</tr>';
+    }).join("");
+  } catch(e) { console.error(e); }
+}
+
+async function loadKeys() {
+  const search = document.getElementById("key-search").value.trim();
+  const status = document.getElementById("key-status").value;
+  const tbody = document.getElementById("keys-tbody");
+  const empty = document.getElementById("keys-empty");
+  let url = BASE + "/api/admin/keys?";
+  if (search) url += "search=" + encodeURIComponent(search) + "&";
+  if (status) url += "status=" + encodeURIComponent(status) + "&";
+  try {
+    const r = await fetch(url, { headers: { "Authorization": "Bearer " + adminToken } });
+    const d = await r.json();
+    if (!d.keys || d.keys.length === 0) {
+      tbody.innerHTML = ""; empty.style.display = "block"; return;
+    }
+    empty.style.display = "none";
+    tbody.innerHTML = d.keys.map(k => {
+      let sb = "";
+      if (k.status==="active") sb='<span class="badge badge-active">active</span>';
+      else if (k.status==="exhausted") sb='<span class="badge badge-exhausted">exhausted</span>';
+      else if (k.status==="disabled") sb='<span class="badge badge-disabled">disabled</span>';
+      else sb='<span class="badge badge-pending">'+escapeHtml(k.status||"-")+'</span>';
+      return '<tr>' +
+        '<td class="truncate">'+escapeHtml(k.key_prefix||"-")+'</td>' +
+        '<td>'+escapeHtml(k.name||"-")+'</td>' +
+        '<td>'+sb+'</td>' +
+        '<td>'+escapeHtml(k.package_name||"-")+'</td>' +
+        '<td>$'+(k.upstream_budget||0).toFixed(2)+'</td>' +
+        '<td>$'+(k.upstream_cost_used||0).toFixed(6)+'</td>' +
+        '<td>$'+(k.remaining_budget||0).toFixed(6)+'</td>' +
+        '<td>$'+(k.sale_price||0).toFixed(2)+'</td>' +
+        '<td>'+escapeHtml((k.allowed_models||"-"))+'</td>' +
+        '<td>'+(k.rate_limit_per_minute||"-")+'</td>' +
+        '<td>'+(k.requests||0)+'</td>' +
+        '<td>'+(k.cache_hit||0).toLocaleString()+'</td>' +
+        '<td>'+(k.cache_miss||0).toLocaleString()+'</td>' +
+        '<td>'+(k.output_tk||0).toLocaleString()+'</td>' +
+        '<td>'+(k.last_used_at||"-").substring(0,16)+'</td>' +
+        '</tr>';
+    }).join("");
+  } catch(e) { console.error(e); }
+}
+
+function debounceSearch(type) {
+  if (searchTimers[type]) clearTimeout(searchTimers[type]);
+  searchTimers[type] = setTimeout(() => {
+    if (type === "orders") loadOrders();
+    else loadKeys();
+  }, 400);
+}
+
+function escapeHtml(str) {
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
+</script>
+</body>
+</html>

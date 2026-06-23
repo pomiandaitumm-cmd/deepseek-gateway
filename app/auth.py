@@ -42,3 +42,21 @@ async def verify_key_light(request: Request, credentials: HTTPAuthorizationCrede
     if key_info["status"] == "disabled": raise HTTPException(status_code=403, detail="API key has been disabled")
     if key_info["status"] not in ("active", "exhausted"): raise HTTPException(status_code=403, detail="API key is not active")
     return key_info
+
+
+def verify_admin_token(request: Request, credentials: HTTPAuthorizationCredentials | None = Depends(security)) -> dict:
+    """Verify admin token for admin API endpoints. Must match ADMIN_TOKEN from .env."""
+    from .config import ADMIN_TOKEN
+    if not ADMIN_TOKEN:
+        raise HTTPException(status_code=501, detail="Admin backend not configured")
+    if credentials and credentials.credentials:
+        token = credentials.credentials
+    else:
+        auth = request.headers.get("Authorization", "")
+        if auth.startswith("Bearer "):
+            token = auth[7:]
+        else:
+            raise HTTPException(status_code=401, detail="Admin token required")
+    if token != ADMIN_TOKEN:
+        raise HTTPException(status_code=401, detail="Invalid admin token")
+    return {"admin": True}

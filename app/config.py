@@ -29,3 +29,5 @@ PAYMENT_TOKEN = os.getenv("PAYMENT_TOKEN", "USDT")
 TRONGRID_API_BASE = os.getenv("TRONGRID_API_BASE", "https://api.trongrid.io")
 PAYMENT_POLL_INTERVAL = int(os.getenv("PAYMENT_POLL_INTERVAL", "30"))
 ORDER_EXPIRY_MINUTES = int(os.getenv("ORDER_EXPIRY_MINUTES", "30"))
+# v0.9 Admin Backend
+ADMIN_TOKEN = os.getenv("ADMIN_TOKEN", "")

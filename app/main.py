@@ -1,7 +1,8 @@
 ﻿from fastapi import FastAPI, Request, HTTPException, Depends, Query
+from typing import Optional
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
-from .auth import verify_api_key, verify_key_light
+from .auth import verify_api_key, verify_key_light, verify_admin_token
 from .proxy import proxy_chat_completions
 from .config import EXPOSED_MODELS
 from .paypal import (
@@ -14,6 +15,7 @@ from .paypal import (
 )
 from .database import (
     init_db, get_db, get_key_usage, create_order, get_order_status,
+    get_admin_summary, get_admin_orders, get_admin_keys,
     get_lead_stats, checkout_order, get_order_status_v07,
     checkout_order_paypal, capture_paypal_and_approve, get_order_status_v08,
 )
@@ -316,16 +318,38 @@ async def api_checkout(request: Request):
         raise HTTPException(status_code=400, detail=err)
     return JSONResponse(content=order)
 
+# ===== v0.9 Admin Backend =====
+
+@app.get("/api/admin/summary")
+async def admin_summary(admin: dict = Depends(verify_admin_token)):
+    """Admin: aggregate stats across all orders and keys."""
+    stats = get_admin_summary()
+    return JSONResponse(content=stats)
+
+
+@app.get("/api/admin/orders")
+async def admin_orders(
+    search: Optional[str] = Query(None),
+    status: Optional[str] = Query(None),
+    admin: dict = Depends(verify_admin_token),
+):
+    """Admin: list all orders with customer/key info. Supports search and status filter."""
+    orders = get_admin_orders(search=search, status_filter=status)
+    return JSONResponse(content={"orders": orders, "count": len(orders)})
+
+
+@app.get("/api/admin/keys")
+async def admin_keys(
+    search: Optional[str] = Query(None),
+    status: Optional[str] = Query(None),
+    admin: dict = Depends(verify_admin_token),
+):
+    """Admin: list all API keys with usage stats. Supports search and status filter."""
+    keys = get_admin_keys(search=search, status_filter=status)
+    return JSONResponse(content={"keys": keys, "count": len(keys)})
 
 # Static file mount (after all API routes)
 import os as _os
 _static_dir = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "static")
 if _os.path.isdir(_static_dir):
     app.mount("/", StaticFiles(directory=_static_dir, html=True), name="static")
-
-
-@app.get("/api/admin/lead-stats")
-async def lead_stats(key_info: dict = Depends(verify_api_key)):
-    """Admin: return lead source statistics. Requires valid API key."""
-    stats = get_lead_stats()
-    return JSONResponse(content=stats)

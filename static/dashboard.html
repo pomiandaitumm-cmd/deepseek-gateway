@@ -10,7 +10,7 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     background: #0d1117; color: #c9d1d9; line-height: 1.6;
   }
-  .container { max-width: 600px; margin: 0 auto; padding: 48px 24px; }
+  .container { max-width: 640px; margin: 0 auto; padding: 48px 24px; }
   h1 { font-size: 1.5rem; font-weight: 700; color: #f0f6fc; margin-bottom: 4px; }
   .subtitle { font-size: 0.9rem; color: #8b949e; margin-bottom: 28px; }
   label { display: block; font-size: 0.85rem; font-weight: 500; color: #f0f6fc; margin-bottom: 6px; }
@@ -58,13 +58,18 @@
     display: inline-block; font-size: 0.72rem; padding: 2px 8px; border-radius: 10px;
     background: #1f6feb22; color: #58a6ff; margin-right: 4px;
   }
+  .section-title { font-size: 0.85rem; color: #8b949e; text-transform: uppercase; letter-spacing: 0.5px; margin: 16px 0 8px; }
+  .code-snippet {
+    background: #0d1117; border: 1px solid #21262d; border-radius: 4px; padding: 8px 12px;
+    font-family: monospace; font-size: 0.78rem; color: #7ee787; margin-top: 4px; word-break: break-all;
+  }
 </style>
 </head>
 <body>
 <div class="container">
   <a class="back-link" href="/">&larr; Back to Home</a>
   <h1>Usage Dashboard</h1>
-  <p class="subtitle">Check your API key usage, quota, and plan details in real time.</p>
+  <p class="subtitle">Check your API key usage, budget, and plan details in real time.</p>
 
   <label for="key-input">Your API Key (sk-gateway-...)</label>
   <input type="text" id="key-input" placeholder="sk-gateway-..." autocomplete="off">
@@ -107,7 +112,7 @@ async function checkUsage() {
       btn.disabled = false; btn.textContent = "Check Usage"; return;
     }
     if (resp.status === 403) {
-      errorDiv.innerHTML = '<div class="error">This API key has been disabled or exhausted. Contact support or purchase a new package.</div>';
+      errorDiv.innerHTML = '<div class="error">This API key has been disabled. Contact support or purchase a new package.</div>';
       btn.disabled = false; btn.textContent = "Check Usage"; return;
     }
 
@@ -124,7 +129,8 @@ async function checkUsage() {
     const pct = budget > 0 ? Math.min(100, Math.round(usedCost / budget * 100)) : 0;
 
     let remainingClass = "good";
-    if (budget > 0 && remainingBudget < budget * 0.1) remainingClass = "bad";
+    if (budget > 0 && remainingBudget <= 0) remainingClass = "bad";
+    else if (budget > 0 && remainingBudget < budget * 0.1) remainingClass = "bad";
     else if (budget > 0 && remainingBudget < budget * 0.2) remainingClass = "warn";
 
     let statusClass = "good";
@@ -138,16 +144,22 @@ async function checkUsage() {
     }
 
     let barColor = "#3fb950";
-    if (pct > 90) barColor = "#f85149";
+    if (pct >= 100) barColor = "#f85149";
+    else if (pct > 90) barColor = "#f85149";
     else if (pct > 80) barColor = "#d29922";
 
     let lowWarning = "";
-    if (budget > 0 && remainingBudget < budget * 0.2) {
+    if (data.status === "exhausted") {
+      lowWarning = '<div class="low-balance" style="background:#1b1114;border-color:#f8514944;color:#f85149;"><strong>&#9888; Your API budget is exhausted.</strong> Please buy a new package to continue. <a class="topup-btn" href="/pricing.html">Buy More</a></div>';
+    } else if (data.status === "active" && budget > 0 && remainingBudget < budget * 0.2) {
       lowWarning = '<div class="low-balance"><strong>&#9888; Low balance.</strong> Less than 20% budget remaining. <a class="topup-btn" href="/pricing.html">Top up / Upgrade</a></div>';
     }
-    let exhaustedWarning = "";
-    if (data.status === "exhausted") {
-      exhaustedWarning = '<div class="low-balance" style="background:#1b1114;border-color:#f8514944;color:#f85149;"><strong>Budget exhausted.</strong> Purchase a new package to continue. <a class="topup-btn" href="/pricing.html">Buy More</a></div>';
+
+    let statusLine = "";
+    if (data.status === "active") {
+      statusLine = '<div style="color:#3fb950;font-size:0.85rem;margin:8px 0;">&#10003; Your API key is active.</div>';
+    } else if (data.status === "exhausted") {
+      statusLine = '<div style="color:#f85149;font-size:0.85rem;margin:8px 0;">&#10007; Your API budget is exhausted. Please buy a new package.</div>';
     }
 
     const cacheHit = data.cache_hit_tokens || 0;
@@ -155,28 +167,43 @@ async function checkUsage() {
     const outputTk = data.output_tokens || 0;
     const totalTk = data.total_tokens || 0;
 
+    // Last usage breakdown
+    let lastUsageHtml = "";
+    if (data.last_usage) {
+      const lu = data.last_usage;
+      lastUsageHtml = `
+        <div class="section-title">Last Request Breakdown</div>
+        <div class="stat-row"><span class="stat-label">Cache Hit Tokens</span><span class="stat-value">${(lu.prompt_cache_hit_tokens||0).toLocaleString()}</span></div>
+        <div class="stat-row"><span class="stat-label">Cache Miss Tokens</span><span class="stat-value">${(lu.prompt_cache_miss_tokens||0).toLocaleString()}</span></div>
+        <div class="stat-row"><span class="stat-label">Completion Tokens</span><span class="stat-value">${(lu.completion_tokens||0).toLocaleString()}</span></div>
+        <div class="stat-row"><span class="stat-label">Total Tokens</span><span class="stat-value">${(lu.total_tokens||0).toLocaleString()}</span></div>
+        <div class="stat-row"><span class="stat-label">Cost</span><span class="stat-value">$${lu.upstream_cost||"0"}</span></div>
+      `;
+    }
+
     resultDiv.innerHTML = `
       <div class="card">
-        <h3>${escapeHtml(data.prefix)}... (${escapeHtml(data.name)})</h3>
-        <div class="stat-row"><span class="stat-label">Plan</span><span class="stat-value">${escapeHtml(data.package || "N/A")}</span></div>
+        <h3>${escapeHtml(data.prefix)} (${escapeHtml(data.name)})</h3>
+        ${statusLine}
+        <div class="stat-row"><span class="stat-label">Package</span><span class="stat-value">${escapeHtml(data.package || "N/A")}</span></div>
         <div class="stat-row"><span class="stat-label">Status</span><span class="stat-value ${statusClass}">${data.status}</span></div>
         <div class="stat-row"><span class="stat-label">Models</span><span class="stat-value">${modelsHtml || "N/A"}</span></div>
         <div class="stat-row"><span class="stat-label">Rate Limit</span><span class="stat-value">${data.rate_limit} RPM</span></div>
         <div class="stat-row"><span class="stat-label">Requests</span><span class="stat-value">${data.request_count}</span></div>
-        <div class="stat-row"><span class="stat-label">Paid</span><span class="stat-value">$${salePrice.toFixed(2)} ${escapeHtml(data.currency || 'USD')}</span></div>
-        <div class="stat-row"><span class="stat-label">API Budget</span><span class="stat-value">$${budget.toFixed(2)}</span></div>
-        <div class="stat-row"><span class="stat-label">Used Cost</span><span class="stat-value">$${usedCost.toFixed(6)}</span></div>
-        <div class="stat-row"><span class="stat-label">Remaining</span><span class="stat-value ${remainingClass}">$${remainingBudget.toFixed(6)}</span></div>
-        <div class="stat-row"><span class="stat-label">Cache Hits</span><span class="stat-value">${cacheHit.toLocaleString()} tk</span></div>
-        <div class="stat-row"><span class="stat-label">Cache Misses</span><span class="stat-value">${cacheMiss.toLocaleString()} tk</span></div>
-        <div class="stat-row"><span class="stat-label">Output</span><span class="stat-value">${outputTk.toLocaleString()} tk</span></div>
-        <div class="stat-row"><span class="stat-label">Total Tokens</span><span class="stat-value">${totalTk.toLocaleString()} tk</span></div>
-        <div class="stat-row"><span class="stat-label">Last Used</span><span class="stat-value">${data.last_used || 'N/A'}</span></div>
-        ${budget > 0 ? '<div class="progress-bar"><div class="progress-fill" style="width:' + pct + '%;background:' + barColor + ';"></div></div>' : ''}
+        <div class="stat-row"><span class="stat-label">Paid Amount</span><span class="stat-value">$${salePrice.toFixed(2)} ${escapeHtml(data.currency || 'USD')}</span></div>
+        <div class="stat-row"><span class="stat-label">Upstream Budget</span><span class="stat-value">$${budget.toFixed(2)}</span></div>
+        <div class="stat-row"><span class="stat-label">Used Upstream Cost</span><span class="stat-value">$${usedCost.toFixed(6)}</span></div>
+        <div class="stat-row"><span class="stat-label">Remaining Budget</span><span class="stat-value ${remainingClass}">$${remainingBudget.toFixed(6)}</span></div>
+        <div class="stat-row"><span class="stat-label">Total Cache Hits</span><span class="stat-value">${cacheHit.toLocaleString()} tk</span></div>
+        <div class="stat-row"><span class="stat-label">Total Cache Misses</span><span class="stat-value">${cacheMiss.toLocaleString()} tk</span></div>
+        <div class="stat-row"><span class="stat-label">Total Output</span><span class="stat-value">${outputTk.toLocaleString()} tk</span></div>
+        <div class="stat-row"><span class="stat-label">Total All Tokens</span><span class="stat-value">${totalTk.toLocaleString()} tk</span></div>
+        <div class="stat-row"><span class="stat-label">Last Used</span><span class="stat-value">${data.last_used || "N/A"}</span></div>
+        ${budget > 0 ? '<div class="progress-bar"><div class="progress-fill" style="width:' + Math.min(100, pct) + '%;background:' + barColor + ';"></div></div>' : ''}
         ${budget > 0 ? '<div style="font-size:0.75rem;color:#8b949e;margin-top:4px;">' + pct + '% budget used</div>' : ''}
+        ${lastUsageHtml}
       </div>
       ${lowWarning}
-      ${exhaustedWarning}
     `;
   } catch (e) {
     errorDiv.innerHTML = '<div class="error">Connection failed: ' + escapeHtml(e.message) + '</div>';

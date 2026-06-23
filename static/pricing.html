@@ -43,11 +43,25 @@
   .back-link { font-size: 0.82rem; margin-bottom: 20px; display: inline-block; }
   .badge { display: inline-block; font-size: 0.7rem; font-weight: 600; padding: 2px 8px; border-radius: 12px; margin-left: 6px; }
   .badge-popular { background: #1f6feb22; color: #58a6ff; }
+
+ .nav-links { margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 8px; }
+ .nav-links a {
+ font-size: 0.8rem; color: #8b949e; text-decoration: none;
+ padding: 4px 10px; border: 1px solid #30363d; border-radius: 4px;
+ transition: border-color 0.2s;
+ }
+ .nav-links a:hover { border-color: #58a6ff; color: #c9d1d9; text-decoration: none; }
 </style>
 </head>
 <body>
 <div class="container">
-  <a class="back-link" href="/">&larr; Back to Home</a>
+  <a class="back-link" href="/">&larr; Back to Home</a> | <a class="back-link" href="/docs.html">Docs / ????</a>
+  <div class="nav-links">
+    <a href="/pricing.html">Pricing</a>
+    <a href="/docs.html">Docs</a>
+    <a href="/dashboard.html">Dashboard</a>
+    <a href="/order.html">Check Order</a>
+  </div>
   <h1>Plans &amp; Pricing</h1>
   <p class="subtitle">OpenAI-compatible DeepSeek API Gateway. Per-key quota, usage tracking, no surprise bills.</p>
 

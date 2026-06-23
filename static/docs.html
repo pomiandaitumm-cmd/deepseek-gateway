@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Docs — DeepSeek Gateway</title>
+<style>
+ *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Microsoft YaHei","PingFang SC",sans-serif;background:#0d1117;color:#c9d1d9;line-height:1.7}
+ .container{max-width:800px;margin:0 auto;padding:48px 24px}
+ h1{font-size:1.8rem;color:#f0f6fc;margin-bottom:4px}
+ h2{font-size:1.2rem;color:#f0f6fc;margin:32px 0 12px;padding-bottom:6px;border-bottom:1px solid #30363d}
+ h3{font-size:0.95rem;color:#f0f6fc;margin:20px 0 8px}
+ p{font-size:0.9rem;color:#8b949e;margin-bottom:10px}
+ ul,ol{padding-left:22px;margin-bottom:12px}
+ li{font-size:0.9rem;color:#8b949e;margin-bottom:4px}
+ pre{background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:16px;overflow-x:auto;font-size:0.84rem;line-height:1.5;color:#c9d1d9;margin:10px 0}
+ code{font-family:"SF Mono","Fira Code","Cascadia Code",monospace;font-size:0.85em}
+ a{color:#58a6ff;text-decoration:none}
+ a:hover{text-decoration:underline}
+ .back-link{font-size:0.82rem;margin-bottom:20px;display:inline-block}
+ .lang-toggle{text-align:right;margin-bottom:12px}
+ .lang-toggle button{background:#21262d;border:1px solid #30363d;color:#c9d1d9;padding:4px 12px;border-radius:4px;cursor:pointer;font-size:0.8rem;margin-left:4px}
+ .lang-toggle button.active{background:#1f6feb;border-color:#1f6feb;color:#fff}
+ .en,.zh{display:none}
+ .en.visible,.zh.visible{display:block}
+ .inline-en,.inline-zh{display:none}
+ .inline-en.visible,.inline-zh.visible{display:inline}
+ .error-table{width:100%;border-collapse:collapse;margin:10px 0;font-size:0.85rem}
+ .error-table th{text-align:left;padding:8px 10px;background:#161b22;color:#8b949e;border-bottom:2px solid #30363d}
+ .error-table td{padding:6px 10px;border-bottom:1px solid #21262d}
+ .error-table code{color:#f85149}
+ .disclaimer{font-size:0.82rem;color:#8b949e;text-align:center;margin-top:40px;padding:16px;background:#161b22;border:1px solid #30363d;border-radius:6px}
+ .disclaimer strong{color:#c9d1d9}
+ .step{background:#161b22;border:1px solid #30363d;border-radius:6px;padding:14px 18px;margin:8px 0}
+ .step .num{display:inline-block;background:#1f6feb;color:#fff;width:22px;height:22px;text-align:center;border-radius:11px;font-size:0.75rem;font-weight:700;line-height:22px;margin-right:8px}
+ .step p{display:inline;color:#c9d1d9;font-size:0.88rem}
+</style>
+</head>
+<body>
+<div class="container">
+<a class="back-link" href="/"><span class="en visible">&larr; Back to Home</span><span class="zh">&larr; 返回首页</span></a>
+
+<div class="lang-toggle">
+<button id="btn-en" class="active" onclick="switchLang('en')">EN</button>
+<button id="btn-zh" onclick="switchLang('zh')">中文</button>
+</div>
+
+<!-- ====== ENGLISH ====== -->
+<div id="en-content" class="en visible">
+
+<h1>Documentation</h1>
+<p>Everything you need to use the DeepSeek API Gateway — from purchase to integration.</p>
+
+<h2>1. What Is This?</h2>
+<p>This is an <strong>independent third-party API gateway</strong> that provides OpenAI-compatible access to DeepSeek models. It is <strong>not</strong> an official DeepSeek service. You purchase an API budget, get your own API key, and call DeepSeek models through our endpoint.</p>
+
+<h2>2. How to Buy</h2>
+<div class="step"><span class="num">1</span><p>Go to <a href="/pricing.html">Pricing</a> and choose a plan (Trial, Starter, Standard, or Pro).</p></div>
+<div class="step"><span class="num">2</span><p>Enter your email address on the checkout page.</p></div>
+<div class="step"><span class="num">3</span><p>Pay with <strong>PayPal</strong>. The amount is in USD.</p></div>
+<div class="step"><span class="num">4</span><p>After successful payment, your API key appears automatically on the page.</p></div>
+<div class="step"><span class="num">5</span><p>Copy your key and save it securely. You can also check your order status later at <a href="/order.html">Check Order</a>.</p></div>
+
+<h2>3. Python Quick Start</h2>
+<p>Use the standard <code>openai</code> package:</p>
+<pre><code>from openai import OpenAI
+
+client = OpenAI(
+    base_url="http://65.49.201.211/v1",
+    api_key="sk-gateway-YOUR-KEY",
+)
+
+response = client.chat.completions.create(
+    model="deepseek-v4-flash",
+    messages=[{"role": "user", "content": "Hello!"}],
+    max_tokens=500,
+)
+print(response.choices[0].message.content)</code></pre>
+<p>Streaming works too:</p>
+<pre><code>stream = client.chat.completions.create(
+    model="deepseek-v4-flash",
+    messages=[{"role": "user", "content": "Tell me a story"}],
+    stream=True,
+)
+for chunk in stream:
+    if chunk.choices[0].delta.content:
+        print(chunk.choices[0].delta.content, end="")</code></pre>
+
+<h2>4. curl Example</h2>
+<pre><code>curl http://65.49.201.211/v1/chat/completions \
+  -H "Authorization: Bearer sk-gateway-YOUR-KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"deepseek-v4-flash","messages":[{"role":"user","content":"Hello"}],"max_tokens":100}'</code></pre>
+
+<h2>5. Supported Models</h2>
+<table class="error-table">
+<tr><th>Model</th><th>Description</th><th>Available In</th></tr>
+<tr><td><code>deepseek-v4-flash</code></td><td>Fast, cost-effective chat model</td><td>Trial / Starter / Standard / Pro</td></tr>
+<tr><td><code>deepseek-v4-pro</code></td><td>Higher capability for complex tasks</td><td>Pro only</td></tr>
+</table>
+<p>Calling a model your plan does not support returns HTTP 403.</p>
+
+<h2>6. Check Your Balance</h2>
+<p>Go to <a href="/dashboard.html">Dashboard</a>, enter your <code>sk-gateway-xxx</code> key, and click <strong>Check Usage</strong>. You will see:</p>
+<ul>
+<li><strong>Package</strong> — Your plan name</li>
+<li><strong>Status</strong> — active / exhausted / disabled</li>
+<li><strong>Paid Amount</strong> — What you paid</li>
+<li><strong>Upstream Budget</strong> — Your API spending budget</li>
+<li><strong>Used Upstream Cost</strong> — How much budget you have consumed</li>
+<li><strong>Remaining Budget</strong> — How much is left</li>
+<li><strong>Last Usage Breakdown</strong> — cache-hit tokens, cache-miss tokens, output tokens, and the cost of your latest request</li>
+</ul>
+
+<h2>7. How Billing Works</h2>
+<p>You are <strong>not</strong> billed by simple "total tokens". Instead, each request deducts from your API budget based on real DeepSeek token pricing:</p>
+<ul>
+<li><strong>Input (cache miss)</strong> — $0.14 per million tokens</li>
+<li><strong>Input (cache hit)</strong> — $0.014 per million tokens (10x cheaper!)</li>
+<li><strong>Output</strong> — $0.28 per million tokens</li>
+</ul>
+<p>Pro model (<code>deepseek-v4-pro</code>) costs more per token. When your remaining budget reaches $0, your key becomes <strong>exhausted</strong> and further requests return HTTP 402. Buy a new package to continue.</p>
+
+<h2>8. SillyTavern Setup</h2>
+<ol>
+<li>Open SillyTavern, go to <strong>API Connections</strong>.</li>
+<li>Select <strong>OpenAI Compatible</strong> as the API type.</li>
+<li>Set <strong>Base URL</strong> to: <code>http://65.49.201.211/v1</code></li>
+<li>Set <strong>API Key</strong> to your <code>sk-gateway-xxx</code> key.</li>
+<li>Set <strong>Model</strong> to <code>deepseek-v4-flash</code> (or <code>deepseek-v4-pro</code> if you have Pro).</li>
+<li>Save and test the connection.</li>
+</ol>
+
+<h2>9. Common Errors</h2>
+<table class="error-table">
+<tr><th>Code</th><th>Meaning</th><th>What to Do</th></tr>
+<tr><td><code>401</code></td><td>Invalid or missing API key</td><td>Check your key is correct and starts with <code>sk-gateway-</code>.</td></tr>
+<tr><td><code>402</code></td><td>API budget exhausted</td><td>Your budget is used up. Buy a new package.</td></tr>
+<tr><td><code>403</code></td><td>Model not allowed</td><td>Your plan does not support this model. Upgrade to Pro for <code>deepseek-v4-pro</code>.</td></tr>
+<tr><td><code>429</code></td><td>Rate limit exceeded</td><td>Slow down. Trial/Starter/Pro: 30 RPM. Standard: 60 RPM.</td></tr>
+<tr><td><code>500/502</code></td><td>Server error</td><td>Temporary issue. Retry. If persistent, contact support.</td></tr>
+</table>
+
+<div class="disclaimer">
+<strong>Disclaimer</strong><br>
+This is an independent third-party API gateway. Not affiliated with or officially endorsed by DeepSeek.<br>
+Payments are processed by PayPal. Prices may change. Do not share your API key.
+</div>
+
+</div>
+
+<!-- ====== CHINESE ====== -->
+<div id="zh-content" class="zh">
+
+<h1>使用说明</h1>
+<p>从购买到接入，使用 DeepSeek API 网关所需的一切。</p>
+
+<h2>1. 这是什么？</h2>
+<p>这是一个<strong>独立第三方 API 网关</strong>，提供 OpenAI 兼容格式的 DeepSeek 模型接入。<strong>并非</strong> DeepSeek 官方服务。你购买 API 预算额度，获取自己的 API key，通过我们的端点调用 DeepSeek 模型。</p>
+
+<h2>2. 怎么购买</h2>
+<div class="step"><span class="num">1</span><p>打开 <a href="/pricing.html">套餐页面</a>，选择套餐（试用 / 入门 / 标准 / 专业）。</p></div>
+<div class="step"><span class="num">2</span><p>在结账页输入你的邮箱地址。</p></div>
+<div class="step"><span class="num">3</span><p>使用 <strong>PayPal</strong> 付款，金额为美元。</p></div>
+<div class="step"><span class="num">4</span><p>付款成功后，API key 会自动显示在页面上。</p></div>
+<div class="step"><span class="num">5</span><p>复制并妥善保存你的 key。也可以稍后在 <a href="/order.html">订单查询</a> 页面查看。</p></div>
+
+<h2>3. Python 快速接入</h2>
+<p>使用标准的 <code>openai</code> 包：</p>
+<pre><code>from openai import OpenAI
+
+client = OpenAI(
+    base_url="http://65.49.201.211/v1",
+    api_key="sk-gateway-YOUR-KEY",
+)
+
+response = client.chat.completions.create(
+    model="deepseek-v4-flash",
+    messages=[{"role": "user", "content": "你好"}],
+    max_tokens=500,
+)
+print(response.choices[0].message.content)</code></pre>
+<p>流式输出同样支持：</p>
+<pre><code>stream = client.chat.completions.create(
+    model="deepseek-v4-flash",
+    messages=[{"role": "user", "content": "讲个故事"}],
+    stream=True,
+)
+for chunk in stream:
+    if chunk.choices[0].delta.content:
+        print(chunk.choices[0].delta.content, end="")</code></pre>
+
+<h2>4. curl 示例</h2>
+<pre><code>curl http://65.49.201.211/v1/chat/completions \
+  -H "Authorization: Bearer sk-gateway-YOUR-KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"deepseek-v4-flash","messages":[{"role":"user","content":"你好"}],"max_tokens":100}'</code></pre>
+
+<h2>5. 支持模型</h2>
+<table class="error-table">
+<tr><th>模型</th><th>说明</th><th>可用套餐</th></tr>
+<tr><td><code>deepseek-v4-flash</code></td><td>快速、高性价比对话模型</td><td>试用 / 入门 / 标准 / 专业</td></tr>
+<tr><td><code>deepseek-v4-pro</code></td><td>更强能力，适合复杂任务</td><td>仅专业版</td></tr>
+</table>
+<p>调用套餐不支持的模型会返回 HTTP 403。</p>
+
+<h2>6. 如何查看余额</h2>
+<p>打开 <a href="/dashboard.html">用量查询</a>，输入你的 <code>sk-gateway-xxx</code> key，点击 <strong>Check Usage</strong>。可以看到：</p>
+<ul>
+<li><strong>套餐</strong> — 你购买的套餐名称</li>
+<li><strong>状态</strong> — 正常 / 已耗尽 / 已禁用</li>
+<li><strong>支付金额</strong> — 你付了多少钱</li>
+<li><strong>上游预算</strong> — 你的 API 消费额度</li>
+<li><strong>已消耗成本</strong> — 已使用的预算</li>
+<li><strong>剩余额度</strong> — 还剩多少</li>
+<li><strong>最近用量明细</strong> — 缓存命中 token、缓存未命中 token、输出 token、本次请求成本</li>
+</ul>
+
+<h2>7. 余额怎么扣</h2>
+<p><strong>不是</strong>简单地按"总 token 数"扣费。每次请求按 DeepSeek 真实 token 价格从你的预算中扣除：</p>
+<ul>
+<li><strong>输入（缓存未命中）</strong> — 每百万 token $0.14</li>
+<li><strong>输入（缓存命中）</strong> — 每百万 token $0.014（便宜 10 倍！）</li>
+<li><strong>输出</strong> — 每百万 token $0.28</li>
+</ul>
+<p>Pro 模型（<code>deepseek-v4-pro</code>）每 token 更贵。当剩余预算降至 $0，你的 key 变为<strong>"已耗尽"</strong>，后续请求返回 HTTP 402。购买新套餐即可继续使用。</p>
+
+<h2>8. SillyTavern 酒馆接入</h2>
+<ol>
+<li>打开 SillyTavern，进入<strong>API 连接</strong>设置。</li>
+<li>API 类型选择 <strong>OpenAI Compatible</strong>。</li>
+<li><strong>Base URL</strong> 填：<code>http://65.49.201.211/v1</code></li>
+<li><strong>API Key</strong> 填你的 <code>sk-gateway-xxx</code> key。</li>
+<li><strong>Model</strong> 填 <code>deepseek-v4-flash</code>（专业版用户可填 <code>deepseek-v4-pro</code>）。</li>
+<li>保存并测试连接。</li>
+</ol>
+
+<h2>9. 常见错误</h2>
+<table class="error-table">
+<tr><th>状态码</th><th>含义</th><th>怎么办</th></tr>
+<tr><td><code>401</code></td><td>API key 无效或缺失</td><td>检查 key 是否正确，是否以 <code>sk-gateway-</code> 开头。</td></tr>
+<tr><td><code>402</code></td><td>API 预算已耗尽</td><td>余额用完，请购买新套餐。</td></tr>
+<tr><td><code>403</code></td><td>套餐不支持该模型</td><td>你的套餐不允许使用此模型。升级到专业版可用 <code>deepseek-v4-pro</code>。</td></tr>
+<tr><td><code>429</code></td><td>请求频率超限</td><td>请降低请求速度。试用/入门/专业：30 RPM，标准：60 RPM。</td></tr>
+<tr><td><code>500/502</code></td><td>服务器错误</td><td>临时故障，请重试。持续出现请联系管理员。</td></tr>
+</table>
+
+<div class="disclaimer">
+<strong>免责声明</strong><br>
+这是独立第三方 API 网关，与 DeepSeek 无关联，非 DeepSeek 官方服务。<br>
+付款由 PayPal 处理。价格可能变动。请勿分享你的 API key。
+</div>
+
+</div>
+
+</div>
+
+<script>
+function switchLang(lang) {
+  document.getElementById('en-content').classList.toggle('visible', lang === 'en');
+  document.getElementById('zh-content').classList.toggle('visible', lang === 'zh');
+  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+  document.getElementById('btn-zh').classList.toggle('active', lang === 'zh');
+  document.querySelectorAll('.en').forEach(function(el){el.classList.toggle('visible',lang==='en')});
+  document.querySelectorAll('.zh').forEach(function(el){el.classList.toggle('visible',lang==='zh')});
+  localStorage.setItem('lang', lang);
+}
+(function(){
+  var s = localStorage.getItem('lang');
+  if (s === 'zh') switchLang('zh');
+})();
+</script>
+</body>
+</html>

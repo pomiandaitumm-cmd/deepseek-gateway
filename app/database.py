@@ -939,13 +939,13 @@ def get_admin_orders(search=None, status_filter=None):
     conn = get_db()
     query = """
         SELECT o.id as order_id, c.email, p.name as package_name,
-               o.price_usd, p.currency,
-               p.upstream_budget, k.upstream_cost_used,
+               p.sale_price, p.currency, COALESCE(o.status, CASE WHEN o.payment_status = 'paid' THEN 'approved' ELSE 'pending' END) as order_status,
+               p.upstream_budget, COALESCE(k.upstream_cost_used, 0) as used_upstream_cost,
                (p.upstream_budget - COALESCE(k.upstream_cost_used, 0)) as remaining_budget,
                o.payment_provider, o.payment_status,
-               o.key_prefix, k.status as key_status,
+               o.key_prefix, COALESCE(k.status, 'pending') as key_status,
                COALESCE((SELECT COUNT(*) FROM usage_logs l WHERE l.api_key_id = k.id), 0) as requests,
-               o.created_at, k.last_used_at
+               o.created_at, COALESCE(k.last_used_at, '') as last_used_at
         FROM orders o
         JOIN customers c ON c.id = o.customer_id
         JOIN packages p ON p.id = o.package_id

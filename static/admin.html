@@ -83,9 +83,10 @@
       <input type="text" id="order-search" placeholder="搜索邮箱或 Key..." onkeyup="debounceSearch('orders')">
       <select id="order-status" onchange="loadOrders()">
         <option value="">全部状态</option>
-        <option value="pending">待处理</option>
+        <option value="pending">订单待处理</option>
+        <option value="approved">订单已批准</option>
         <option value="paid">已付款</option>
-        <option value="approved">已批准</option>
+        <option value="unpaid">未付款</option>
         <option value="active">Key 正常</option>
         <option value="exhausted">Key 已耗尽</option>
         <option value="disabled">Key 已禁用</option>
@@ -96,7 +97,7 @@
         <thead><tr>
           <th>订单号</th><th>邮箱</th><th>套餐</th><th>售价</th>
           <th>上游预算</th><th>已消耗</th><th>剩余</th>
-          <th>支付方式</th><th>付款状态</th><th>Key</th><th>Key 状态</th>
+          <th>支付方式</th><th>订单状态</th><th>付款状态</th><th>Key</th><th>Key 状态</th>
           <th>请求数</th><th>创建时间</th><th>最后使用</th>
         </tr></thead>
         <tbody id="orders-tbody"></tbody>
@@ -210,11 +211,15 @@ async function loadOrders() {
       else if (ks==="exhausted") kb='<span class="badge badge-exhausted">已耗尽</span>';
       else if (ks==="disabled") kb='<span class="badge badge-disabled">已禁用</span>';
       else kb='<span class="badge badge-pending">'+escapeHtml(ks||"-")+'</span>';
+      const os = o.order_status || "";
+      let ob = "";
+      if (os==="approved") ob='<span class="badge badge-approved">已批准</span>';
+      else if (os==="pending") ob='<span class="badge badge-pending">待处理</span>';
+      else ob='<span class="badge badge-pending">'+escapeHtml(os||"-")+'</span>';
       const ps = o.payment_status || "";
       let pb = "";
       if (ps==="paid") pb='<span class="badge badge-paid">已付款</span>';
-      else if (ps==="approved") pb='<span class="badge badge-approved">已批准</span>';
-      else if (ps==="pending") pb='<span class="badge badge-pending">待付款</span>';
+      else if (ps==="unpaid") pb='<span class="badge badge-pending">未付款</span>';
       else pb=escapeHtml(ps||"-");
       return '<tr>' +
         '<td>'+o.order_id+'</td>' +
@@ -225,6 +230,7 @@ async function loadOrders() {
         '<td>$'+(o.upstream_cost_used||0).toFixed(6)+'</td>' +
         '<td>$'+(o.remaining_budget||0).toFixed(6)+'</td>' +
         '<td>'+escapeHtml(o.payment_provider||"-")+'</td>' +
+        '<td>'+ob+'</td>' +
         '<td>'+pb+'</td>' +
         '<td class="truncate">'+escapeHtml(o.key_prefix||"-")+'</td>' +
         '<td>'+kb+'</td>' +

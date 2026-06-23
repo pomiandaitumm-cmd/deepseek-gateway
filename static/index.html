@@ -5,297 +5,299 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DeepSeek Gateway ? OpenAI-Compatible API Access</title>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    background: #0d1117; color: #c9d1d9; line-height: 1.6;
-  }
-  .container { max-width: 720px; margin: 0 auto; padding: 80px 24px; }
-  h1 { font-size: 2.2rem; font-weight: 700; color: #f0f6fc; margin-bottom: 12px; letter-spacing: -0.02em; }
-  .subtitle { font-size: 1.1rem; color: #8b949e; margin-bottom: 40px; }
-  .badge {
-    display: inline-block; background: #1f6feb22; color: #58a6ff; border: 1px solid #1f6feb44;
-    padding: 3px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: 500; margin-bottom: 32px;
-  }
-  .card {
-    background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 24px; margin-bottom: 16px;
-  }
-  .card h3 { font-size: 1rem; color: #f0f6fc; margin-bottom: 8px; }
-  .card p, .card li { font-size: 0.9rem; color: #8b949e; }
-  .card ul { padding-left: 20px; margin-top: 8px; }
-  .card li { margin-bottom: 4px; }
-  pre {
-    background: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 16px;
-    overflow-x: auto; font-size: 0.85rem; line-height: 1.5; color: #c9d1d9;
-  }
-  code { font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace; font-size: 0.85em; }
-  .pricing { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 24px 0; }
-  .plan {
-    background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 20px; text-align: center;
-  }
-  .plan h3 { font-size: 0.95rem; color: #f0f6fc; }
-  .plan .tokens { font-size: 1.4rem; font-weight: 700; color: #58a6ff; margin: 8px 0; }
-  .plan .desc { font-size: 0.8rem; color: #8b949e; }
-  .lang-toggle { text-align: right; margin-bottom: 16px; }
-  .lang-toggle button {
-    background: #21262d; border: 1px solid #30363d; color: #c9d1d9; padding: 4px 12px;
-    border-radius: 4px; cursor: pointer; font-size: 0.8rem; margin-left: 4px;
-  }
-  .lang-toggle button.active { background: #1f6feb; border-color: #1f6feb; color: #fff; }
-  .en, .zh { display: none; }
-  .en.visible, .zh.visible { display: block; }
-  hr { border: none; border-top: 1px solid #30363d; margin: 40px 0; }
-  .footer { font-size: 0.8rem; color: #484f58; text-align: center; margin-top: 40px; }
-  a { color: #58a6ff; text-decoration: none; }
-  a:hover { text-decoration: underline; }
-  .cta-box {
-    background: #161b22; border: 2px solid #58a6ff44; border-radius: 8px; padding: 28px;
-    text-align: center; margin: 36px 0 24px;
-  }
-  .cta-box h3 { color: #f0f6fc; font-size: 1.15rem; margin-bottom: 6px; }
-  .cta-box p { color: #8b949e; margin: 6px 0 18px; font-size: 0.92rem; }
-  .cta-btn {
-    display: inline-block; background: #1f6feb; color: #fff !important; padding: 10px 28px;
-    border-radius: 6px; font-weight: 600; font-size: 0.95rem; text-decoration: none;
-  }
-  .cta-btn:hover { background: #388bfd; text-decoration: none; }
-  .nav-links { margin-bottom: 12px; display: flex; flex-wrap: wrap; gap: 8px; }
-  .nav-links a {
-    font-size: 0.82rem; color: #8b949e; text-decoration: none;
-    padding: 4px 10px; border: 1px solid #30363d; border-radius: 4px;
-    transition: border-color 0.2s;
-  }
-  .nav-links a:hover { border-color: #58a6ff; color: #c9d1d9; text-decoration: none; }
-  .nav-links a.highlight { border-color: #58a6ff66; color: #58a6ff; }
+ *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+ body {
+ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+ background: #0d1117; color: #c9d1d9; line-height: 1.6;
+ }
+ .container { max-width: 720px; margin: 0 auto; padding: 80px 24px; }
+ h1 { font-size: 2.2rem; font-weight: 700; color: #f0f6fc; margin-bottom: 12px; letter-spacing: -0.02em; }
+ .subtitle { font-size: 1.1rem; color: #8b949e; margin-bottom: 40px; }
+ .badge {
+ display: inline-block; background: #1f6feb22; color: #58a6ff; border: 1px solid #1f6feb44;
+ padding: 3px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: 500; margin-bottom: 32px;
+ }
+ .card {
+ background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 24px; margin-bottom: 16px;
+ }
+ .card h3 { font-size: 1rem; color: #f0f6fc; margin-bottom: 8px; }
+ .card p, .card li { font-size: 0.9rem; color: #8b949e; }
+ .card ul { padding-left: 20px; margin-top: 8px; }
+ .card li { margin-bottom: 4px; }
+ pre {
+ background: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 16px;
+ overflow-x: auto; font-size: 0.85rem; line-height: 1.5; color: #c9d1d9;
+ }
+ code { font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace; font-size: 0.85em; }
+ .pricing { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 24px 0; }
+ .plan {
+ background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 20px; text-align: center;
+ }
+ .plan h3 { font-size: 0.95rem; color: #f0f6fc; }
+ .plan .tokens { font-size: 1.4rem; font-weight: 700; color: #58a6ff; margin: 8px 0; }
+ .plan .desc { font-size: 0.8rem; color: #8b949e; }
+ .lang-toggle { text-align: right; margin-bottom: 16px; }
+ .lang-toggle button {
+ background: #21262d; border: 1px solid #30363d; color: #c9d1d9; padding: 4px 12px;
+ border-radius: 4px; cursor: pointer; font-size: 0.8rem; margin-left: 4px;
+ }
+ .lang-toggle button.active { background: #1f6feb; border-color: #1f6feb; color: #fff; }
+ .en, .zh { display: none; }
+ .en.visible, .zh.visible { display: block; }
+ hr { border: none; border-top: 1px solid #30363d; margin: 40px 0; }
+ .footer { font-size: 0.8rem; color: #484f58; text-align: center; margin-top: 40px; }
+ a { color: #58a6ff; text-decoration: none; }
+ a:hover { text-decoration: underline; }
+ .cta-box {
+ background: #161b22; border: 2px solid #58a6ff44; border-radius: 8px; padding: 28px;
+ text-align: center; margin: 36px 0 24px;
+ }
+ .cta-box h3 { color: #f0f6fc; font-size: 1.15rem; margin-bottom: 6px; }
+ .cta-box p { color: #8b949e; margin: 6px 0 18px; font-size: 0.92rem; }
+ .cta-btn {
+ display: inline-block; background: #1f6feb; color: #fff !important; padding: 10px 28px;
+ border-radius: 6px; font-weight: 600; font-size: 0.95rem; text-decoration: none;
+ }
+ .cta-btn:hover { background: #388bfd; text-decoration: none; }
+ .nav-links { margin-bottom: 12px; display: flex; flex-wrap: wrap; gap: 8px; }
+ .nav-links a {
+ font-size: 0.82rem; color: #8b949e; text-decoration: none;
+ padding: 4px 10px; border: 1px solid #30363d; border-radius: 4px;
+ transition: border-color 0.2s;
+ }
+ .nav-links a:hover { border-color: #58a6ff; color: #c9d1d9; text-decoration: none; }
+ .nav-links a.highlight { border-color: #58a6ff66; color: #58a6ff; }
 </style>
 </head>
 <body>
 <div class="container">
 
-  <div class="lang-toggle">
-    <button id="btn-en" class="active" onclick="switchLang('en')">EN</button>
-    <button id="btn-zh" onclick="switchLang('zh')">涓枃</button>
-  </div>
-  <div class="nav-links">
-    <a href="/order.html" class="highlight">Check Order</a>
-    <a href="/dashboard.html" class="highlight">Dashboard</a>
-    <a href="/api-docs.html" style="margin-left:12px;">API Docs</a>
-        <a href="/pricing.html" class="highlight">Pricing</a>
-    <a href="/apply.html" class="highlight">Apply</a>
-    <a href="/sillytavern-deepseek-setup.html">SillyTavern Setup</a>
-    <a href="/openrouter-vs-direct-deepseek.html">Compare Options</a>
-  </div>
+ <div class="lang-toggle">
+ <button id="btn-en" class="active" onclick="switchLang('en')">EN</button>
+ <button id="btn-zh" onclick="switchLang('zh')">涓枃</button>
+ </div>
+ <div class="nav-links">
+ <a href="/order.html" class="highlight">Check Order</a>
+ <a href="/dashboard.html" class="highlight">Dashboard</a>
+ <a href="/api-docs.html" style="margin-left:12px;">API Docs</a>
+ <a href="/pricing.html" class="highlight">Pricing</a>
+ <a href="/apply.html" class="highlight">Apply</a>
+ <a href="/sillytavern-deepseek-setup.html">SillyTavern Setup</a>
+ <a href="/openrouter-vs-direct-deepseek.html">Compare Options</a>
+ </div>
 
-  <!-- ======= ENGLISH ======= -->
-  <div id="en-content" class="en visible">
+ <!-- ======= ENGLISH ======= -->
+ <div id="en-content" class="en visible">
 
-    <h1>DeepSeek API Gateway</h1>
-    <p class="subtitle">OpenAI-compatible access to DeepSeek models. Use your existing SDK. No rewrites.</p>
-    <div class="badge">Alpha 路 Invite Only</div>
+ <h1>DeepSeek API Gateway</h1>
+ <p class="subtitle">OpenAI-compatible access to DeepSeek models. Use your existing SDK. No rewrites.</p>
+ <div class="badge">Invite Only</div>
 
-    <div class="card">
-      <h3>What is this?</h3>
-      <p>A managed API endpoint that forwards your requests to DeepSeek's models using the OpenAI request/response format. If your code already works with OpenAI's Python SDK, it works here 鈥?change the base URL and key.</p>
-    </div>
+ <div class="card">
+ <h3>What is this?</h3>
+ <p>A managed API endpoint that forwards your requests to DeepSeek's models using the OpenAI request/response format. If your code already works with OpenAI's Python SDK, it works here 鈥?change the base URL and key.</p>
+ </div>
 
-    <div class="card">
-      <h3>Quick Start</h3>
-      <pre><code>from openai import OpenAI
+ <div class="card">
+ <h3>Quick Start</h3>
+ <pre><code>from openai import OpenAI
 
 client = OpenAI(
-    base_url="http://65.49.201.211/v1",
-    api_key="sk-gateway-YOUR-KEY",
+ base_url="http://65.49.201.211/v1",
+ api_key="sk-gateway-YOUR-KEY",
 )
 
 response = client.chat.completions.create(
-    model="deepseek-v4-flash",
-    messages=[{"role": "user", "content": "Hello!"}],
+ model="deepseek-v4-flash",
+ messages=[{"role": "user", "content": "Hello!"}],
 )
 print(response.choices[0].message.content)</code></pre>
-      <p style="margin-top:12px">That's it. The same <code>openai</code> package you already use.</p>
-    </div>
+ <p style="margin-top:12px">That's it. The same <code>openai</code> package you already use.</p>
+ </div>
 
-    <div class="card">
-      <h3>Supported Models</h3>
-      <ul>
-        <li><code>deepseek-v4-flash</code> 鈥?Fast, cost-effective chat model</li>
-        <li><code>deepseek-v4-pro</code> 鈥?Higher capability for complex tasks</li>
-      </ul>
-    </div>
+ <div class="card">
+ <h3>Supported Models</h3>
+ <ul>
+ <li><code>deepseek-v4-flash</code> 鈥?Fast, cost-effective chat model</li>
+ <li><code>deepseek-v4-pro</code> 鈥?Higher capability for complex tasks</li>
+ </ul>
+ </div>
 
-    <div class="card">
-      <h3>What You Get</h3>
-      <ul>
-        <li><strong>OpenAI-compatible API</strong> 鈥?Drop-in replacement. No new SDK to learn.</li>
-        <li><strong>Streaming support</strong> 鈥?SSE streaming works out of the box.</li>
-        <li><strong>Token-based quotas</strong> 鈥?Clear usage tracking. No surprise bills.</li>
-        <li><strong>Per-key rate limiting</strong> 鈥?Predictable performance for every user.</li>
-        <li><strong>Reasoning content filtered by default</strong> 鈥?Clean output, only content you need.</li>
-      </ul>
-    </div>
+ <div class="card">
+ <h3>What You Get</h3>
+ <ul>
+ <li><strong>OpenAI-compatible API</strong> 鈥?Drop-in replacement. No new SDK to learn.</li>
+ <li><strong>Streaming support</strong> 鈥?SSE streaming works out of the box.</li>
+ <li><strong>Token-based quotas</strong> 鈥?Clear usage tracking. No surprise bills.</li>
+ <li><strong>Per-key rate limiting</strong> 鈥?Predictable performance for every user.</li>
+ <li><strong>Reasoning content filtered by default</strong> 鈥?Clean output, only content you need.</li>
+ </ul>
+ </div>
 
-    <h3 style="color:#f0f6fc; margin-top:32px">Plans</h3>
-    <div class="pricing">
-      <div class="plan">
-        <h3>Trial</h3>
-        <div class="tokens">100K</div>
-        <div class="desc">Test the API</div>
-      </div>
-      <div class="plan">
-        <h3>Starter</h3>
-        <div class="tokens">1M</div>
-        <div class="desc">Personal projects</div>
-      </div>
-      <div class="plan">
-        <h3>Standard</h3>
-        <div class="tokens">5M</div>
-        <div class="desc">Team usage</div>
-      </div>
-      <div class="plan">
-        <h3>Pro</h3>
-        <div class="tokens">10M</div>
-        <div class="desc">Production workloads</div>
-      </div>
-    </div>
+ <h3 style="color:#f0f6fc; margin-top:32px">Plans</h3>
+ <div class="pricing">
+ <div class="plan">
+ <h3>Trial</h3>
+ <div class="tokens">100K</div>
+ <div class="desc">Test the API</div>
+ </div>
+ <div class="plan">
+ <h3>Starter</h3>
+ <div class="tokens">1M</div>
+ <div class="desc">Personal projects</div>
+ </div>
+ <div class="plan">
+ <h3>Standard</h3>
+ <div class="tokens">5M</div>
+ <div class="desc">Team usage</div>
+ </div>
+ <div class="plan">
+ <h3>Pro</h3>
+ <div class="tokens">10M</div>
+ <div class="desc">Production workloads</div>
+ </div>
+ </div>
 
-        <div class="cta-box">
-      <h3>Apply for Alpha Access</h3>
-      <p>Invite-only test keys available for developers. 100K free tokens. OpenAI-compatible.<br>Works with SillyTavern, Python SDK, and any OpenAI client.</p>
-      <a class="cta-btn" href="/apply.html">Apply for Test Key</a>
-    </div>
+ <div class="cta-box">
+ <h3>Apply for Access</h3>
+ <p>Invite-only test keys available for developers. 100K free tokens. OpenAI-compatible.<br>Works with SillyTavern, Python SDK, and any OpenAI client.</p>
+ <a class="cta-btn" href="/apply.html">Apply for Test Key</a>
+ </div>
 <hr>
 
-    <h3 style="color:#f0f6fc">FAQ</h3>
-    <div class="card">
-      <h3>Can I use the standard OpenAI Python SDK?</h3>
-      <p>Yes. Set <code>base_url</code> to our endpoint and pass your gateway key. No custom client needed.</p>
-    </div>
-    <div class="card">
-      <h3>How are tokens counted?</h3>
-      <p>We use the <code>usage.total_tokens</code> value returned by DeepSeek for each request. You can check your usage anytime with a simple API call.</p>
-    </div>
-    <div class="card">
-      <h3>What happens when I run out of tokens?</h3>
-      <p>You'll receive an HTTP 402 response. Contact us to add more tokens to your key.</p>
-    </div>
-    <div class="card">
-      <h3>Is there a rate limit?</h3>
-      <p>Yes. Each key has a configurable requests-per-minute limit. The default is 30 RPM. You'll get an HTTP 429 if exceeded.</p>
-    </div>
+ <h3 style="color:#f0f6fc">FAQ</h3>
+ <div class="card">
+ <h3>Can I use the standard OpenAI Python SDK?</h3>
+ <p>Yes. Set <code>base_url</code> to our endpoint and pass your gateway key. No custom client needed.</p>
+ </div>
+ <div class="card">
+ <h3>How are tokens counted?</h3>
+ <p>We use the <code>usage.total_tokens</code> value returned by DeepSeek for each request. You can check your usage anytime with a simple API call.</p>
+ </div>
+ <div class="card">
+ <h3>What happens when I run out of tokens?</h3>
+ <p>You'll receive an HTTP 402 response. Contact us to add more tokens to your key.</p>
+ </div>
+ <div class="card">
+ <h3>Is there a rate limit?</h3>
+ <p>Yes. Each key has a configurable requests-per-minute limit. The default is 30 RPM. You'll get an HTTP 429 if exceeded.</p>
+ </div>
 
-    <div class="footer">DeepSeek Gateway 路 Alpha 路 Invite Only</div>
+ <div style="text-align:center;color:#8b949e;font-size:0.7rem;margin-bottom:6px">Independent third-party API gateway. Not affiliated with DeepSeek.<br>独立第三方 API 网关，非 DeepSeek 官方服务。</div>
+ <div class="footer">DeepSeek Gateway 路 Invite Only</div>
 
-  </div>
+ </div>
 
-  <!-- ======= CHINESE ======= -->
-  <div id="zh-content" class="zh">
+ <!-- ======= CHINESE ======= -->
+ <div id="zh-content" class="zh">
 
-    <h1>DeepSeek API Gateway</h1>
-    <p class="subtitle">OpenAI 鍏煎鐨?DeepSeek API 鎺ュ叆銆傜洿鎺ョ敤鐜版湁 SDK锛屾棤闇€鏀瑰啓浠ｇ爜銆?/p>
-    <div class="badge">Alpha 路 閭€璇峰埗</div>
+ <h1>DeepSeek API Gateway</h1>
+ <p class="subtitle">OpenAI 鍏煎鐨?DeepSeek API 鎺ュ叆銆傜洿鎺ョ敤鐜版湁 SDK锛屾棤闇€鏀瑰啓浠ｇ爜銆?/p>
+ <div class="badge"> 路 閭€璇峰埗</div>
 
-    <div class="card">
-      <h3>杩欐槸浠€涔堬紵</h3>
-      <p>涓€涓鐞?API 绔偣锛屽皢浣犵殑璇锋眰浠?OpenAI 鏍煎紡杞彂鍒?DeepSeek 妯″瀷銆傚鏋滀綘鐨勪唬鐮佸凡缁忕敤 OpenAI Python SDK锛屽彧闇€鏀?base_url 鍜?key 鍗冲彲鏃犵紳鍒囨崲銆?/p>
-    </div>
+ <div class="card">
+ <h3>杩欐槸浠€涔堬紵</h3>
+ <p>涓€涓鐞?API 绔偣锛屽皢浣犵殑璇锋眰浠?OpenAI 鏍煎紡杞彂鍒?DeepSeek 妯″瀷銆傚鏋滀綘鐨勪唬鐮佸凡缁忕敤 OpenAI Python SDK锛屽彧闇€鏀?base_url 鍜?key 鍗冲彲鏃犵紳鍒囨崲銆?/p>
+ </div>
 
-    <div class="card">
-      <h3>蹇€熷紑濮?/h3>
-      <pre><code>from openai import OpenAI
+ <div class="card">
+ <h3>蹇€熷紑濮?/h3>
+ <pre><code>from openai import OpenAI
 
 client = OpenAI(
-    base_url="http://65.49.201.211/v1",
-    api_key="sk-gateway-YOUR-KEY",
+ base_url="http://65.49.201.211/v1",
+ api_key="sk-gateway-YOUR-KEY",
 )
 
 response = client.chat.completions.create(
-    model="deepseek-v4-flash",
-    messages=[{"role": "user", "content": "浣犲ソ锛?}],
+ model="deepseek-v4-flash",
+ messages=[{"role": "user", "content": "浣犲ソ锛?}],
 )
 print(response.choices[0].message.content)</code></pre>
-      <p style="margin-top:12px">灏辫繖涔堢畝鍗曘€傜敤鐨勫氨鏄綘鐜版湁鐨?<code>openai</code> 鍖呫€?/p>
-    </div>
+ <p style="margin-top:12px">灏辫繖涔堢畝鍗曘€傜敤鐨勫氨鏄綘鐜版湁鐨?<code>openai</code> 鍖呫€?/p>
+ </div>
 
-    <div class="card">
-      <h3>鍙敤妯″瀷</h3>
-      <ul>
-        <li><code>deepseek-v4-flash</code> 鈥?蹇€熴€侀珮鎬т环姣旂殑瀵硅瘽妯″瀷</li>
-        <li><code>deepseek-v4-pro</code> 鈥?鏇村己鑳藉姏锛岄€傚悎澶嶆潅浠诲姟</li>
-      </ul>
-    </div>
+ <div class="card">
+ <h3>鍙敤妯″瀷</h3>
+ <ul>
+ <li><code>deepseek-v4-flash</code> 鈥?蹇€熴€侀珮鎬т环姣旂殑瀵硅瘽妯″瀷</li>
+ <li><code>deepseek-v4-pro</code> 鈥?鏇村己鑳藉姏锛岄€傚悎澶嶆潅浠诲姟</li>
+ </ul>
+ </div>
 
-    <div class="card">
-      <h3>浣犺幏寰椾粈涔?/h3>
-      <ul>
-        <li><strong>OpenAI 鍏煎 API</strong> 鈥?鍗虫彃鍗崇敤锛屾棤闇€瀛︿範鏂?SDK銆?/li>
-        <li><strong>娴佸紡杈撳嚭鏀寔</strong> 鈥?SSE 娴佸紡浼犺緭寮€绠卞嵆鐢ㄣ€?/li>
-        <li><strong>Token 棰濆害鍒?/strong> 鈥?鐢ㄩ噺閫忔槑锛屼笉浼氭湁鎰忓鐨勮处鍗曘€?/li>
-        <li><strong>姣?key 鐙珛闄愭祦</strong> 鈥?姣忎釜鐢ㄦ埛鎬ц兘鍙鏈熴€?/li>
-        <li><strong>榛樿杩囨护鎺ㄧ悊鍐呭</strong> 鈥?骞插噣杈撳嚭锛屽彧杩斿洖浣犻渶瑕佺殑 content銆?/li>
-      </ul>
-    </div>
+ <div class="card">
+ <h3>浣犺幏寰椾粈涔?/h3>
+ <ul>
+ <li><strong>OpenAI 鍏煎 API</strong> 鈥?鍗虫彃鍗崇敤锛屾棤闇€瀛︿範鏂?SDK銆?/li>
+ <li><strong>娴佸紡杈撳嚭鏀寔</strong> 鈥?SSE 娴佸紡浼犺緭寮€绠卞嵆鐢ㄣ€?/li>
+ <li><strong>Token 棰濆害鍒?/strong> 鈥?鐢ㄩ噺閫忔槑锛屼笉浼氭湁鎰忓鐨勮处鍗曘€?/li>
+ <li><strong>姣?key 鐙珛闄愭祦</strong> 鈥?姣忎釜鐢ㄦ埛鎬ц兘鍙鏈熴€?/li>
+ <li><strong>榛樿杩囨护鎺ㄧ悊鍐呭</strong> 鈥?骞插噣杈撳嚭锛屽彧杩斿洖浣犻渶瑕佺殑 content銆?/li>
+ </ul>
+ </div>
 
-    <h3 style="color:#f0f6fc; margin-top:32px">濂楅</h3>
-    <div class="pricing">
-      <div class="plan">
-        <h3>璇曠敤</h3>
-        <div class="tokens">10 涓?/div>
-        <div class="desc">娴嬭瘯 API</div>
-      </div>
-      <div class="plan">
-        <h3>鍏ラ棬</h3>
-        <div class="tokens">100 涓?/div>
-        <div class="desc">涓汉椤圭洰</div>
-      </div>
-      <div class="plan">
-        <h3>鏍囧噯</h3>
-        <div class="tokens">500 涓?/div>
-        <div class="desc">鍥㈤槦浣跨敤</div>
-      </div>
-      <div class="plan">
-        <h3>涓撲笟</h3>
-        <div class="tokens">1000 涓?/div>
-        <div class="desc">鐢熶骇鐜</div>
-      </div>
-    </div>
+ <h3 style="color:#f0f6fc; margin-top:32px">濂楅</h3>
+ <div class="pricing">
+ <div class="plan">
+ <h3>璇曠敤</h3>
+ <div class="tokens">10 涓?/div>
+ <div class="desc">娴嬭瘯 API</div>
+ </div>
+ <div class="plan">
+ <h3>鍏ラ棬</h3>
+ <div class="tokens">100 涓?/div>
+ <div class="desc">涓汉椤圭洰</div>
+ </div>
+ <div class="plan">
+ <h3>鏍囧噯</h3>
+ <div class="tokens">500 涓?/div>
+ <div class="desc">鍥㈤槦浣跨敤</div>
+ </div>
+ <div class="plan">
+ <h3>涓撲笟</h3>
+ <div class="tokens">1000 涓?/div>
+ <div class="desc">鐢熶骇鐜</div>
+ </div>
+ </div>
 
-        <div class="cta-box">
-      <h3>Apply for Alpha Access</h3>
-      <p>Invite-only test keys available for developers. 100K free tokens. OpenAI-compatible.<br>Works with SillyTavern, Python SDK, and any OpenAI client.</p>
-      <a class="cta-btn" href="/apply.html">Apply for Test Key</a>
-    </div>
+ <div class="cta-box">
+ <h3>Apply for Access</h3>
+ <p>Invite-only test keys available for developers. 100K free tokens. OpenAI-compatible.<br>Works with SillyTavern, Python SDK, and any OpenAI client.</p>
+ <a class="cta-btn" href="/apply.html">Apply for Test Key</a>
+ </div>
 <hr>
 
-    <h3 style="color:#f0f6fc">甯歌闂</h3>
-    <div class="card">
-      <h3>鑳界敤鏍囧噯 OpenAI Python SDK 鍚楋紵</h3>
-      <p>鍙互銆傝缃?<code>base_url</code> 涓烘垜浠殑绔偣锛屼紶鍏ヤ綘鐨?gateway key銆備笉闇€瑕佽嚜瀹氫箟瀹㈡埛绔€?/p>
-    </div>
-    <div class="card">
-      <h3>Token 鎬庝箞璁＄畻锛?/h3>
-      <p>鎴戜滑浣跨敤 DeepSeek 姣忔璇锋眰杩斿洖鐨?<code>usage.total_tokens</code> 鍊笺€備綘鍙互闅忔椂鏌ョ湅鐢ㄩ噺銆?/p>
-    </div>
-    <div class="card">
-      <h3>棰濆害鐢ㄥ畬浜嗘€庝箞鍔烇紵</h3>
-      <p>浼氭敹鍒?HTTP 402 鍝嶅簲銆傝仈绯荤鐞嗗憳缁欎綘鐨?key 澧炲姞棰濆害銆?/p>
-    </div>
-    <div class="card">
-      <h3>鏈夐檺娴佸悧锛?/h3>
-      <p>鏈夈€傛瘡涓?key 鏈夌嫭绔嬬殑姣忓垎閽熻姹備笂闄愶紝榛樿 30 RPM銆傝秴杩囪繑鍥?HTTP 429銆?/p>
-    </div>
+ <h3 style="color:#f0f6fc">甯歌闂</h3>
+ <div class="card">
+ <h3>鑳界敤鏍囧噯 OpenAI Python SDK 鍚楋紵</h3>
+ <p>鍙互銆傝缃?<code>base_url</code> 涓烘垜浠殑绔偣锛屼紶鍏ヤ綘鐨?gateway key銆備笉闇€瑕佽嚜瀹氫箟瀹㈡埛绔€?/p>
+ </div>
+ <div class="card">
+ <h3>Token 鎬庝箞璁＄畻锛?/h3>
+ <p>鎴戜滑浣跨敤 DeepSeek 姣忔璇锋眰杩斿洖鐨?<code>usage.total_tokens</code> 鍊笺€備綘鍙互闅忔椂鏌ョ湅鐢ㄩ噺銆?/p>
+ </div>
+ <div class="card">
+ <h3>棰濆害鐢ㄥ畬浜嗘€庝箞鍔烇紵</h3>
+ <p>浼氭敹鍒?HTTP 402 鍝嶅簲銆傝仈绯荤鐞嗗憳缁欎綘鐨?key 澧炲姞棰濆害銆?/p>
+ </div>
+ <div class="card">
+ <h3>鏈夐檺娴佸悧锛?/h3>
+ <p>鏈夈€傛瘡涓?key 鏈夌嫭绔嬬殑姣忓垎閽熻姹備笂闄愶紝榛樿 30 RPM銆傝秴杩囪繑鍥?HTTP 429銆?/p>
+ </div>
 
-    <div class="footer">DeepSeek Gateway 路 Alpha 路 閭€璇峰埗</div>
+ <div style="text-align:center;color:#8b949e;font-size:0.7rem;margin-bottom:6px">Independent third-party API gateway. Not affiliated with DeepSeek.<br>独立第三方 API 网关，非 DeepSeek 官方服务。</div>
+ <div class="footer">DeepSeek Gateway 路 路 閭€璇峰埗</div>
 
-  </div>
+ </div>
 
 </div>
 
 <script>
 function switchLang(lang) {
-  document.getElementById('en-content').classList.toggle('visible', lang === 'en');
-  document.getElementById('zh-content').classList.toggle('visible', lang === 'zh');
-  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
-  document.getElementById('btn-zh').classList.toggle('active', lang === 'zh');
+ document.getElementById('en-content').classList.toggle('visible', lang === 'en');
+ document.getElementById('zh-content').classList.toggle('visible', lang === 'zh');
+ document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+ document.getElementById('btn-zh').classList.toggle('active', lang === 'zh');
 }
 </script>
 </body>

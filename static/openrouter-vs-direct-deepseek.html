@@ -6,187 +6,187 @@
 <title>OpenRouter vs Direct DeepSeek vs Third-Party Gateway — Comparison</title>
 <meta name="description" content="Compare OpenRouter, direct DeepSeek API, and third-party OpenAI-compatible gateways. Covers phone verification, per-key quota, usage tracking, pricing, and streaming.">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    background: #0d1117; color: #c9d1d9; line-height: 1.65;
-  }
-  .container { max-width: 820px; margin: 0 auto; padding: 60px 24px; }
-  h1 { font-size: 2rem; font-weight: 700; color: #f0f6fc; margin-bottom: 8px; }
-  .subtitle { font-size: 1rem; color: #8b949e; margin-bottom: 36px; }
-  h2 { font-size: 1.25rem; color: #f0f6fc; margin: 32px 0 12px; border-top: 1px solid #30363d; padding-top: 24px; }
-  p, li { color: #a5adb6; font-size: 0.925rem; margin-bottom: 10px; }
-  ul { padding-left: 22px; margin-bottom: 16px; }
-  li { margin-bottom: 6px; }
-  table { width: 100%; border-collapse: collapse; margin: 16px 0 24px; font-size: 0.88rem; }
-  th { background: #21262d; color: #f0f6fc; padding: 12px 14px; text-align: left; border: 1px solid #30363d; font-weight: 600; }
-  td { padding: 12px 14px; border: 1px solid #30363d; color: #a5adb6; vertical-align: top; }
-  tr:nth-child(even) td { background: #161b2222; }
-  .badge {
-    display: inline-block; background: #1f6feb22; color: #58a6ff; border: 1px solid #1f6feb44;
-    padding: 3px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: 500; margin-bottom: 24px;
-  }
-  .note {
-    background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 16px 20px; margin: 20px 0;
-  }
-  code { font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace; font-size: 0.85em; background: #21262d; padding: 2px 6px; border-radius: 3px; }
-  .alpha-cta {
-    background: #161b22; border: 2px solid #58a6ff44; border-radius: 8px; padding: 28px;
-    text-align: center; margin: 48px 0 24px;
-  }
-  .alpha-cta h3 { color: #f0f6fc; font-size: 1.1rem; }
-  .alpha-cta p { color: #8b949e; margin: 8px 0 20px; }
-  .alpha-cta a {
-    display: inline-block; background: #1f6feb; color: #fff; padding: 10px 28px;
-    border-radius: 6px; font-weight: 600; font-size: 0.95rem;
-  }
-  .alpha-cta a:hover { background: #388bfd; }
-  a { color: #58a6ff; text-decoration: none; }
-  a:hover { text-decoration: underline; }
-  .footer { font-size: 0.78rem; color: #484f58; text-align: center; margin-top: 48px; }
-  .highlight { color: #58a6ff; font-weight: 600; }
+ *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+ body {
+ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+ background: #0d1117; color: #c9d1d9; line-height: 1.65;
+ }
+.container { max-width: 820px; margin: 0 auto; padding: 60px 24px; }
+ h1 { font-size: 2rem; font-weight: 700; color: #f0f6fc; margin-bottom: 8px; }
+.subtitle { font-size: 1rem; color: #8b949e; margin-bottom: 36px; }
+ h2 { font-size: 1.25rem; color: #f0f6fc; margin: 32px 0 12px; border-top: 1px solid #30363d; padding-top: 24px; }
+ p, li { color: #a5adb6; font-size: 0.925rem; margin-bottom: 10px; }
+ ul { padding-left: 22px; margin-bottom: 16px; }
+ li { margin-bottom: 6px; }
+ table { width: 100%; border-collapse: collapse; margin: 16px 0 24px; font-size: 0.88rem; }
+ th { background: #21262d; color: #f0f6fc; padding: 12px 14px; text-align: left; border: 1px solid #30363d; font-weight: 600; }
+ td { padding: 12px 14px; border: 1px solid #30363d; color: #a5adb6; vertical-align: top; }
+ tr:nth-child(even) td { background: #161b2222; }
+.badge {
+ display: inline-block; background: #1f6feb22; color: #58a6ff; border: 1px solid #1f6feb44;
+ padding: 3px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: 500; margin-bottom: 24px;
+ }
+.note {
+ background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 16px 20px; margin: 20px 0;
+ }
+ code { font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace; font-size: 0.85em; background: #21262d; padding: 2px 6px; border-radius: 3px; }
+.cta-box {
+ background: #161b22; border: 2px solid #58a6ff44; border-radius: 8px; padding: 28px;
+ text-align: center; margin: 48px 0 24px;
+ }
+.cta-box h3 { color: #f0f6fc; font-size: 1.1rem; }
+.cta-box p { color: #8b949e; margin: 8px 0 20px; }
+.cta-box a {
+ display: inline-block; background: #1f6feb; color: #fff; padding: 10px 28px;
+ border-radius: 6px; font-weight: 600; font-size: 0.95rem;
+ }
+.cta-box a:hover { background: #388bfd; }
+ a { color: #58a6ff; text-decoration: none; }
+ a:hover { text-decoration: underline; }
+.footer { font-size: 0.78rem; color: #484f58; text-align: center; margin-top: 48px; }
+.highlight { color: #58a6ff; font-weight: 600; }
 </style>
 </head>
 <body>
 <div class="container">
 
-  <h1>OpenRouter vs Direct DeepSeek vs Third-Party Gateway</h1>
-  <p class="subtitle">Which is right for you? A straightforward comparison.</p>
-  <div class="badge">Third-Party Gateway · Alpha · Invite Only</div>
+ <h1>OpenRouter vs Direct DeepSeek vs Third-Party Gateway</h1>
+ <p class="subtitle">Which is right for you? A straightforward comparison.</p>
+ <div class="badge">Third-Party Gateway · Invite Only</div>
 
-  <p>If you are looking for DeepSeek API access, there are three main ways to get it. Each has trade-offs. Here is how they compare.</p>
+ <p>If you are looking for DeepSeek API access, there are three main ways to get it. Each has trade-offs. Here is how they compare.</p>
 
-  <h2>Quick Comparison</h2>
-  <table>
-    <tr>
-      <th>Feature</th>
-      <th>OpenRouter</th>
-      <th>Direct DeepSeek API</th>
-      <th>Third-Party Gateway</th>
-    </tr>
-    <tr>
-      <td>Requires Chinese phone?</td>
-      <td>No</td>
-      <td><strong>Yes</strong></td>
-      <td>No</td>
-    </tr>
-    <tr>
-      <td>Requires Alipay/WeChat?</td>
-      <td>No</td>
-      <td><strong>Yes</strong> (for top-up)</td>
-      <td>No</td>
-    </tr>
-    <tr>
-      <td>Pricing model</td>
-      <td>Pay per token + platform fee</td>
-      <td>Official per-token pricing</td>
-      <td>Per-key quota (pre-allocated tokens)</td>
-    </tr>
-    <tr>
-      <td>OpenAI-compatible?</td>
-      <td>Yes</td>
-      <td>Yes</td>
-      <td>Yes</td>
-    </tr>
-    <tr>
-      <td>Per-key rate limiting</td>
-      <td>No (shared pool)</td>
-      <td>Rate-limited per account</td>
-      <td><span class="highlight">Yes — per-key configurable</span></td>
-    </tr>
-    <tr>
-      <td>Usage tracking</td>
-      <td>Dashboard (aggregated)</td>
-      <td>Official console</td>
-      <td><span class="highlight">Per-key usage report, exact token counts</span></td>
-    </tr>
-    <tr>
-      <td>Quota enforcement</td>
-      <td>Pay-as-you-go (no hard cap)</td>
-      <td>Balance-based</td>
-      <td><span class="highlight">Hard cap per key — stops at quota</span></td>
-    </tr>
-    <tr>
-      <td>Streaming (SSE)</td>
-      <td>Yes</td>
-      <td>Yes</td>
-      <td>Yes</td>
-    </tr>
-    <tr>
-      <td>Reasoning content</td>
-      <td>Passed through</td>
-      <td>Passed through</td>
-      <td><span class="highlight">Filtered by default (clean output)</span></td>
-    </tr>
-    <tr>
-      <td>Multiple API keys</td>
-      <td>Limited</td>
-      <td>Limited</td>
-      <td><span class="highlight">Yes — separate keys per user/project</span></td>
-    </tr>
-    <tr>
-      <td>Key disable/revoke</td>
-      <td>Yes (one key)</td>
-      <td>Yes (one key)</td>
-      <td><span class="highlight">Yes — per-key disable without affecting others</span></td>
-    </tr>
-    <tr>
-      <td>Best for</td>
-      <td>General multi-model access</td>
-      <td>Users with Chinese identity</td>
-      <td>Teams, resellers, projects needing per-user control</td>
-    </tr>
-  </table>
+ <h2>Quick Comparison</h2>
+ <table>
+ <tr>
+ <th>Feature</th>
+ <th>OpenRouter</th>
+ <th>Direct DeepSeek API</th>
+ <th>Third-Party Gateway</th>
+ </tr>
+ <tr>
+ <td>Requires Chinese phone?</td>
+ <td>No</td>
+ <td><strong>Yes</strong></td>
+ <td>No</td>
+ </tr>
+ <tr>
+ <td>Requires Alipay/WeChat?</td>
+ <td>No</td>
+ <td><strong>Yes</strong> (for top-up)</td>
+ <td>No</td>
+ </tr>
+ <tr>
+ <td>Pricing model</td>
+ <td>Pay per token + platform fee</td>
+ <td>Official per-token pricing</td>
+ <td>Per-key quota (pre-allocated tokens)</td>
+ </tr>
+ <tr>
+ <td>OpenAI-compatible?</td>
+ <td>Yes</td>
+ <td>Yes</td>
+ <td>Yes</td>
+ </tr>
+ <tr>
+ <td>Per-key rate limiting</td>
+ <td>No (shared pool)</td>
+ <td>Rate-limited per account</td>
+ <td><span class="highlight">Yes — per-key configurable</span></td>
+ </tr>
+ <tr>
+ <td>Usage tracking</td>
+ <td>Dashboard (aggregated)</td>
+ <td>Official console</td>
+ <td><span class="highlight">Per-key usage report, exact token counts</span></td>
+ </tr>
+ <tr>
+ <td>Quota enforcement</td>
+ <td>Pay-as-you-go (no hard cap)</td>
+ <td>Balance-based</td>
+ <td><span class="highlight">Hard cap per key — stops at quota</span></td>
+ </tr>
+ <tr>
+ <td>Streaming (SSE)</td>
+ <td>Yes</td>
+ <td>Yes</td>
+ <td>Yes</td>
+ </tr>
+ <tr>
+ <td>Reasoning content</td>
+ <td>Passed through</td>
+ <td>Passed through</td>
+ <td><span class="highlight">Filtered by default (clean output)</span></td>
+ </tr>
+ <tr>
+ <td>Multiple API keys</td>
+ <td>Limited</td>
+ <td>Limited</td>
+ <td><span class="highlight">Yes — separate keys per user/project</span></td>
+ </tr>
+ <tr>
+ <td>Key disable/revoke</td>
+ <td>Yes (one key)</td>
+ <td>Yes (one key)</td>
+ <td><span class="highlight">Yes — per-key disable without affecting others</span></td>
+ </tr>
+ <tr>
+ <td>Best for</td>
+ <td>General multi-model access</td>
+ <td>Users with Chinese identity</td>
+ <td>Teams, resellers, projects needing per-user control</td>
+ </tr>
+ </table>
 
-  <h2>When a Third-Party Gateway Makes Sense</h2>
-  <div class="note">
-    <p>A third-party gateway is useful when you:</p>
-    <ul>
-      <li>Do not have a Chinese phone number or Alipay account</li>
-      <li>Want to <strong>issue separate keys</strong> to team members, each with its own quota</li>
-      <li>Need <strong>hard quota caps</strong> — no surprise overages on your bill</li>
-      <li>Want <strong>per-key usage reports</strong> to see exactly who used how many tokens</li>
-      <li>Prefer clean output without reasoning/thinking tokens mixed in</li>
-      <li>Are building a product on top of DeepSeek and need predictable cost control</li>
-    </ul>
-  </div>
+ <h2>When a Third-Party Gateway Makes Sense</h2>
+ <div class="note">
+ <p>A third-party gateway is useful when you:</p>
+ <ul>
+ <li>Do not have a Chinese phone number or Alipay account</li>
+ <li>Want to <strong>issue separate keys</strong> to team members, each with its own quota</li>
+ <li>Need <strong>hard quota caps</strong> — no surprise overages on your bill</li>
+ <li>Want <strong>per-key usage reports</strong> to see exactly who used how many tokens</li>
+ <li>Prefer clean output without reasoning/thinking tokens mixed in</li>
+ <li>Are building a product on top of DeepSeek and need predictable cost control</li>
+ </ul>
+ </div>
 
-  <h2>What This Gateway Is NOT</h2>
-  <div class="note">
-    <ul>
-      <li>Not an official DeepSeek service or reseller</li>
-      <li>Not DeepSeek itself — this is an independent, invite-only alpha</li>
-      <li>Not open for public registration yet</li>
-      <li>Not a replacement for OpenRouter if you need 20+ different models</li>
-    </ul>
-  </div>
+ <h2>What This Gateway Is NOT</h2>
+ <div class="note">
+ <ul>
+ <li>Not an official DeepSeek service or reseller</li>
+ <li>Not DeepSeek itself — this is an independent, invite-only service</li>
+ <li>Not open for public registration yet</li>
+ <li>Not a replacement for OpenRouter if you need 20+ different models</li>
+ </ul>
+ </div>
 
-  <h2>Token Counting</h2>
-  <div class="note">
-    <p>This gateway uses the <code>usage.total_tokens</code> value returned by DeepSeek for each request. Input tokens and output tokens are both counted at <code>total_tokens</code> in the current alpha billing. This is a simplified model during alpha — the commercial version will use a fairer credit-based system that accounts for input/output/cache pricing differences.</p>
-  </div>
+ <h2>Token Counting</h2>
+ <div class="note">
+ <p>This gateway uses the <code>usage.total_tokens</code> value returned by DeepSeek for each request. Input tokens and output tokens are both counted at <code>total_tokens</code> in the current billing. This is a simplified model — the commercial version will use a fairer credit-based system that accounts for input/output/cache pricing differences.</p>
+ </div>
 
-  <h2>Rate Limiting</h2>
-  <div class="note">
-    <p>Each key has its own configurable rate limit (default: 30 requests/minute). This means one user hammering the API does not slow down others. OpenRouter and direct DeepSeek API share rate limits across all requests from your account.</p>
-  </div>
+ <h2>Rate Limiting</h2>
+ <div class="note">
+ <p>Each key has its own configurable rate limit (default: 30 requests/minute). This means one user hammering the API does not slow down others. OpenRouter and direct DeepSeek API share rate limits across all requests from your account.</p>
+ </div>
 
-  <!-- Alpha CTA -->
-  <div class="alpha-cta">
-    <h3>Try the Gateway</h3>
-    <p>Invite-only alpha. Test keys with 100K free tokens available for developers.<br>OpenAI-compatible — works with SillyTavern, Python SDK, Node.js, and any OpenAPI client.</p>
-    <a href="https://t.me/YOUR_TELEGRAM" target="_blank">Apply for Alpha Access</a>
-  </div>
+ <!- CTA -->
+ <div class="cta-box">
+ <h3>Try the Gateway</h3>
+ <p>Invite-only service. Test keys with 100K free tokens available for developers.<br>OpenAI-compatible — works with SillyTavern, Python SDK, Node.js, and any OpenAPI client.</p>
+ <a href="https://t.me/YOUR_TELEGRAM" target="_blank">Apply for Access</a>
+ </div>
 
-  <div class="footer">
-    Third-party gateway · Alpha · Not official DeepSeek · No affiliation with OpenRouter or DeepSeek
-  </div>
+ <div class="footer">
+ Third-party gateway · Not official DeepSeek · No affiliation with OpenRouter or DeepSeek
+ </div>
 
 </div>
 
-  <div style="text-align:center;margin:32px 0;">
-    <a href="/pricing.html" style="display:inline-block;background:#1f6feb;color:#fff;padding:12px 28px;border-radius:6px;font-weight:600;text-decoration:none;font-size:0.95rem;">Apply for Alpha Access &mdash; From $1</a>
-    <p style="margin-top:10px;font-size:0.82rem;color:#8b949e;">Invite-only alpha. Manual approval. 100K trial tokens for $1.</p>
-  </div>
+ <div style="text-align:center;margin:32px 0;">
+ <a href="/pricing.html" style="display:inline-block;background:#1f6feb;color:#fff;padding:12px 28px;border-radius:6px;font-weight:600;text-decoration:none;font-size:0.95rem;">Apply for Access &mdash; From $1</a>
+ <p style="margin-top:10px;font-size:0.82rem;color:#8b949e;">Invite-only service. Manual approval. 100K trial tokens for $1.</p>
+ </div>
 </body>
 </html>

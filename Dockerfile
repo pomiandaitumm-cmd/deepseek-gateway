@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+﻿FROM python:3.11-slim
 
 WORKDIR /app
 
@@ -13,6 +13,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY app/ ./app/
 COPY create_key.py disable_key.py usage_report.py add_quota.py set_quota.py ./
 COPY approve_order.py order_report.py customer_report.py mark_paid.py lead_report.py ./
+COPY payment_watcher.py check_payment_once.py expire_orders.py ./
 COPY static/ ./static/
 
 # Expose port

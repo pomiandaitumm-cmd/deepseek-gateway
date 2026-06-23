@@ -4,12 +4,12 @@ from fastapi.staticfiles import StaticFiles
 from .auth import verify_api_key
 from .proxy import proxy_chat_completions
 from .config import EXPOSED_MODELS
-from .database import init_db, get_db, get_key_usage, create_order, get_order_status, get_lead_stats
+from .database import (init_db, get_db, get_key_usage, create_order, get_order_status, get_lead_stats, checkout_order, get_order_status_v07)
 
 # Initialize database on startup
 init_db()
 
-app = FastAPI(title="DeepSeek API Gateway", version="0.5.0")
+app = FastAPI(title="DeepSeek API Gateway", version="0.7.0")
 
 
 @app.get("/v1/models")
@@ -136,7 +136,7 @@ async def order_status(order_id: int = Query(...), email: str = Query(...)):
     """Public order status lookup. Requires matching email."""
     if not email or "@" not in email:
         raise HTTPException(status_code=400, detail="Valid email is required")
-    result, err = get_order_status(order_id, email)
+    result, err = get_order_status_v07(order_id, email)
     if err:
         if "not found" in err.lower():
             raise HTTPException(status_code=404, detail=err)
@@ -151,7 +151,42 @@ async def health():
     return {"status": "ok"}
 
 
-# Static files must be mounted last (after all API routes)
+
+# v0.7 Payment endpoints
+
+@app.post("/api/checkout")
+async def api_checkout(request: Request):
+    """Create a checkout order with unique payment amount."""
+    try:
+        body = await request.json()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid JSON body")
+
+    email = (body.get("email") or "").strip()
+    if not email or "@" not in email:
+        raise HTTPException(status_code=400, detail="Valid email is required")
+    plan = (body.get("plan") or "Trial").strip()
+    source = (body.get("source") or "").strip()
+    ref = (body.get("ref") or "").strip()
+
+    order, err = checkout_order(email, plan, source=source, ref=ref)
+    if err:
+        raise HTTPException(status_code=400, detail=err)
+    return JSONResponse(content=order)
+
+
+@app.get("/api/payment/config")
+async def payment_config():
+    """Return payment configuration for frontend display."""
+    import os
+    return JSONResponse(content={
+        "network": os.getenv("PAYMENT_NETWORK", "TRC20"),
+        "token": os.getenv("PAYMENT_TOKEN", "USDT"),
+        "enabled": bool(os.getenv("PAYMENT_ADDRESS", "")),
+        "expiry_minutes": int(os.getenv("ORDER_EXPIRY_MINUTES", "30")),
+    })
+
+# Static file mount (after all API routes)
 import os as _os
 _static_dir = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "static")
 if _os.path.isdir(_static_dir):

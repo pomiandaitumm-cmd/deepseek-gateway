@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout — DeepSeek Gateway</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#0d1117;color:#c9d1d9;line-height:1.6}
+.container{max-width:640px;margin:0 auto;padding:48px 24px}
+h1{font-size:1.6rem;color:#f0f6fc;margin-bottom:4px}
+.subtitle{font-size:0.9rem;color:#8b949e;margin-bottom:32px}
+.card{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:24px;margin-bottom:16px}
+.card h2{font-size:1.1rem;color:#f0f6fc;margin-bottom:12px}
+.form-group{margin-bottom:16px}
+label{display:block;font-size:0.85rem;color:#8b949e;margin-bottom:4px}
+input,select{width:100%;padding:10px 12px;background:#0d1117;border:1px solid #30363d;border-radius:6px;color:#c9d1d9;font-size:0.95rem}
+input:focus,select:focus{outline:none;border-color:#58a6ff}
+.btn{display:block;width:100%;padding:12px;background:#1f6feb;color:#fff;border:none;border-radius:6px;font-size:0.95rem;font-weight:600;cursor:pointer}
+.btn:hover{background:#388bfd}
+.btn:disabled{opacity:0.5;cursor:not-allowed}
+.order-summary{background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:16px;margin-bottom:16px}
+.order-summary .row{display:flex;justify-content:space-between;padding:6px 0;font-size:0.9rem}
+.order-summary .row .label{color:#8b949e}
+.order-summary .row .value{color:#f0f6fc;font-weight:600}
+.payment-box{background:#0d1117;border:2px solid #58a6ff;border-radius:8px;padding:20px;margin:20px 0}
+.payment-box .addr{font-family:"SF Mono","Consolas",monospace;font-size:0.8rem;word-break:break-all;color:#58a6ff;padding:8px;background:#161b22;border-radius:4px;margin:8px 0}
+.payment-box .amount{font-size:2rem;font-weight:700;color:#f0f6fc;text-align:center;margin:12px 0}
+.payment-box .countdown{text-align:center;font-size:0.9rem;color:#f85149;margin:8px 0}
+.warning{background:#f8514911;border:1px solid #f8514944;border-radius:6px;padding:12px;margin:16px 0;font-size:0.82rem;color:#f85149}
+.warning strong{display:block;margin-bottom:4px}
+.status-badge{display:inline-block;padding:4px 12px;border-radius:12px;font-size:0.8rem;font-weight:600}
+.badge-pending{background:#d2992211;color:#d29922}
+.badge-paid{background:#1f6feb22;color:#58a6ff}
+.badge-approved{background:#23863622;color:#3fb950}
+.badge-expired{background:#f8514922;color:#f85149}
+.key-box{background:#0d1117;border:2px solid #3fb950;border-radius:8px;padding:20px;margin:20px 0}
+.key-box .key{font-family:"SF Mono","Consolas",monospace;font-size:0.78rem;word-break:break-all;color:#3fb950;padding:8px;background:#161b22;border-radius:4px;margin:8px 0}
+.hidden{display:none}
+a{color:#58a6ff;text-decoration:none}
+a:hover{text-decoration:underline}
+.back-link{font-size:0.82rem;margin-bottom:20px;display:inline-block}
+</style>
+</head>
+<body>
+<div class="container">
+<a class="back-link" href="/pricing.html">&larr; Back to Plans</a>
+<h1>Checkout</h1>
+<p class="subtitle">OpenAI-compatible DeepSeek API Gateway. Third-party service, not official DeepSeek.</p>
+
+<!-- Step 1: Form -->
+<div id="step-form">
+  <div class="card">
+    <h2>Your Order</h2>
+    <div class="order-summary" id="order-preview">
+      <div class="row"><span class="label">Plan</span><span class="value" id="preview-plan">—</span></div>
+      <div class="row"><span class="label">Tokens</span><span class="value" id="preview-tokens">—</span></div>
+      <div class="row"><span class="label">Models</span><span class="value" id="preview-models">—</span></div>
+      <div class="row"><span class="label">Price</span><span class="value" id="preview-price">—</span></div>
+    </div>
+    <div class="form-group">
+      <label for="email">Email address</label>
+      <input type="email" id="email" placeholder="you@example.com" required>
+    </div>
+    <button class="btn" id="btn-create" onclick="createOrder()">Create Order &amp; Get Payment Address</button>
+    <div id="form-error" style="color:#f85149;margin-top:8px;font-size:0.85rem" class="hidden"></div>
+  </div>
+</div>
+
+<!-- Step 2: Payment -->
+<div id="step-payment" class="hidden">
+  <div class="card">
+    <h2>Send Payment</h2>
+    <div class="order-summary">
+      <div class="row"><span class="label">Order ID</span><span class="value" id="pay-order-id">—</span></div>
+      <div class="row"><span class="label">Plan</span><span class="value" id="pay-plan">—</span></div>
+      <div class="row"><span class="label">Tokens</span><span class="value" id="pay-tokens">—</span></div>
+    </div>
+    <div class="payment-box">
+      <div style="text-align:center;color:#8b949e;font-size:0.85rem">Send exactly</div>
+      <div class="amount" id="pay-amount">—</div>
+      <div style="text-align:center;color:#8b949e;font-size:0.8rem">USDT on TRC20 network</div>
+      <div style="text-align:center;color:#8b949e;font-size:0.78rem;margin-top:4px">to address:</div>
+      <div class="addr" id="pay-address">—</div>
+      <div class="countdown" id="pay-countdown">—</div>
+    </div>
+    <div class="warning">
+      <strong>Important:</strong>
+      Send exact amount only. TRC20 USDT only.<br>
+      Do not send other tokens or other networks.<br>
+      Your key will appear here automatically after payment is confirmed.
+    </div>
+    <div id="pay-status" style="text-align:center;font-size:0.9rem;color:#8b949e">
+      Checking for payment...
+    </div>
+  </div>
+</div>
+
+<!-- Step 3: Approved -->
+<div id="step-approved" class="hidden">
+  <div class="card">
+    <h2>Your API Key</h2>
+    <span class="status-badge badge-approved">Approved</span>
+    <div class="key-box">
+      <div style="font-size:0.85rem;color:#8b949e;margin-bottom:4px">Save this key now — it will not be shown again:</div>
+      <div class="key" id="approved-key">—</div>
+    </div>
+    <div class="order-summary">
+      <div class="row"><span class="label">Plan</span><span class="value" id="approved-plan">—</span></div>
+      <div class="row"><span class="label">Token Quota</span><span class="value" id="approved-quota">—</span></div>
+      <div class="row"><span class="label">Models</span><span class="value" id="approved-models">—</span></div>
+      <div class="row"><span class="label">Rate Limit</span><span class="value" id="approved-rpm">—</span></div>
+    </div>
+    <a class="btn" href="/dashboard.html" style="text-align:center;text-decoration:none">Open Dashboard</a>
+  </div>
+</div>
+
+<!-- Step 4: Expired -->
+<div id="step-expired" class="hidden">
+  <div class="card">
+    <h2>Order Expired</h2>
+    <span class="status-badge badge-expired">Expired</span>
+    <p style="margin:16px 0;color:#8b949e">This order has expired. Please create a new order.</p>
+    <a class="btn" href="/pricing.html" style="text-align:center;text-decoration:none">Back to Plans</a>
+  </div>
+</div>
+
+<div style="text-align:center;font-size:0.78rem;color:#8b949e;margin-top:32px">
+  This is an independent third-party gateway, not an official DeepSeek service.<br>
+  Invite-only alpha. Manual payment confirmation during alpha.
+</div>
+</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const PLAN = params.get("plan") || "Trial";
+
+const PLAN_INFO = {
+  "Trial":    { tokens: "1M", price: "$1", models: "deepseek-v4-flash" },
+  "Starter":  { tokens: "5M", price: "$3", models: "deepseek-v4-flash" },
+  "Standard": { tokens: "12M", price: "$6", models: "deepseek-v4-flash" },
+  "Pro":      { tokens: "2M", price: "$6", models: "flash + pro" },
+};
+
+const info = PLAN_INFO[PLAN] || PLAN_INFO["Trial"];
+document.getElementById("preview-plan").textContent = PLAN;
+document.getElementById("preview-tokens").textContent = info.tokens;
+document.getElementById("preview-models").textContent = info.models;
+document.getElementById("preview-price").textContent = info.price;
+
+let orderData = null;
+let pollTimer = null;
+let countdownTimer = null;
+
+function showError(msg) {
+  const el = document.getElementById("form-error");
+  el.textContent = msg;
+  el.classList.remove("hidden");
+}
+
+async function createOrder() {
+  const email = document.getElementById("email").value.trim();
+  if (!email || !email.includes("@")) { showError("Valid email is required"); return; }
+
+  const btn = document.getElementById("btn-create");
+  btn.disabled = true;
+  btn.textContent = "Creating...";
+  document.getElementById("form-error").classList.add("hidden");
+
+  try {
+    const resp = await fetch("/api/checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, plan: PLAN, source: "web" })
+    });
+    const data = await resp.json();
+    if (!resp.ok) { showError(data.detail || "Failed to create order"); btn.disabled = false; btn.textContent = "Create Order & Get Payment Address"; return; }
+
+    orderData = data;
+    document.getElementById("step-form").classList.add("hidden");
+    showPayment(data);
+  } catch(e) {
+    showError("Network error. Please try again.");
+    btn.disabled = false;
+    btn.textContent = "Create Order & Get Payment Address";
+  }
+}
+
+function showPayment(data) {
+  document.getElementById("step-payment").classList.remove("hidden");
+  document.getElementById("pay-order-id").textContent = "#" + data.order_id;
+  document.getElementById("pay-plan").textContent = data.plan;
+  document.getElementById("pay-tokens").textContent = (data.token_quota / 1000000).toFixed(0) + "M";
+  document.getElementById("pay-amount").textContent = data.expected_amount + " USDT";
+  document.getElementById("pay-address").textContent = data.payment_address;
+
+  startCountdown(data.expires_at);
+  startPolling(data.order_id, data.email || document.getElementById("email").value.trim());
+}
+
+function startCountdown(expiresAt) {
+  function update() {
+    const now = Date.now();
+    const end = new Date(expiresAt + "Z").getTime();
+    const diff = end - now;
+    if (diff <= 0) {
+      document.getElementById("pay-countdown").textContent = "EXPIRED";
+      clearInterval(countdownTimer);
+      return;
+    }
+    const m = Math.floor(diff / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    document.getElementById("pay-countdown").textContent = `Time remaining: ${m}:${String(s).padStart(2,"0")}`;
+  }
+  update();
+  countdownTimer = setInterval(update, 1000);
+}
+
+function startPolling(orderId, email) {
+  function poll() {
+    fetch(`/api/order/status?order_id=${orderId}&email=${encodeURIComponent(email)}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.status === "approved") {
+          clearInterval(pollTimer);
+          clearInterval(countdownTimer);
+          document.getElementById("step-payment").classList.add("hidden");
+          if (data.full_key) {
+            document.getElementById("approved-key").textContent = data.full_key;
+          } else {
+            document.getElementById("approved-key").textContent = "Check order status page for your API key.";
+          }
+          document.getElementById("approved-plan").textContent = data.selected_plan || "—";
+          document.getElementById("approved-quota").textContent = (data.quota || 0).toLocaleString();
+          document.getElementById("approved-models").textContent = (data.allowed_models || []).join(", ");
+          document.getElementById("approved-rpm").textContent = (data.rate_limit || "—") + " RPM";
+          document.getElementById("step-approved").classList.remove("hidden");
+          document.getElementById("pay-status").textContent = "Payment confirmed! Key ready.";
+        } else if (data.status === "paid") {
+          document.getElementById("pay-status").textContent = "Payment received. Generating your API key...";
+        } else if (data.status === "expired") {
+          clearInterval(pollTimer);
+          clearInterval(countdownTimer);
+          document.getElementById("step-payment").classList.add("hidden");
+          document.getElementById("step-expired").classList.remove("hidden");
+        } else {
+          document.getElementById("pay-status").textContent = "Waiting for payment confirmation...";
+        }
+      })
+      .catch(() => { document.getElementById("pay-status").textContent = "Checking..."; });
+  }
+  poll();
+  pollTimer = setInterval(poll, 10000);
+}
+</script>
+</body>
+</html>

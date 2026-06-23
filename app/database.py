@@ -1,10 +1,12 @@
 import sqlite3
 import hashlib
+import random
 import os
+import time
 from datetime import datetime, timezone
 
 _default_docker = "/app/data/db.sqlite3"
-_default_local = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "db.sqlite3")
+_default_local = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "db.sqlite3")
 _in_docker = os.path.exists("/.dockerenv") or os.environ.get("DOCKER_CONTAINER", "") == "1"
 _fallback = _default_docker if _in_docker else _default_local
 DB_PATH = os.environ.get("DB_PATH", _fallback)
@@ -95,6 +97,22 @@ def init_db():
             FOREIGN KEY (customer_id) REFERENCES customers(id),
             FOREIGN KEY (package_id) REFERENCES packages(id)
         );
+        CREATE TABLE IF NOT EXISTS payments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            order_id INTEGER NOT NULL,
+            tx_hash TEXT NOT NULL UNIQUE,
+            from_address TEXT DEFAULT '',
+            to_address TEXT DEFAULT '',
+            amount REAL DEFAULT 0,
+            token_symbol TEXT DEFAULT 'USDT',
+            network TEXT DEFAULT 'TRC20',
+            confirmed_at TEXT DEFAULT '',
+            raw_json TEXT DEFAULT '',
+            created_at TEXT NOT NULL,
+            FOREIGN KEY (order_id) REFERENCES orders(id)
+        );
+        CREATE INDEX IF NOT EXISTS idx_payments_order ON payments(order_id);
+        CREATE INDEX IF NOT EXISTS idx_payments_tx ON payments(tx_hash);
         CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
         CREATE INDEX IF NOT EXISTS idx_orders_customer ON orders(customer_id);
     """)
@@ -112,6 +130,15 @@ def init_db():
     _migrate_add(conn, "orders", "note", "TEXT DEFAULT ''")
     _migrate_add(conn, "packages", "price_usd", "REAL DEFAULT 0")
     _migrate_add(conn, "packages", "allowed_models", "TEXT DEFAULT 'deepseek-v4-flash'")
+    _migrate_add(conn, "orders", "payment_address", "TEXT DEFAULT ''")
+    _migrate_add(conn, "orders", "payment_network", "TEXT DEFAULT 'TRC20'")
+    _migrate_add(conn, "orders", "expected_amount", "REAL DEFAULT 0")
+    _migrate_add(conn, "orders", "paid_amount", "REAL DEFAULT 0")
+    _migrate_add(conn, "orders", "tx_hash", "TEXT DEFAULT ''")
+    _migrate_add(conn, "orders", "expires_at", "TEXT")
+    _migrate_add(conn, "orders", "paid_at", "TEXT")
+    _migrate_add(conn, "orders", "issued_key", "TEXT DEFAULT ''")
+    _migrate_add(conn, "orders", "key_shown", "INTEGER DEFAULT 0")
     _seed_packages(conn)
     conn.close()
 
@@ -312,7 +339,7 @@ def get_order_status(order_id, email):
         "created_at": row["created_at"],
         "approved_at": row["approved_at"],
         "key_prefix": None,
-        "full_key": None,
+        "full_key": row["issued_key"] if (row["status"] == "approved" and row["issued_key"]) else None,
         "dashboard_url": None,
         "message": None,
     }
@@ -377,8 +404,8 @@ def approve_order(order_id):
     pkg_name = order["pkg_name"] if order["pkg_name"] else ""
     conn.execute("INSERT INTO api_keys (key_hash,key_prefix,name,status,rate_limit_per_minute,token_quota_total,allowed_models,package_name,created_at) VALUES (?,?,?,'active',?,?,?,?,?)",
                  (kh, kp, order["customer_name"], order["rate_limit"], order["token_quota"], allowed, pkg_name, now))
-    conn.execute("UPDATE orders SET status='approved', key_prefix=?, approved_at=? WHERE id=?",
-                 (kp, now, order_id))
+    conn.execute("UPDATE orders SET status='approved', key_prefix=?, issued_key=?, approved_at=? WHERE id=?",
+                 (kp, fk, now, order_id))
     conn.commit()
     conn.close()
     return {
@@ -421,3 +448,210 @@ def get_lead_stats():
         "total": total,
         "channels": [{"channel": r["channel"], "count": r["cnt"]} for r in rows]
     }
+
+# ===== v0.7 Payment System =====
+
+
+
+# Payment config (loaded from env, with defaults)
+PAYMENT_ADDRESS = os.environ.get("PAYMENT_ADDRESS", "PLACEHOLDER_TRC20_ADDRESS")
+PAYMENT_NETWORK = os.environ.get("PAYMENT_NETWORK", "TRC20")
+PAYMENT_TOKEN = os.environ.get("PAYMENT_TOKEN", "USDT")
+TRONGRID_API_BASE = os.environ.get("TRONGRID_API_BASE", "https://api.trongrid.io")
+PAYMENT_POLL_INTERVAL = int(os.environ.get("PAYMENT_POLL_INTERVAL", "30"))
+ORDER_EXPIRY_MINUTES = int(os.environ.get("ORDER_EXPIRY_MINUTES", "30"))
+
+
+def _generate_unique_cents(order_id, price_usd):
+    """Generate a unique sub-dollar amount for this order to enable payment matching.
+    Uses order_id to seed uniqueness with a small random offset.
+    Returns expected_amount as float."""
+    random.seed(f"{order_id}-{time.time_ns()}")
+    # Use order_id * 0.0001 + random micro-adjustment for uniqueness
+    base_cents = (order_id * 7 + 13) % 100  # deterministic part
+    micro = random.randint(1, 99) / 10000
+    unique_cents = base_cents + micro
+    expected = price_usd + (unique_cents / 100)
+    return round(expected, 6)
+
+
+def checkout_order(customer_email, plan_name, source="", ref=""):
+    """Create a checkout order with payment details. Returns order dict."""
+    conn = get_db()
+    now = now_utc()
+    pkg = conn.execute("SELECT * FROM packages WHERE name=? AND is_active=1", (plan_name,)).fetchone()
+    if not pkg:
+        conn.close()
+        return None, f"Package '{plan_name}' not found"
+    package_id = pkg["id"]
+    price = pkg["price_usd"]
+    quota = pkg["token_quota"]
+    models = pkg["allowed_models"] or "deepseek-v4-flash"
+
+    # Find or create customer
+    cust = conn.execute("SELECT id FROM customers WHERE email=?", (customer_email,)).fetchone()
+    if cust:
+        cust_id = cust["id"]
+    else:
+        cur = conn.execute("INSERT INTO customers (email,created_at) VALUES (?,?)", (customer_email, now))
+        cust_id = cur.lastrowid
+
+    # Generate unique amount
+    cur = conn.execute("INSERT INTO orders (customer_id,package_id,status,payment_status,price_usd,source,ref,created_at) VALUES (?,?,'pending','unpaid',?,?,?,?)",
+                       (cust_id, package_id, price, source, ref, now))
+    order_id = cur.lastrowid
+    expected_amount = _generate_unique_cents(order_id, price)
+    expires_at_dt = datetime.now(timezone.utc)
+    from datetime import timedelta as _td; expires_at_dt = expires_at_dt + _td(minutes=ORDER_EXPIRY_MINUTES)
+    expires_at = expires_at_dt.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    conn.execute("""UPDATE orders SET payment_address=?, payment_network=?, expected_amount=?, expires_at=?
+                    WHERE id=?""",
+                 (PAYMENT_ADDRESS, PAYMENT_NETWORK, expected_amount, expires_at, order_id))
+    conn.commit()
+    conn.close()
+
+    return {
+        "order_id": order_id,
+        "status": "pending",
+        "plan": plan_name,
+        "token_quota": quota,
+        "price_usd": price,
+        "expected_amount": expected_amount,
+        "payment_address": PAYMENT_ADDRESS,
+        "payment_network": PAYMENT_NETWORK,
+        "payment_token": PAYMENT_TOKEN,
+        "expires_at": expires_at,
+        "email": customer_email,
+        "status_url": f"/order.html?order_id={order_id}",
+        "message": "Send exact amount to the address below. Your key will appear automatically after payment is confirmed.",
+    }, None
+
+
+def get_order_status_v07(order_id, email):
+    """v0.7 order status with payment info and auto-approve display."""
+    conn = get_db()
+    row = conn.execute("""
+        SELECT o.*, c.email, p.name as package_name, p.token_quota, p.rate_limit, p.allowed_models
+        FROM orders o
+        JOIN customers c ON c.id = o.customer_id
+        JOIN packages p ON p.id = o.package_id
+        WHERE o.id = ?
+    """, (order_id,)).fetchone()
+    conn.close()
+
+    if not row:
+        return None, "Order not found"
+    if row["email"].lower() != email.lower():
+        return None, "Email does not match this order"
+
+    result = {
+        "order_id": row["id"],
+        "status": row["status"],
+        "payment_status": row["payment_status"] or "unpaid",
+        "selected_plan": row["package_name"],
+        "quota": row["token_quota"],
+        "rate_limit": row["rate_limit"],
+        "allowed_models": (row["allowed_models"] or "deepseek-v4-flash").split(","),
+        "price_usd": row["price_usd"] or 0,
+        "expected_amount": row["expected_amount"] or 0,
+        "payment_address": row["payment_address"] or "",
+        "payment_network": row["payment_network"] or "TRC20",
+        "expires_at": row["expires_at"],
+        "tx_hash": row["tx_hash"] or "",
+        "created_at": row["created_at"],
+        "approved_at": row["approved_at"],
+        "key_prefix": row["key_prefix"] or None,
+        "full_key": row["issued_key"] if (row["status"] == "approved" and row["issued_key"]) else None,
+        "dashboard_url": None,
+        "message": None,
+    }
+
+    if row["status"] == "approved" and row["key_prefix"]:
+        result["key_prefix"] = row["key_prefix"]
+        result["dashboard_url"] = "http://65.49.201.211/dashboard.html"
+        result["message"] = "Your key was displayed when the order was approved. If you lost it, contact support."
+    elif row["status"] == "expired":
+        result["message"] = "This order has expired. Please create a new order."
+    elif row["status"] == "pending" and (row["payment_status"] or "unpaid") == "unpaid":
+        result["message"] = "Waiting for payment. Send exact amount to the TRC20 address above."
+    elif row["status"] == "pending" and (row["payment_status"] or "") == "paid":
+        result["message"] = "Payment received. Generating your API key..."
+    elif row["status"] == "paid":
+        result["message"] = "Payment confirmed. Waiting for key generation."
+
+    return result, None
+
+
+def check_payment_match(expected_amount, tx_amount):
+    """Check if a transaction amount matches the expected amount within tolerance."""
+    return abs(tx_amount - expected_amount) < 0.01
+
+
+def process_payment(order_id, tx_hash, from_address, to_address, amount, raw_json=""):
+    """Record a matched payment and auto-approve the order. Returns (result, error)."""
+    conn = get_db()
+    now = now_utc()
+
+    # Check tx_hash not already used
+    existing = conn.execute("SELECT id FROM payments WHERE tx_hash=?", (tx_hash,)).fetchone()
+    if existing:
+        conn.close()
+        return None, f"tx_hash {tx_hash} already processed"
+
+    order = conn.execute("SELECT * FROM orders WHERE id=? AND status='pending'", (order_id,)).fetchone()
+    if not order:
+        conn.close()
+        return None, f"Order #{order_id} not found or not pending"
+
+    # Record payment
+    conn.execute("""INSERT INTO payments (order_id, tx_hash, from_address, to_address, amount, token_symbol, network, confirmed_at, raw_json, created_at)
+                    VALUES (?,?,?,?,?,?,?,?,?,?)""",
+                 (order_id, tx_hash, from_address, to_address, amount, PAYMENT_TOKEN, PAYMENT_NETWORK, now, raw_json, now))
+
+    # Mark order as paid
+    conn.execute("""UPDATE orders SET payment_status='paid', paid_amount=?, tx_hash=?, paid_at=?, status='paid'
+                    WHERE id=?""", (amount, tx_hash, now, order_id))
+    conn.commit()
+
+    # Auto-approve
+    result, err = approve_order(order_id)
+    conn.close()
+
+    if err:
+        return None, f"Payment recorded but approve failed: {err}"
+    return {
+        "order_id": order_id,
+        "tx_hash": tx_hash,
+        "amount": amount,
+        "key_prefix": result["key_prefix"],
+        "full_key": result["full_key"],
+        "status": "approved",
+    }, None
+
+
+def get_pending_orders():
+    """Return all pending orders that haven't expired."""
+    conn = get_db()
+    now = now_utc()
+    rows = conn.execute("""
+        SELECT o.*, p.name as pkg_name
+        FROM orders o
+        JOIN packages p ON p.id = o.package_id
+        WHERE o.status = 'pending'
+          AND (o.expires_at IS NULL OR o.expires_at > ?)
+    """, (now,)).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def expire_stale_orders():
+    """Expire orders past their expires_at time."""
+    conn = get_db()
+    now = now_utc()
+    cur = conn.execute("UPDATE orders SET status='expired' WHERE status='pending' AND expires_at IS NOT NULL AND expires_at < ?", (now,))
+    count = cur.rowcount
+    conn.commit()
+    conn.close()
+    return count
+

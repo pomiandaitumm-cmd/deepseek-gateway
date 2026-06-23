@@ -104,10 +104,10 @@ const params = new URLSearchParams(window.location.search);
 const PLAN = params.get("plan") || "Trial";
 
 const PLAN_INFO = {
-  "Trial":    { tokens: "1M", price: "$1", models: "deepseek-v4-flash" },
-  "Starter":  { tokens: "5M", price: "$3", models: "deepseek-v4-flash" },
-  "Standard": { tokens: "12M", price: "$6", models: "deepseek-v4-flash" },
-  "Pro":      { tokens: "2M", price: "$6", models: "flash + pro" },
+  "Trial":    { tokens: "2M", price: "$1", models: "deepseek-v4-flash" },
+  "Starter":  { tokens: "10M", price: "$3", models: "deepseek-v4-flash" },
+  "Standard": { tokens: "20M", price: "$6", models: "deepseek-v4-flash" },
+  "Pro":      { tokens: "5M", price: "$6", models: "flash + pro" },
 };
 
 const info = PLAN_INFO[PLAN] || PLAN_INFO["Trial"];

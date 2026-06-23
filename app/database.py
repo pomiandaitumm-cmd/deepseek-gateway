@@ -151,10 +151,10 @@ def _seed_packages(conn):
     if existing == 0:
         now = now_utc()
         pkgs = [
-            ("Trial",      1000000,  30,  1.0,  "deepseek-v4-flash", "Quick test"),
-            ("Starter",    5000000,  30,  3.0,  "deepseek-v4-flash", "Personal projects"),
-            ("Standard",   12000000, 60,  6.0,  "deepseek-v4-flash", "Team / indie devs"),
-            ("Pro",        2000000, 30,  6.0, "deepseek-v4-flash,deepseek-v4-pro", "Production + reasoning"),
+            ("Trial",      2000000,  30,  1.0,  "deepseek-v4-flash", "Quick test"),
+            ("Starter",    10000000,  30,  3.0,  "deepseek-v4-flash", "Personal projects"),
+            ("Standard",   20000000, 60,  6.0,  "deepseek-v4-flash", "Team / indie devs"),
+            ("Pro",        5000000, 30,  6.0, "deepseek-v4-flash,deepseek-v4-pro", "Production + reasoning"),
         ]
         for name, quota, rl, price, models, desc in pkgs:
             conn.execute(
@@ -164,10 +164,10 @@ def _seed_packages(conn):
     elif existing == 4:
         # Upgrade existing v0.3/v0.4 packages to v0.5 pricing
         upgrades = [
-            (1, "Trial",    1000000,  30,  1.0,  "deepseek-v4-flash", "Quick test"),
-            (2, "Starter",  5000000,  30,  3.0,  "deepseek-v4-flash", "Personal projects"),
-            (3, "Standard", 12000000, 60,  6.0,  "deepseek-v4-flash", "Team / indie devs"),
-            (4, "Pro",      2000000, 30,  6.0, "deepseek-v4-flash,deepseek-v4-pro", "Production + reasoning"),
+            (1, "Trial",    2000000,  30,  1.0,  "deepseek-v4-flash", "Quick test"),
+            (2, "Starter",  10000000,  30,  3.0,  "deepseek-v4-flash", "Personal projects"),
+            (3, "Standard", 20000000, 60,  6.0,  "deepseek-v4-flash", "Team / indie devs"),
+            (4, "Pro",      5000000, 30,  6.0, "deepseek-v4-flash,deepseek-v4-pro", "Production + reasoning"),
         ]
         for pid, name, quota, rl, price, models, desc in upgrades:
             conn.execute(

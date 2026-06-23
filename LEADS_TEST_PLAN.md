@@ -16,7 +16,7 @@ Find 3 real developers willing to try the DeepSeek Gateway API using test tokens
 ## Offer to Testers
 
 - **100,000 test tokens** per person
-- Base URL: `http://modelrelayapis.cc/v1`
+- Base URL: `https://modelrelayapis.cc/v1`
 - Model: `deepseek-v4-flash`
 - Rate limit: 30 req/min
 - No payment required

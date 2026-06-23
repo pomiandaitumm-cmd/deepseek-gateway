@@ -1,6 +1,6 @@
 # DeepSeek API Gateway -- Customer Usage Guide
 
-**Base URL:** http://modelrelayapis.cc/v1
+**Base URL:** https://modelrelayapis.cc/v1
 **Model:** deepseek-v4-flash (also available: deepseek-v4-pro)
 **Rate Limit:** Configurable per key (default 30 requests/min)
 **API Key:** Provided by admin (starts with sk-gateway-)
@@ -8,7 +8,7 @@
 ## Curl Example
 
 ```bash
-curl http://modelrelayapis.cc/v1/chat/completions   -H "Authorization: Bearer YOUR_KEY"   -H "Content-Type: application/json"   -d '{"model":"deepseek-v4-flash","messages":[{"role":"user","content":"Hello"}],"max_tokens":500}'
+curl https://modelrelayapis.cc/v1/chat/completions   -H "Authorization: Bearer YOUR_KEY"   -H "Content-Type: application/json"   -d '{"model":"deepseek-v4-flash","messages":[{"role":"user","content":"Hello"}],"max_tokens":500}'
 ```
 
 ## Python (OpenAI SDK)
@@ -16,7 +16,7 @@ curl http://modelrelayapis.cc/v1/chat/completions   -H "Authorization: Bearer YO
 ```python
 from openai import OpenAI
 
-client = OpenAI(base_url="http://modelrelayapis.cc/v1", api_key="YOUR_KEY")
+client = OpenAI(base_url="https://modelrelayapis.cc/v1", api_key="YOUR_KEY")
 
 response = client.chat.completions.create(
     model="deepseek-v4-flash",
@@ -28,11 +28,11 @@ print(response.choices[0].message.content)
 
 ## Check Your Usage
 
-Visit http://modelrelayapis.cc/dashboard.html and enter your API key.
+Visit https://modelrelayapis.cc/dashboard.html and enter your API key.
 
 Or via API:
 ```bash
-curl http://modelrelayapis.cc/v1/key/usage   -H "Authorization: Bearer YOUR_KEY"
+curl https://modelrelayapis.cc/v1/key/usage   -H "Authorization: Bearer YOUR_KEY"
 ```
 
 ## Notes

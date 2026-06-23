@@ -53,7 +53,7 @@
   <p class="subtitle">OpenAI-compatible DeepSeek API Gateway. Drop-in replacement for OpenAI SDK.</p>
 
   <h2>Base URL</h2>
-  <pre>http://modelrelayapis.cc/v1</pre>
+  <pre>https://modelrelayapis.cc/v1</pre>
   <p>All endpoints below are relative to this base URL.</p>
 
   <h2>Available Models</h2>
@@ -65,7 +65,7 @@
 
   <h2>Chat Completions</h2>
   <pre><span class="comment"># curl</span>
-curl http://modelrelayapis.cc/v1/chat/completions \
+curl https://modelrelayapis.cc/v1/chat/completions \
   -H "Authorization: Bearer YOUR_KEY" \
   -H "Content-Type: application/json" \
   -d '{"model":"deepseek-v4-flash","messages":[{"role":"user","content":"Hello!"}],"max_tokens":100}'</pre>
@@ -74,7 +74,7 @@ curl http://modelrelayapis.cc/v1/chat/completions \
   <pre>from openai import OpenAI
 
 client = OpenAI(
-    base_url="http://modelrelayapis.cc/v1",
+    base_url="https://modelrelayapis.cc/v1",
     api_key="YOUR_KEY",
 )
 
@@ -89,7 +89,7 @@ print(response.choices[0].message.content)</pre>
   <pre>import OpenAI from "openai";
 
 const client = new OpenAI({
-  baseURL: "http://modelrelayapis.cc/v1",
+  baseURL: "https://modelrelayapis.cc/v1",
   apiKey: "YOUR_KEY",
 });
 
@@ -101,12 +101,12 @@ const response = await client.chat.completions.create({
 console.log(response.choices[0].message.content);</pre>
 
   <h2>List Models</h2>
-  <pre>curl http://modelrelayapis.cc/v1/models \
+  <pre>curl https://modelrelayapis.cc/v1/models \
   -H "Authorization: Bearer YOUR_KEY"</pre>
   <p>Returns only the models your plan has access to.</p>
 
   <h2>Key Usage</h2>
-  <pre>curl http://modelrelayapis.cc/v1/key/usage \
+  <pre>curl https://modelrelayapis.cc/v1/key/usage \
   -H "Authorization: Bearer YOUR_KEY"</pre>
   <p>Returns your current token usage, quota, rate limit, and plan details.</p>
 

@@ -20,7 +20,7 @@ PAYPAL_MODE = os.getenv("PAYPAL_MODE", "sandbox").lower()
 PAYPAL_CLIENT_ID = os.getenv("PAYPAL_CLIENT_ID", "")
 PAYPAL_CLIENT_SECRET = os.getenv("PAYPAL_CLIENT_SECRET", "")
 PAYPAL_CURRENCY = os.getenv("PAYPAL_CURRENCY", "USD")
-SITE_BASE_URL = os.getenv("SITE_BASE_URL", "http://modelrelayapis.cc")
+SITE_BASE_URL = os.getenv("SITE_BASE_URL", "https://modelrelayapis.cc")
 
 # Legacy v0.7 Payment System
 PAYMENT_ADDRESS = os.getenv("PAYMENT_ADDRESS", "")

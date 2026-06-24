@@ -153,9 +153,8 @@ async function initPayPal() {
 
     // Load PayPal SDK
     const script = document.createElement("script");
-    const sdkUrl = cfg.mode ==="live"
-      ? `https://www.paypal.com/sdk/js?client-id=${cfg.client_id}&currency=${cfg.currency}`
-      : `https://www.paypal.com/sdk/js?client-id=${cfg.client_id}&currency=${cfg.currency}&intent=capture`;
+    const paypalHost = cfg.mode === "sandbox" ? "sandbox.paypal.com" : "www.paypal.com";
+    const sdkUrl = `https://${paypalHost}/sdk/js?client-id=${cfg.client_id}&currency=${cfg.currency}&intent=capture`;
     script.src = sdkUrl;
     script.onload = () => {
       paypalLoaded = true;

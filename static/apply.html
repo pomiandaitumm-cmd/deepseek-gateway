@@ -51,6 +51,11 @@
  .nav-links a:hover { border-color: #58a6ff; color: #c9d1d9; text-decoration: none; }
  .nav-links a.highlight { border-color: #58a6ff66; color: #58a6ff; }
 
+
+.footer-links{text-align:center;padding:32px 0 16px;border-top:1px solid #21262d;margin-top:40px}
+.footer-links a{font-size:0.75rem;color:#484f58;margin:0 10px;text-decoration:none}
+.footer-links a:hover{color:#8b949e}
+.disclaimer{text-align:center;font-size:0.7rem;color:#484f58;padding-bottom:12px}
 </style>
 </head>
 <body>
@@ -71,7 +76,7 @@
   <div class="plan-summary" id="plan-summary">
     <div class="price-tag" id="plan-price">--</div>
     <h3 id="plan-name">Select a plan</h3>
-    <div class="detail"><strong>Tokens:</strong> <span id="plan-tokens">--</span></div>
+    <div class="detail"><strong>API Budget:</strong> <span id="plan-budget">--</span></div>
     <div class="detail"><strong>Models:</strong> <span id="plan-models">--</span></div>
     <div class="detail"><strong>Rate Limit:</strong> <span id="plan-rate">--</span> RPM</div>
   </div>
@@ -105,7 +110,7 @@
 </div>
 
 <script>
-const PLANS = {"Trial":    { tokens:"100K",  price:"$1",  models:"deepseek-v4-flash", rpm: 30 },"Starter":  { tokens:"500K",  price:"$3",  models:"deepseek-v4-flash", rpm: 30 },"Standard": { tokens:"1M",    price:"$6",  models:"deepseek-v4-flash", rpm: 60 },"Pro":      { tokens:"1M",    price:"$12", models:"flash + pro",       rpm: 30 },
+const PLANS = {"Trial":    { budget:"$0.70",  price:"$1.0",  models:"deepseek-v4-flash", rpm: 30 },"Starter":  { budget:"$2.30",  price:"$3.0",  models:"deepseek-v4-flash", rpm: 30 },"Standard": { budget:"$4.80",  price:"$6.0",  models:"deepseek-v4-flash", rpm: 60 },"Pro":      { budget:"$3.80",  price:"$6.0",  models:"flash + pro", rpm: 30 },
 };
 
 const params = new URLSearchParams(window.location.search);
@@ -114,7 +119,7 @@ const plan = PLANS[planName] || PLANS["Trial"];
 
 document.getElementById("plan-name").textContent = planName +" Plan";
 document.getElementById("plan-price").textContent = plan.price;
-document.getElementById("plan-tokens").textContent = plan.tokens;
+document.getElementById("plan-budget").textContent = plan.budget;
 document.getElementById("plan-models").textContent = plan.models;
 document.getElementById("plan-rate").textContent = plan.rpm;
 
@@ -191,5 +196,15 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 </script>
+
+<div class="footer-links">
+<a href="/support.html">Support</a>
+<a href="/refund.html">Refund Policy</a>
+<a href="/privacy.html">Privacy</a>
+<a href="/terms.html">Terms</a>
+<a href="/docs.html">Docs</a>
+<a href="/pricing.html">Pricing</a>
+</div>
+<div class="disclaimer">Independent third-party API gateway. Not affiliated with DeepSeek. Payments processed by PayPal.</div>
 </body>
 </html>

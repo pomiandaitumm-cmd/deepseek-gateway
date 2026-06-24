@@ -45,6 +45,11 @@ a:hover{text-decoration:underline}
  .nav-links a:hover { border-color: #58a6ff; color: #c9d1d9; text-decoration: none; }
  .nav-links a.highlight { border-color: #58a6ff66; color: #58a6ff; }
 
+
+.footer-links{text-align:center;padding:32px 0 16px;border-top:1px solid #21262d;margin-top:40px}
+.footer-links a{font-size:0.75rem;color:#484f58;margin:0 10px;text-decoration:none}
+.footer-links a:hover{color:#8b949e}
+.disclaimer{text-align:center;font-size:0.7rem;color:#484f58;padding-bottom:12px}
 </style>
 </head>
 <body>
@@ -68,7 +73,7 @@ a:hover{text-decoration:underline}
     <h2>Your Order</h2>
     <div class="order-summary" id="order-preview">
       <div class="row"><span class="label">Plan</span><span class="value" id="preview-plan">—</span></div>
-      <div class="row"><span class="label">Tokens</span><span class="value" id="preview-tokens">—</span></div>
+      <div class="row"><span class="label">API Budget</span><span class="value" id="preview-tokens">—</span></div>
       <div class="row"><span class="label">Models</span><span class="value" id="preview-models">—</span></div>
       <div class="row"><span class="label">Price</span><span class="value" id="preview-price">—</span></div>
     </div>
@@ -91,7 +96,7 @@ a:hover{text-decoration:underline}
     </div>
     <div class="order-summary">
       <div class="row"><span class="label">Plan</span><span class="value" id="approved-plan">—</span></div>
-      <div class="row"><span class="label">Token Quota</span><span class="value" id="approved-quota">—</span></div>
+      <div class="row"><span class="label">API Budget</span><span class="value" id="approved-quota">—</span></div>
       <div class="row"><span class="label">Models</span><span class="value" id="approved-models">—</span></div>
     </div>
     <a class="btn" href="/dashboard.html" style="text-align:center;text-decoration:none">Open Dashboard</a>
@@ -244,5 +249,15 @@ if (urlEmail) document.getElementById("email").value = urlEmail;
 // Initialize PayPal on load
 initPayPal();
 </script>
+
+<div class="footer-links">
+<a href="/support.html">Support</a>
+<a href="/refund.html">Refund Policy</a>
+<a href="/privacy.html">Privacy</a>
+<a href="/terms.html">Terms</a>
+<a href="/docs.html">Docs</a>
+<a href="/pricing.html">Pricing</a>
+</div>
+<div class="disclaimer">Independent third-party API gateway. Not affiliated with DeepSeek. Payments processed by PayPal.</div>
 </body>
 </html>

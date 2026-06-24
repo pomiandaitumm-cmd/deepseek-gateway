@@ -1,0 +1,84 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Support — ModelRelay API Gateway</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#0d1117;color:#c9d1d9;line-height:1.6}
+.container{max-width:700px;margin:0 auto;padding:48px 24px}
+h1{font-size:1.6rem;color:#f0f6fc;margin-bottom:8px}
+h2{font-size:1.1rem;color:#f0f6fc;margin:28px 0 10px;padding-top:20px;border-top:1px solid #21262d}
+p,li{font-size:0.9rem;color:#8b949e;margin-bottom:10px;line-height:1.6}
+a{color:#58a6ff;text-decoration:none}
+a:hover{text-decoration:underline}
+code{background:#21262d;padding:2px 6px;border-radius:3px;font-size:0.88em;color:#58a6ff}
+.card{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:18px 22px;margin:12px 0}
+.card h3{color:#f0f6fc;font-size:0.95rem;margin-bottom:6px}
+.nav-links{margin-bottom:20px;display:flex;flex-wrap:wrap;gap:8px}
+.nav-links a{font-size:0.8rem;color:#8b949e;text-decoration:none;padding:4px 10px;border:1px solid #30363d;border-radius:4px}
+.nav-links a:hover{border-color:#58a6ff;color:#c9d1d9}
+.footer-links{text-align:center;padding:32px 0 16px;border-top:1px solid #21262d;margin-top:40px}
+.footer-links a{font-size:0.75rem;color:#484f58;margin:0 10px}
+.footer-links a:hover{color:#8b949e}
+.disclaimer{text-align:center;font-size:0.7rem;color:#484f58;padding-bottom:12px}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="nav-links">
+ <a href="/">Home</a><a href="/pricing.html">Pricing</a><a href="/models.html">Models</a>
+ <a href="/docs.html">Docs</a><a href="/api-docs.html">API Docs</a>
+ <a href="/dashboard.html">Dashboard</a><a href="/order.html">Check Order</a>
+ <a href="/sillytavern-deepseek-setup.html">SillyTavern</a>
+</div>
+
+<h1>Support</h1>
+
+<div class="card">
+<h3>Contact</h3>
+<p>For questions about orders, API keys, or billing, contact us at:<br>
+<strong><a href="mailto:support@modelrelayapis.cc">support@modelrelayapis.cc</a></strong></p>
+<p>Please include your Order ID or key prefix so we can help faster.</p>
+</div>
+
+<h2>Common Questions</h2>
+
+<div class="card">
+<h3>I paid but didn't get my key</h3>
+<p>After PayPal payment completes, your key appears on the checkout page. If you closed it, go to <a href="/order.html">Check Order</a> and enter your Order ID and email.</p>
+</div>
+
+<div class="card">
+<h3>My key says "exhausted"</h3>
+<p>Your API budget has been fully used. Buy a new package to get a fresh key with budget. Each key has a fixed budget — it cannot overspend.</p>
+</div>
+
+<div class="card">
+<h3>I get 403 on a model</h3>
+<p>Each plan includes specific models. Trial/Starter/Standard include <code>deepseek-v4-flash</code>. Pro also includes <code>deepseek-v4-pro</code>. Check the <a href="/models.html">Models</a> page.</p>
+</div>
+
+<div class="card">
+<h3>How do I check my balance?</h3>
+<p>Use the <a href="/dashboard.html">Dashboard</a> page or call <code>GET /v1/key/usage</code> with your key.</p>
+</div>
+
+<div class="card">
+<h3>Where is my data stored?</h3>
+<p>We do not store your prompts or completions. We only track token usage for budget deduction. See <a href="/privacy.html">Privacy Policy</a>.</p>
+</div>
+
+<div class="footer-links">
+<a href="/support.html">Support</a>
+<a href="/refund.html">Refund Policy</a>
+<a href="/privacy.html">Privacy</a>
+<a href="/terms.html">Terms</a>
+<a href="/docs.html">Docs</a>
+<a href="/pricing.html">Pricing</a>
+</div>
+<div class="disclaimer">Independent third-party API gateway. Not affiliated with DeepSeek. Payments processed by PayPal.</div>
+</div>
+</body>
+</html>

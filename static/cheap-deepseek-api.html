@@ -42,6 +42,11 @@
  .nav-links a:hover { border-color: #58a6ff; color: #c9d1d9; text-decoration: none; }
  .nav-links a.highlight { border-color: #58a6ff66; color: #58a6ff; }
 
+
+.footer-links{text-align:center;padding:32px 0 16px;border-top:1px solid #21262d;margin-top:40px}
+.footer-links a{font-size:0.75rem;color:#484f58;margin:0 10px;text-decoration:none}
+.footer-links a:hover{color:#8b949e}
+.disclaimer{text-align:center;font-size:0.7rem;color:#484f58;padding-bottom:12px}
 </style>
 </head>
 <body>
@@ -57,13 +62,13 @@
  <a href="/sillytavern-deepseek-setup.html">SillyTavern Setup</a>
 </div>
 <h1>Cheap DeepSeek API for Testing</h1>
-  <p class="subtitle">OpenAI-compatible endpoint. Per-key quota. No monthly commitment. Start at $1.</p>
+  <p class="subtitle">OpenAI-compatible endpoint. Per-key budget. No monthly commitment. Start at $1.</p>
 
   <h2>Why This Gateway?</h2>
   <ul>
     <li><strong>Drop-in OpenAI SDK replacement</strong> &mdash; just change <code>base_url</code>.</li>
-    <li><strong>Per-key quota</strong> &mdash; no surprise bills. You know exactly how many tokens you have.</li>
-    <li><strong>Usage dashboard</strong> &mdash; check remaining tokens anytime.</li>
+    <li><strong>Per-key budget</strong> &mdash; no surprise bills. You know exactly your spending limit.</li>
+    <li><strong>Usage dashboard</strong> &mdash; check remaining budget anytime.</li>
     <li><strong>Streaming support</strong> &mdash; works with SSE streaming.</li>
     <li><strong>Rate limiting</strong> &mdash; fair use per key, no noisy neighbors.</li>
   </ul>
@@ -73,22 +78,22 @@
     <div class="price-card">
       <div class="name">Trial</div>
       <div class="cost">$1</div>
-      <div class="detail">1M tokens<br>flash only &middot; 30 RPM</div>
+      <div class="detail">$0.70 budget<br>flash only &middot; 30 RPM</div>
     </div>
     <div class="price-card">
       <div class="name">Starter</div>
       <div class="cost">$3</div>
-      <div class="detail">5M tokens<br>flash only &middot; 30 RPM</div>
+      <div class="detail">$2.30 budget<br>flash only &middot; 30 RPM</div>
     </div>
     <div class="price-card">
       <div class="name">Standard</div>
       <div class="cost">$6</div>
-      <div class="detail">12M tokens<br>flash only &middot; 60 RPM</div>
+      <div class="detail">$4.80 budget<br>flash only &middot; 60 RPM</div>
     </div>
     <div class="price-card">
       <div class="name">Pro</div>
       <div class="cost">$6</div>
-      <div class="detail">2M tokens<br>flash + pro &middot; 30 RPM</div>
+      <div class="detail">$3.80 budget<br>flash + pro &middot; 30 RPM</div>
 </div>
 
   <h2>Who Is This For?</h2>
@@ -107,5 +112,15 @@
   <a class="cta" href="/pricing.html">View All Plans &amp; Apply</a>
   &nbsp; <a href="/api-docs.html" style="font-size:0.9rem;">API Docs</a>
 </div>
+
+<div class="footer-links">
+<a href="/support.html">Support</a>
+<a href="/refund.html">Refund Policy</a>
+<a href="/privacy.html">Privacy</a>
+<a href="/terms.html">Terms</a>
+<a href="/docs.html">Docs</a>
+<a href="/pricing.html">Pricing</a>
+</div>
+<div class="disclaimer">Independent third-party API gateway. Not affiliated with DeepSeek. Payments processed by PayPal.</div>
 </body>
 </html>

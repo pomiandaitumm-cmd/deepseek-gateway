@@ -51,6 +51,11 @@
  .nav-links a:hover { border-color: #58a6ff; color: #c9d1d9; text-decoration: none; }
  .nav-links a.highlight { border-color: #58a6ff66; color: #58a6ff; }
 
+
+.footer-links{text-align:center;padding:32px 0 16px;border-top:1px solid #21262d;margin-top:40px}
+.footer-links a{font-size:0.75rem;color:#484f58;margin:0 10px;text-decoration:none}
+.footer-links a:hover{color:#8b949e}
+.disclaimer{text-align:center;font-size:0.7rem;color:#484f58;padding-bottom:12px}
 </style>
 </head>
 <body>
@@ -96,7 +101,7 @@
  <td>Pricing model</td>
  <td>Pay per token + platform fee</td>
  <td>Official per-token pricing</td>
- <td>Per-key quota (pre-allocated tokens)</td>
+ <td>Per-key fixed budget (pre-paid API credit)</td>
  </tr>
  <tr>
  <td>OpenAI-compatible?</td>
@@ -114,7 +119,7 @@
  <td>Usage tracking</td>
  <td>Dashboard (aggregated)</td>
  <td>Official console</td>
- <td><span class="highlight">Per-key usage report, exact token counts</span></td>
+ <td><span class="highlight">Per-key usage report, exact API cost</span></td>
  </tr>
  <tr>
  <td>Quota enforcement</td>
@@ -161,7 +166,7 @@
  <li>Do not have a Chinese phone number or Alipay account</li>
  <li>Want to <strong>issue separate keys</strong> to team members, each with its own quota</li>
  <li>Need <strong>hard quota caps</strong> — no surprise overages on your bill</li>
- <li>Want <strong>per-key usage reports</strong> to see exactly who used how many tokens</li>
+ <li>Want <strong>per-key usage reports</strong> to see exactly who used how much budget</li>
  <li>Prefer clean output without reasoning/thinking tokens mixed in</li>
  <li>Are building a product on top of DeepSeek and need predictable cost control</li>
  </ul>
@@ -202,7 +207,17 @@
 
  <div style="text-align:center;margin:32px 0;">
  <a href="/pricing.html" style="display:inline-block;background:#1f6feb;color:#fff;padding:12px 28px;border-radius:6px;font-weight:600;text-decoration:none;font-size:0.95rem;">Buy Now &mdash; From $1</a>
- <p style="margin-top:10px;font-size:0.82rem;color:#8b949e;">Invite-only service. Manual approval. 100K trial tokens for $1.</p>
+ 
  </div>
+
+<div class="footer-links">
+<a href="/support.html">Support</a>
+<a href="/refund.html">Refund Policy</a>
+<a href="/privacy.html">Privacy</a>
+<a href="/terms.html">Terms</a>
+<a href="/docs.html">Docs</a>
+<a href="/pricing.html">Pricing</a>
+</div>
+<div class="disclaimer">Independent third-party API gateway. Not affiliated with DeepSeek. Payments processed by PayPal.</div>
 </body>
 </html>

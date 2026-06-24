@@ -1,69 +1,158 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DeepSeek Gateway — OpenAI-Compatible API Access</title>
+<meta name="description" content="OpenAI-compatible DeepSeek API Gateway. Change the base_url, keep your code. PayPal checkout, instant key delivery, per-key usage dashboard.">
+<title>DeepSeek API Gateway — OpenAI-Compatible Access From $1</title>
 <style>
- *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
- body {
- font-family: -apple-system, BlinkMacSystemFont,"Segoe UI", Roboto,"Helvetica Neue", Arial,"Microsoft YaHei","PingFang SC", sans-serif;
- background: #0d1117; color: #c9d1d9; line-height: 1.6;
- }
- .container { max-width: 720px; margin: 0 auto; padding: 60px 24px; }
- h1 { font-size: 2rem; font-weight: 700; color: #f0f6fc; margin-bottom: 8px; letter-spacing: -0.02em; }
- .subtitle { font-size: 1.05rem; color: #8b949e; margin-bottom: 32px; }
- .badge {
- display: inline-block; background: #1f6feb22; color: #58a6ff; border: 1px solid #1f6feb44;
- padding: 3px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: 500; margin-bottom: 24px;
- }
- .card {
- background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 24px; margin-bottom: 16px;
- }
- .card h3 { font-size: 1rem; color: #f0f6fc; margin-bottom: 8px; }
- .card p, .card li { font-size: 0.9rem; color: #8b949e; }
- .card ul { padding-left: 20px; margin-top: 8px; }
- .card li { margin-bottom: 4px; }
- pre {
- background: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 16px;
- overflow-x: auto; font-size: 0.85rem; line-height: 1.5; color: #c9d1d9;
- }
- code { font-family:"SF Mono","Fira Code","Cascadia Code", monospace; font-size: 0.85em; }
- .pricing { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 24px 0; }
- .plan {
- background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 20px; text-align: center;
- }
- .plan h3 { font-size: 0.95rem; color: #f0f6fc; }
- .plan .tokens { font-size: 1.3rem; font-weight: 700; color: #58a6ff; margin: 8px 0; }
- .plan .desc { font-size: 0.8rem; color: #8b949e; }
-hr { border: none; border-top: 1px solid #30363d; margin: 40px 0; }
- .footer { font-size: 0.8rem; color: #484f58; text-align: center; margin-top: 40px; }
- a { color: #58a6ff; text-decoration: none; }
- a:hover { text-decoration: underline; }
- .cta-box {
- background: #161b22; border: 2px solid #58a6ff44; border-radius: 8px; padding: 28px;
- text-align: center; margin: 36px 0 24px;
- }
- .cta-box h3 { color: #f0f6fc; font-size: 1.15rem; margin-bottom: 6px; }
- .cta-box p { color: #8b949e; margin: 6px 0 18px; font-size: 0.92rem; }
- .cta-btn {
- display: inline-block; background: #1f6feb; color: #fff !important; padding: 10px 28px;
- border-radius: 6px; font-weight: 600; font-size: 0.95rem; text-decoration: none;
- }
- .cta-btn:hover { background: #388bfd; text-decoration: none; }
- .nav-links { margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 8px; }
- .nav-links a {
- font-size: 0.8rem; color: #8b949e; text-decoration: none;
- padding: 4px 10px; border: 1px solid #30363d; border-radius: 4px;
- transition: border-color 0.2s;
- }
- .nav-links a:hover { border-color: #58a6ff; color: #c9d1d9; text-decoration: none; }
- .nav-links a.highlight { border-color: #58a6ff66; color: #58a6ff; }
- .disclaimer { text-align:center; color:#8b949e; font-size:0.7rem; margin-bottom:6px; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: #0d1117; color: #c9d1d9; line-height: 1.6;
+}
+.container { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+
+/* NAV */
+.nav-links {
+  display: flex; flex-wrap: wrap; gap: 6px; padding: 16px 0;
+  border-bottom: 1px solid #21262d; margin-bottom: 0;
+}
+.nav-links a {
+  font-size: 0.78rem; color: #8b949e; text-decoration: none;
+  padding: 5px 12px; border: 1px solid #30363d; border-radius: 5px;
+  transition: border-color 0.2s, color 0.2s;
+}
+.nav-links a:hover { border-color: #58a6ff; color: #c9d1d9; }
+.nav-links a.highlight { border-color: #58a6ff55; color: #58a6ff; }
+
+/* HERO */
+.hero { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; padding: 48px 0 40px; }
+.hero-left h1 { font-size: 2.1rem; font-weight: 700; color: #f0f6fc; letter-spacing: -0.03em; margin-bottom: 8px; }
+.hero-left .tagline { font-size: 1rem; color: #8b949e; margin-bottom: 20px; line-height: 1.5; }
+.hero-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.btn-primary {
+  display: inline-block; background: #1f6feb; color: #fff; padding: 9px 20px;
+  border-radius: 6px; font-weight: 600; font-size: 0.9rem; text-decoration: none;
+}
+.btn-primary:hover { background: #388bfd; }
+.btn-outline {
+  display: inline-block; border: 1px solid #30363d; color: #c9d1d9; padding: 9px 20px;
+  border-radius: 6px; font-weight: 500; font-size: 0.9rem; text-decoration: none;
+}
+.btn-outline:hover { border-color: #58a6ff; color: #58a6ff; }
+.bullets { display: flex; flex-wrap: wrap; gap: 6px 14px; }
+.bullets span {
+  font-size: 0.78rem; color: #8b949e; display: flex; align-items: center; gap: 4px;
+}
+.bullets span::before { content: "\2713"; color: #3fb950; font-weight: bold; }
+
+.hero-right pre {
+  background: #161b22; border: 1px solid #30363d; border-radius: 8px;
+  padding: 20px; overflow-x: auto; font-size: 0.8rem; line-height: 1.6;
+  color: #c9d1d9; margin: 0;
+}
+.hero-right pre code { font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace; }
+.hero-right .code-label {
+  font-size: 0.7rem; color: #484f58; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px;
+}
+
+/* SECTION TITLES */
+.section-title {
+  font-size: 1.15rem; font-weight: 700; color: #f0f6fc;
+  margin: 40px 0 16px; padding-top: 24px; border-top: 1px solid #21262d;
+}
+
+/* PLANS */
+.plans { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.plan {
+  background: #161b22; border: 1px solid #30363d; border-radius: 8px;
+  padding: 20px 16px; text-align: center; transition: border-color 0.2s;
+}
+.plan:hover { border-color: #58a6ff55; }
+.plan h3 { font-size: 0.9rem; color: #f0f6fc; margin-bottom: 4px; }
+.plan .price { font-size: 1.4rem; font-weight: 700; color: #58a6ff; margin: 6px 0 2px; }
+.plan .budget { font-size: 0.78rem; color: #8b949e; margin-bottom: 6px; }
+.plan .model-tag {
+  display: inline-block; font-size: 0.68rem; padding: 2px 7px; border-radius: 3px;
+  background: #d2992222; color: #d29922; border: 1px solid #d2992244;
+  margin-bottom: 10px;
+}
+.plan .plan-btn {
+  display: block; margin-top: 10px; padding: 6px 0; border-radius: 5px;
+  background: #21262d; color: #c9d1d9; text-decoration: none; font-size: 0.8rem;
+  font-weight: 500; border: 1px solid #30363d;
+}
+.plan .plan-btn:hover { border-color: #58a6ff; color: #58a6ff; }
+
+/* MODELS */
+.models-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.model-card {
+  background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 20px;
+}
+.model-card h3 { font-size: 1rem; color: #f0f6fc; margin-bottom: 2px; }
+.model-card .model-id {
+  font-family: "SF Mono", "Fira Code", monospace; font-size: 0.8rem; color: #58a6ff; margin-bottom: 8px;
+}
+.model-card .tags { margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 4px; }
+.tag { font-size: 0.68rem; padding: 2px 7px; border-radius: 3px; }
+.tag-avail { background: #1f6feb22; color: #3fb950; border: 1px solid #3fb95044; }
+.tag-speed { background: #d2992222; color: #d29922; border: 1px solid #d2992244; }
+.tag-pro { background: #a371f722; color: #a371f7; border: 1px solid #a371f744; }
+.model-card ul { padding-left: 18px; font-size: 0.82rem; color: #8b949e; }
+.model-card li { margin-bottom: 2px; }
+
+/* TABLE */
+.compare-table { width: 100%; border-collapse: collapse; margin: 8px 0 0; font-size: 0.82rem; }
+.compare-table th, .compare-table td { border: 1px solid #21262d; padding: 8px 12px; text-align: left; }
+.compare-table th { background: #161b22; color: #8b949e; font-weight: 500; }
+.compare-table td { color: #c9d1d9; }
+.compare-table td:first-child code { background: #21262d; padding: 1px 5px; border-radius: 3px; }
+.star { color: #58a6ff; }
+
+/* INTEGRATIONS */
+.integrations {
+  display: flex; flex-wrap: wrap; gap: 8px;
+}
+.integrations a {
+  font-size: 0.8rem; color: #8b949e; text-decoration: none;
+  padding: 6px 14px; border: 1px solid #30363d; border-radius: 5px;
+  transition: border-color 0.2s;
+}
+.integrations a:hover { border-color: #58a6ff; color: #c9d1d9; }
+
+/* FAQ */
+.faq { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.faq-item { background: #161b22; border: 1px solid #21262d; border-radius: 6px; padding: 14px 16px; }
+.faq-item h4 { font-size: 0.85rem; color: #f0f6fc; margin-bottom: 4px; }
+.faq-item p { font-size: 0.8rem; color: #8b949e; line-height: 1.5; }
+
+/* FOOTER */
+.footer-bar {
+  border-top: 1px solid #21262d; margin-top: 40px; padding: 20px 0;
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 0.75rem; color: #484f58;
+}
+.disclaimer { font-size: 0.7rem; color: #484f58; text-align: center; padding-bottom: 12px; }
+
+/* RESPONSIVE */
+@media (max-width: 700px) {
+  .hero { grid-template-columns: 1fr; gap: 20px; padding: 28px 0 20px; }
+  .hero-left h1 { font-size: 1.6rem; }
+  .plans { grid-template-columns: repeat(2, 1fr); }
+  .models-grid { grid-template-columns: 1fr; }
+  .faq { grid-template-columns: 1fr; }
+  .compare-table { font-size: 0.72rem; }
+}
+
+pre, code { font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace; }
+a { color: #58a6ff; text-decoration: none; }
+a:hover { text-decoration: underline; }
 </style>
 </head>
 <body>
 <div class="container">
+
 <div class="nav-links">
  <a href="/">Home</a>
  <a href="/pricing.html" class="highlight">Pricing</a>
@@ -75,17 +164,27 @@ hr { border: none; border-top: 1px solid #30363d; margin: 40px 0; }
  <a href="/sillytavern-deepseek-setup.html">SillyTavern Setup</a>
 </div>
 
+<!-- HERO -->
+<div class="hero">
+<div class="hero-left">
 <h1>DeepSeek API Gateway</h1>
-<p class="subtitle">OpenAI-compatible access to DeepSeek models. Drop-in replacement — change the URL, keep your code.</p>
-<div class="badge">PayPal Checkout — Live</div>
-
-<div class="card">
-<h3>What is this?</h3>
-<p>A managed API endpoint that forwards your requests to DeepSeek models using standard OpenAI format. If your code works with the OpenAI Python SDK, it works here.</p>
+<p class="tagline">OpenAI-compatible DeepSeek API access. Change the <code>base_url</code>, keep your code.</p>
+<div class="hero-btns">
+<a href="/pricing.html" class="btn-primary">View Plans &amp; Buy</a>
+<a href="/api-docs.html" class="btn-outline">API Docs</a>
+<a href="/models.html" class="btn-outline">Models</a>
 </div>
-
-<div class="card">
-<h3>Quick Start</h3>
+<div class="bullets">
+<span>HTTPS endpoint</span>
+<span>PayPal checkout</span>
+<span>Instant key delivery</span>
+<span>Per-key dashboard</span>
+<span>Fixed budget, no surprises</span>
+<span>OpenAI SDK compatible</span>
+</div>
+</div>
+<div class="hero-right">
+<div class="code-label">Quick Start — Python</div>
 <pre><code>from openai import OpenAI
 
 client = OpenAI(
@@ -98,155 +197,137 @@ response = client.chat.completions.create(
     messages=[{"role":"user","content":"Hello!"}],
 )
 print(response.choices[0].message.content)</code></pre>
-<p style="margin-top:12px">Same <code>openai</code> package. No new SDK.</p>
+</div>
 </div>
 
-<div class="card">
-<h3>Supported Models</h3>
+<!-- PLANS -->
+<div class="section-title">Plans</div>
+<div class="plans">
+<div class="plan">
+<h3>Trial</h3>
+<div class="price">$1</div>
+<div class="budget">$0.70 API budget</div>
+<span class="model-tag">flash</span>
+<a href="/checkout.html?plan=Trial" class="plan-btn">Buy Now</a>
+</div>
+<div class="plan">
+<h3>Starter</h3>
+<div class="price">$3</div>
+<div class="budget">$2.30 API budget</div>
+<span class="model-tag">flash</span>
+<a href="/checkout.html?plan=Starter" class="plan-btn">Buy Now</a>
+</div>
+<div class="plan">
+<h3>Standard</h3>
+<div class="price">$6</div>
+<div class="budget">$4.80 API budget</div>
+<span class="model-tag">flash</span>
+<a href="/checkout.html?plan=Standard" class="plan-btn">Buy Now</a>
+</div>
+<div class="plan">
+<h3>Pro</h3>
+<div class="price">$6</div>
+<div class="budget">$3.80 budget + pro</div>
+<span class="model-tag">flash + pro</span>
+<a href="/checkout.html?plan=Pro" class="plan-btn">Buy Now</a>
+</div>
+</div>
+
+<!-- MODELS -->
+<div class="section-title">Models</div>
+<div class="models-grid">
+<div class="model-card">
+<h3>DeepSeek V4 Flash</h3>
+<div class="model-id">deepseek-v4-flash</div>
+<div class="tags">
+<span class="tag tag-avail">available</span>
+<span class="tag tag-speed">fast</span>
+</div>
 <ul>
-<li><code>deepseek-v4-flash</code> — Fast and cost-effective</li>
-<li><code>deepseek-v4-pro</code> — Higher capability for complex tasks</li>
+<li>Chat applications and AI assistants</li>
+<li>Roleplay / character bots (SillyTavern)</li>
+<li>Content generation and summarization</li>
+<li>High-throughput production workloads</li>
 </ul>
 </div>
-
-<div class="card">
-<h3>What You Get</h3>
+<div class="model-card">
+<h3>DeepSeek V4 Pro</h3>
+<div class="model-id">deepseek-v4-pro</div>
+<div class="tags">
+<span class="tag tag-avail">available</span>
+<span class="tag tag-pro">pro</span>
+</div>
 <ul>
-<li><strong>OpenAI-compatible API</strong> — Zero code changes beyond base_url and key.</li>
-<li><strong>Streaming</strong> — SSE streaming works out of the box.</li>
-<li><strong>Budget-based billing</strong> — Pay for API budget. Billed by real token pricing (cache-hit, cache-miss, output).</li>
-<li><strong>Per-key rate limiting</strong> — Predictable performance per user.</li>
-<li><strong>Usage dashboard</strong> — Check your balance anytime with your key.</li>
+<li>Complex reasoning and multi-step logic</li>
+<li>Advanced coding, debugging, refactoring</li>
+<li>Technical writing and research</li>
+<li>Tasks requiring deeper understanding</li>
 </ul>
 </div>
-
-<h3 style="color:#f0f6fc; margin-top:32px">Plans</h3>
-<div class="pricing">
-<div class="plan"><h3>Trial</h3><div class="tokens">$1.0</div><div class="desc">$0.70 API budget</div></div>
-<div class="plan"><h3>Starter</h3><div class="tokens">$3.0</div><div class="desc">$2.30 API budget</div></div>
-<div class="plan"><h3>Standard</h3><div class="tokens">$6.0</div><div class="desc">$4.80 API budget</div></div>
-<div class="plan"><h3>Pro</h3><div class="tokens">$6.0</div><div class="desc">$3.80 budget + pro model</div>
 </div>
 
-<div class="cta-box">
-<h3>Get Started</h3>
-<p>Choose a plan, pay with PayPal, get your API key instantly. Check usage anytime.</p>
-<a class="cta-btn" href="/pricing.html">View Plans &amp; Buy</a>
-</div>
-<hr>
+<table class="compare-table">
+<tr>
+<th>Model</th><th>Speed</th><th>Coding</th><th>Reasoning</th><th>Cost</th><th>Best For</th>
+</tr>
+<tr>
+<td><code>deepseek-v4-flash</code></td>
+<td><span class="star">&#9733;&#9733;&#9733;&#9733;&#9733;</span></td>
+<td><span class="star">&#9733;&#9733;&#9733;</span></td>
+<td><span class="star">&#9733;&#9733;&#9733;</span></td>
+<td>Low</td>
+<td>Chat, content, roleplay, high-volume</td>
+</tr>
+<tr>
+<td><code>deepseek-v4-pro</code></td>
+<td><span class="star">&#9733;&#9733;&#9733;</span></td>
+<td><span class="star">&#9733;&#9733;&#9733;&#9733;&#9733;</span></td>
+<td><span class="star">&#9733;&#9733;&#9733;&#9733;&#9733;</span></td>
+<td>Medium</td>
+<td>Complex coding, reasoning, research</td>
+</tr>
+</table>
 
-<h3 style="color:#f0f6fc">FAQ</h3>
-<div class="card">
-<h3>Can I use the standard OpenAI Python SDK?</h3>
-<p>Yes. Set <code>base_url</code> to our endpoint and pass your gateway key.</p>
-</div>
-<div class="card">
-<h3>How is billing calculated?</h3>
-<p>Billed by actual DeepSeek token pricing: input cache-hit $0.014/M, input cache-miss $0.14/M, output $0.28/M (flash). Pro costs more. Your budget decreases with each request.</p>
-</div>
-<div class="card">
-<h3>What happens when my budget runs out?</h3>
-<p>You will receive HTTP 402 and your key becomes exhausted. Buy a new package to continue.</p>
-</div>
-<div class="card">
-<h3>Is there a rate limit?</h3>
-<p>Yes. Each key has a per-minute limit (30 or 60 RPM depending on plan). Exceeding returns HTTP 429.</p>
-</div>
-
-<h3 style="color:#f0f6fc; margin-top:32px">Works with Popular Tools</h3>
-<div class="card">
-<p style="margin-bottom:8px">Our API gateway works with any OpenAI-compatible client:</p>
-<div class="nav-links" style="margin-top:8px">
+<!-- INTEGRATIONS -->
+<div class="section-title">Works With</div>
+<div class="integrations">
+<a href="/sillytavern-deepseek-setup.html">SillyTavern</a>
+<a href="/docs.html">OpenAI SDK</a>
+<a href="/langchain-deepseek-api.html">LangChain</a>
 <a href="/lobe-chat-deepseek-api.html">LobeChat</a>
 <a href="/dify-deepseek-api.html">Dify</a>
+<a href="/chatbox-deepseek-api.html">Chatbox AI</a>
 <a href="/nextchat-deepseek-api.html">NextChat</a>
 <a href="/openwebui-deepseek-api.html">Open WebUI</a>
-<a href="/langchain-deepseek-api.html">LangChain</a>
-<a href="/chatbox-deepseek-api.html">Chatbox AI</a>
+</div>
+
+<!-- FAQ -->
+<div class="section-title">FAQ</div>
+<div class="faq">
+<div class="faq-item">
+<h4>How is billing calculated?</h4>
+<p>Based on real DeepSeek token pricing: input cache-hit $0.014/M, cache-miss $0.14/M, output $0.28/M (flash). Your budget decreases with each request.</p>
+</div>
+<div class="faq-item">
+<h4>What happens when my budget runs out?</h4>
+<p>HTTP 402 is returned and your key becomes exhausted. Buy a new package to continue.</p>
+</div>
+<div class="faq-item">
+<h4>Is there a rate limit?</h4>
+<p>Yes. 30 or 60 RPM per key depending on your plan. Exceeding returns HTTP 429.</p>
+</div>
+<div class="faq-item">
+<h4>Can I use the OpenAI Python SDK?</h4>
+<p>Yes. Set <code>base_url</code> to our endpoint and pass your gateway key. Zero code changes needed.</p>
 </div>
 </div>
 
-<div class="disclaimer">Independent third-party API gateway. Not affiliated with DeepSeek.</div>
-<div class="footer">DeepSeek Gateway — From $1</div>
-
+<div class="footer-bar">
+<span>DeepSeek API Gateway &mdash; From $1</span>
+<span><a href="/pricing.html">Pricing</a> &middot; <a href="/docs.html">Docs</a> &middot; <a href="/dashboard.html">Dashboard</a></span>
 </div>
+<div class="disclaimer">Independent third-party API gateway. Not affiliated with or endorsed by DeepSeek. Payments processed by PayPal.</div>
 
-<div class="card">
-<h3>这是什么？</h3>
-<p>一个托管 API 端点，把你的请求以 OpenAI 格式转发到 DeepSeek 模型。如果你的代码已经使用 OpenAI Python SDK，直接换 base_url 和 key 就能用。</p>
-</div>
-
-<div class="card">
-<h3>快速开始</h3>
-<pre><code>from openai import OpenAI
-
-client = OpenAI(
-    base_url="https://modelrelayapis.cc/v1",
-    api_key="sk-gateway-YOUR-KEY",
-)
-
-response = client.chat.completions.create(
-    model="deepseek-v4-flash",
-    messages=[{"role":"user","content":"你好"}],
-)
-print(response.choices[0].message.content)</code></pre>
-<p style="margin-top:12px">就是你正在用的 <code>openai</code> 包，无需额外安装。</p>
-</div>
-
-<div class="card">
-<h3>支持模型</h3>
-<ul>
-<li><code>deepseek-v4-flash</code> — 快速、高性价比</li>
-<li><code>deepseek-v4-pro</code> — 更强能力，适合复杂任务</li>
-</ul>
-</div>
-
-<div class="card">
-<h3>你获得什么</h3>
-<ul>
-<li><strong>OpenAI 兼容 API</strong> — 只改 base_url 和 key，零代码改动。</li>
-<li><strong>流式输出</strong> — SSE 流式传输开箱即用。</li>
-<li><strong>预算制计费</strong> — 购买 API 预算额度，按真实 token 价格（缓存命中/未命中/输出）扣费。</li>
-<li><strong>独立限流</strong> — 每个 key 有独立 RPM 限制，互不影响。</li>
-<li><strong>用量面板</strong> — 随时用 key 查询余额和消耗明细。</li>
-</ul>
-</div>
-
-<h3 style="color:#f0f6fc; margin-top:32px">套餐</h3>
-<div class="pricing">
-<div class="plan"><h3>试用</h3><div class="tokens">$1.0</div><div class="desc">$0.70 API 预算</div></div>
-<div class="plan"><h3>入门</h3><div class="tokens">$3.0</div><div class="desc">$2.30 API 预算</div></div>
-<div class="plan"><h3>标准</h3><div class="tokens">$6.0</div><div class="desc">$4.80 API 预算</div></div>
-<div class="plan"><h3>专业</h3><div class="tokens">$6.0</div><div class="desc">$3.80 预算 + pro 模型</div>
-</div>
-
-<div class="cta-box">
-<h3>开始使用</h3>
-<p>选择套餐，PayPal 付款，即刻获取 API Key。随时查看用量。</p>
-<a class="cta-btn" href="/pricing.html">查看套餐并购买</a>
-</div>
-<hr>
-
-<h3 style="color:#f0f6fc">常见问题</h3>
-<div class="card">
-<h3>能用标准的 OpenAI Python SDK 吗？</h3>
-<p>可以。把 <code>base_url</code> 设为我们的端点，传入你的 gateway key 即可。</p>
-</div>
-<div class="card">
-<h3>怎么计费？</h3>
-<p>按 DeepSeek 官方 token 价格计费：输入缓存命中 $0.014/M，输入缓存未命中 $0.14/M，输出 $0.28/M（flash 模型）。Pro 更贵。每次请求从预算中扣除。</p>
-</div>
-<div class="card">
-<h3>预算用完了怎么办？</h3>
-<p>会收到 HTTP 402，key 状态变为"已耗尽"。购买新套餐即可继续使用。</p>
-</div>
-<div class="card">
-<h3>有限流吗？</h3>
-<p>有。每个 key 有每分钟请求上限（30 或 60 RPM，视套餐而定）。超限返回 HTTP 429。</p>
-</div>
-
-<div class="disclaimer">独立第三方 API 网关，非 DeepSeek 官方服务。</div>
-<div class="footer">DeepSeek Gateway — 邀请制</div>
 </div>
 </body>
 </html>

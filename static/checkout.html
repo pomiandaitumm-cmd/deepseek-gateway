@@ -141,7 +141,7 @@ async function initPayPal() {
     const cfg = await resp.json();
     if (!cfg.enabled || !cfg.client_id) {
       document.getElementById("paypal-button-container").innerHTML =
-        '<div style="color:#d29922;text-align:center;padding:16px">PayPal is being enabled. Please check back soon.<br><small>PayPal 收款正在开通中</small></div>';
+        '<div style="color:#d29922;text-align:center;padding:16px">PayPal is being enabled. Please check back soon.<br><small>PayPal payments coming soon</small></div>';
       return;
     }
 

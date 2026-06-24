@@ -163,7 +163,7 @@ function renderStatus(data) {
           PayPal payment is being enabled. After review we will send you a PayPal invoice or payment link.
         </p>
         <p style="margin:4px 0;font-size:0.78rem;color:#8b949e;">
-          (PayPal 收款正在开通中。审核后我们会通过 PayPal 账单或付款链接联系你付款。)
+          (PayPal payments are being enabled. We will send you an invoice after review.)
         </p>
       </div>
       <div style="margin-top:4px;font-size:0.78rem;color:#8b949e;" id="poll-status">
@@ -185,7 +185,7 @@ function renderStatus(data) {
       <div style="margin-top:16px;">
         <strong style="color:#3fb950;">Your API Key:</strong>
         <div class="key-box">${escapeHtml(data.full_key)}</div>
-        <div class="warning">Copy and save your API key now. If you close this page, you may need your Order ID and email to check it later. | 请立即复制并保存你的 API Key。关闭页面后，你可能需要订单号和邮箱才能查询。</div>
+        <div class="warning">Copy and save your API key now. If you close this page, you may need your Order ID and email to check it later.</div>
       </div>`;
     } else if (data.key_prefix) {
       html += `

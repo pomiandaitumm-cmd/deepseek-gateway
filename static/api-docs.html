@@ -188,7 +188,7 @@ console.log(response.choices[0].message.content);</code></pre>
     <tr><th>Code</th><th>Meaning</th><th>Action</th></tr>
     <tr><td><span class="error-code ec-401">401</span></td><td>Invalid or missing API key</td><td>Check your key is correct and starts with <code>sk-gateway-</code></td></tr>
     <tr><td><span class="error-code ec-402">402</span></td><td>API budget exhausted</td><td>Buy a new package to get a fresh key with budget</td></tr>
-    <tr><td><span class="error-code ec-403">403</span></td><td>Key disabled, or model not in your plan</td><td>Check your plan supports this model; upgrade if needed</td></tr>
+    <tr><td><span class="error-code ec-403">403</span></td><td>Key disabled or access denied</td><td>Check your key status, budget, or contact support.</td></tr>
     <tr><td><span class="error-code ec-429">429</span></td><td>Rate limit exceeded</td><td>Wait and retry. Trial/Starter/Pro: 30 RPM, Standard: 60 RPM</td></tr>
     <tr><td>502</td><td>Upstream error</td><td>Service temporarily unavailable. Retry in 30 seconds.</td></tr>
   </table>

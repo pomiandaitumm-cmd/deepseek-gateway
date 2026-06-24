@@ -184,14 +184,14 @@ document.addEventListener("DOMContentLoaded", function() {
       var s = await api("/api/admin/summary");
       document.getElementById("admin-content").classList.remove("hidden");
       document.getElementById("stats").innerHTML =
-        "<div class="stat-card"><div class="stat-value">" + (s.total_orders || 0) + "</div><div class="stat-label">Total Orders</div></div>" +
-        "<div class="stat-card"><div class="stat-value">" + (s.paid_orders || 0) + "</div><div class="stat-label">Paid Orders</div></div>" +
-        "<div class="stat-card"><div class="stat-value">" + (s.active_keys || 0) + "</div><div class="stat-label">Active Keys</div></div>" +
-        "<div class="stat-card"><div class="stat-value">" + (s.exhausted_keys || 0) + "</div><div class="stat-label">Exhausted</div></div>" +
-        "<div class="stat-card"><div class="stat-value">$" + (s.total_sales || 0).toFixed(2) + "</div><div class="stat-label">Total Sales</div></div>" +
-        "<div class="stat-card"><div class="stat-value">$" + (s.total_upstream_budget || 0).toFixed(2) + "</div><div class="stat-label">Upstream Budget</div></div>" +
-        "<div class="stat-card"><div class="stat-value">$" + (s.total_used_cost || 0).toFixed(6) + "</div><div class="stat-label">Used Cost</div></div>" +
-        "<div class="stat-card"><div class="stat-value">$" + ((s.total_sales || 0) - (s.total_used_cost || 0)).toFixed(2) + "</div><div class="stat-label">Gross Margin</div></div>";
+        "<div class='stat-card'><div class='stat-value'>" + (s.total_orders || 0) + "</div><div class='stat-label'>Total Orders</div></div>" +
+        "<div class='stat-card'><div class='stat-value'>" + (s.paid_orders || 0) + "</div><div class='stat-label'>Paid Orders</div></div>" +
+        "<div class='stat-card'><div class='stat-value'>" + (s.active_keys || 0) + "</div><div class='stat-label'>Active Keys</div></div>" +
+        "<div class='stat-card'><div class='stat-value'>" + (s.exhausted_keys || 0) + "</div><div class='stat-label'>Exhausted</div></div>" +
+        "<div class='stat-card'><div class='stat-value'>$" + (s.total_sales || 0).toFixed(2) + "</div><div class='stat-label'>Total Sales</div></div>" +
+        "<div class='stat-card'><div class='stat-value'>$" + (s.total_upstream_budget || 0).toFixed(2) + "</div><div class='stat-label'>Upstream Budget</div></div>" +
+        "<div class='stat-card'><div class='stat-value'>$" + (s.total_used_cost || 0).toFixed(6) + "</div><div class='stat-label'>Used Cost</div></div>" +
+        "<div class='stat-card'><div class='stat-value'>$" + ((s.total_sales || 0) - (s.total_used_cost || 0)).toFixed(2) + "</div><div class='stat-label'>Gross Margin</div></div>";
       loadOrders();
       loadKeys();
     } catch (e) {
@@ -222,13 +222,13 @@ document.addEventListener("DOMContentLoaded", function() {
           "<td>" + (o.order_status || o.status || "-") + "</td>" +
           "<td>" + (o.payment_status || "-") + "</td>" +
           "<td><code>" + (o.key_prefix || "-") + "</code></td>" +
-          "<td><span class="badge-status badge-" + (o.key_status || "disabled") + "">" + (o.key_status || "-") + "</span></td>" +
+          "<td><span class='badge-status badge-' + (o.key_status || "disabled") + "">" + (o.key_status || "-") + "</span></td>" +
           "<td>" + (o.request_count || 0) + "</td>" +
           "<td>" + (o.created_at || "-") + "</td>" +
           "</tr>";
-      }).join("") || "<tr><td colspan="14" style="text-align:center;color:#8b949e;padding:20px">No orders found</td></tr>";
+      }).join("") || "<tr><td colspan='14' style='text-align:center;color:#8b949e;padding:20px'>No orders found</td></tr>";
     } catch (e) {
-      document.querySelector("#orders-table tbody").innerHTML = "<tr><td colspan="14" class="error">" + e.message + "</td></tr>";
+      document.querySelector("#orders-table tbody").innerHTML = "<tr><td colspan='14' class='error'>" + e.message + "</td></tr>";
     }
   }
 
@@ -244,7 +244,7 @@ document.addEventListener("DOMContentLoaded", function() {
       tbody.innerHTML = (data.keys || []).map(function(k) {
         return "<tr>" +
           "<td><code>" + (k.key_prefix || "-") + "</code></td>" +
-          "<td><span class="badge-status badge-" + (k.status || "disabled") + "">" + (k.status || "-") + "</span></td>" +
+          "<td><span class='badge-status badge-' + (k.status || "disabled") + "">" + (k.status || "-") + "</span></td>" +
           "<td>" + (k.package_name || "-") + "</td>" +
           "<td>$" + (k.upstream_budget || 0).toFixed(2) + "</td>" +
           "<td>$" + (k.used_upstream_cost || 0).toFixed(6) + "</td>" +
@@ -252,9 +252,9 @@ document.addEventListener("DOMContentLoaded", function() {
           "<td>" + (k.request_count || 0) + "</td>" +
           "<td>" + (k.last_used_at || "-") + "</td>" +
           "</tr>";
-      }).join("") || "<tr><td colspan="8" style="text-align:center;color:#8b949e;padding:20px">No keys found</td></tr>";
+      }).join("") || "<tr><td colspan='8' style='text-align:center;color:#8b949e;padding:20px'>No keys found</td></tr>";
     } catch (e) {
-      document.querySelector("#keys-table tbody").innerHTML = "<tr><td colspan="8" class="error">" + e.message + "</td></tr>";
+      document.querySelector("#keys-table tbody").innerHTML = "<tr><td colspan='8' class='error'>" + e.message + "</td></tr>";
     }
   }
 });

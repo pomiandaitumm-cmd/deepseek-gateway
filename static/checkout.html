@@ -122,7 +122,7 @@ a:hover{text-decoration:underline}
 const params = new URLSearchParams(window.location.search);
 const PLAN = params.get("plan") ||"Trial";
 
-const PLAN_INFO = {"Trial":    { budget:"$0.70", price:"$1.0", models:"deepseek-v4-flash" },"Starter":  { budget:"$2.30", price:"$3.0", models:"deepseek-v4-flash" },"Standard": { budget:"$4.80", price:"$6.0", models:"deepseek-v4-flash" },"Pro":      { budget:"$3.80", price:"$6.0", models:"flash + pro" },
+const PLAN_INFO = {"Trial":    { budget:"$0.74", price:"$0.99", models:"flash + pro" },"Starter":  { budget:"$1.87", price:"$2.49", models:"flash + pro" },"Standard": { budget:"$3.74", price:"$4.99", models:"flash + pro" },"Pro":      { budget:"$4.49", price:"$5.99", models:"flash + pro" },
 };
 
 const info = PLAN_INFO[PLAN] || PLAN_INFO["Trial"];

@@ -60,7 +60,7 @@ async def chat_completions(request: Request, key_info: dict = Depends(verify_api
         if model not in allowed_list:
             raise HTTPException(
                 status_code=403,
-                detail="Your plan does not include this model",
+                detail="All plans support both flash and pro models. If budget exhausted, buy a new package.",
             )
     if model not in EXPOSED_MODELS:
         raise HTTPException(

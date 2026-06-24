@@ -152,10 +152,10 @@ def _seed_packages(conn):
         now = now_utc()
         pkgs = [
             # (name, token_quota, rate_limit, price_usd, allowed_models, description, sale_price, upstream_budget, currency)
-            ("Trial",      2000000,  30,  1.0,  "deepseek-v4-flash", "Quick test. Pay $1.0, get $0.70 API budget.", 1.0, 0.70, "USD"),
-            ("Starter",    10000000,  30,  3.0,  "deepseek-v4-flash", "Personal projects. Pay $3.0, get $2.30 API budget.", 3.0, 2.30, "USD"),
-            ("Standard",   20000000, 60,  6.0,  "deepseek-v4-flash", "Team / indie devs. Pay $6.0, get $4.80 API budget.", 6.0, 4.80, "USD"),
-            ("Pro",        5000000, 30,  6.0, "deepseek-v4-flash,deepseek-v4-pro", "Production. Pay $6.0, get $3.80 API budget (pro costs more).", 6.0, 3.80, "USD"),
+            ("Trial",      2000000,  30,  0.99,  "deepseek-v4-flash,deepseek-v4-pro", "Quick test. Pay $0.99, get $0.74 API budget.", 0.99, 0.74, "USD"),
+            ("Starter",    10000000,  30,  2.49,  "deepseek-v4-flash,deepseek-v4-pro", "Personal projects. Pay $2.49, get $1.87 API budget.", 2.49, 1.87, "USD"),
+            ("Standard",   20000000, 60,  4.99,  "deepseek-v4-flash,deepseek-v4-pro", "Team / indie devs. Pay $4.99, get $3.74 API budget.", 4.99, 3.74, "USD"),
+            ("Pro",        5000000, 30,  5.99, "deepseek-v4-flash,deepseek-v4-pro", "Production. Pay $5.99, get $4.49 API budget.", 5.99, 4.49, "USD"),
         ]
         for name, quota, rl, price, models, desc, sale_price, upstream_budget, currency in pkgs:
             conn.execute(
@@ -165,10 +165,10 @@ def _seed_packages(conn):
     elif existing >= 4:
         # Upgrade existing packages to v0.9 budget-based pricing
         upgrades = [
-            (1, "Trial",    2000000,  30,  1.0,  "deepseek-v4-flash", "Quick test. Pay $1.0, get $0.70 API budget.", 1.0, 0.70, "USD"),
-            (2, "Starter",  10000000,  30,  3.0,  "deepseek-v4-flash", "Personal projects. Pay $3.0, get $2.30 API budget.", 3.0, 2.30, "USD"),
-            (3, "Standard", 20000000, 60,  6.0,  "deepseek-v4-flash", "Team / indie devs. Pay $6.0, get $4.80 API budget.", 6.0, 4.80, "USD"),
-            (4, "Pro",      5000000, 30,  6.0, "deepseek-v4-flash,deepseek-v4-pro", "Production. Pay $6.0, get $3.80 API budget (pro costs more).", 6.0, 3.80, "USD"),
+            (1, "Trial",    2000000,  30,  0.99,  "deepseek-v4-flash,deepseek-v4-pro", "Quick test. Pay $0.99, get $0.74 API budget.", 0.99, 0.74, "USD"),
+            (2, "Starter",  10000000,  30,  2.49,  "deepseek-v4-flash,deepseek-v4-pro", "Personal projects. Pay $2.49, get $1.87 API budget.", 2.49, 1.87, "USD"),
+            (3, "Standard", 20000000, 60,  4.99,  "deepseek-v4-flash,deepseek-v4-pro", "Team / indie devs. Pay $4.99, get $3.74 API budget.", 4.99, 3.74, "USD"),
+            (4, "Pro",      5000000, 30,  5.99, "deepseek-v4-flash,deepseek-v4-pro", "Production. Pay $5.99, get $4.49 API budget.", 5.99, 4.49, "USD"),
         ]
         for pid, name, quota, rl, price, models, desc, sale_price, upstream_budget, currency in upgrades:
             conn.execute(

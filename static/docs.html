@@ -104,9 +104,9 @@ for chunk in stream:
 <table class="error-table">
 <tr><th>Model</th><th>Description</th><th>Available In</th></tr>
 <tr><td><code>deepseek-v4-flash</code></td><td>Fast, cost-effective chat model</td><td>Trial / Starter / Standard / Pro</td></tr>
-<tr><td><code>deepseek-v4-pro</code></td><td>Higher capability for complex tasks</td><td>Pro only</td></tr>
+<tr><td><code>deepseek-v4-pro</code></td><td>Higher capability for complex tasks</td><td>All plans</td></tr>
 </table>
-<p>Calling a model your plan does not support returns HTTP 403.</p>
+<p>All plans include both flash and pro models.</p>
 
 <h2>6. Check Your Balance</h2>
 <p>Go to <a href="/dashboard.html">Dashboard</a>, enter your <code>sk-gateway-xxx</code> key, and click <strong>Check Usage</strong>. You will see:</p>
@@ -144,7 +144,7 @@ for chunk in stream:
 <tr><th>Code</th><th>Meaning</th><th>What to Do</th></tr>
 <tr><td><code>401</code></td><td>Invalid or missing API key</td><td>Check your key is correct and starts with <code>sk-gateway-</code>.</td></tr>
 <tr><td><code>402</code></td><td>API budget exhausted</td><td>Your budget is used up. Buy a new package.</td></tr>
-<tr><td><code>403</code></td><td>Model not allowed</td><td>Your plan does not support this model. Upgrade to Pro for <code>deepseek-v4-pro</code>.</td></tr>
+<tr><td><code>403</code></td><td>Budget exhausted</td><td>Your API budget is exhausted. Please buy a new package to continue.</td></tr>
 <tr><td><code>429</code></td><td>Rate limit exceeded</td><td>Slow down. Trial/Starter/Pro: 30 RPM. Standard: 60 RPM.</td></tr>
 <tr><td><code>500/502</code></td><td>Server error</td><td>Temporary issue. Retry. If persistent, contact support.</td></tr>
 </table>

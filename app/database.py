@@ -441,7 +441,7 @@ def get_order_status(order_id, email):
     }
     if row["status"] == "approved" and row["key_prefix"]:
         result["key_prefix"] = row["key_prefix"]
-        result["dashboard_url"] = f"{SITE_BASE_URL}/dashboard.html"
+        result["dashboard_url"] = os.environ.get("SITE_BASE_URL", "https://modelrelayapis.cc") + "/dashboard.html"
         result["message"] = "Your key was displayed when the order was approved. If you lost it, contact support."
     elif row["status"] == "pending" and (row["payment_status"] or "unpaid") == "unpaid":
         result["message"] = "Your order is pending review. We will contact you at your email."
@@ -694,7 +694,7 @@ def get_order_status_v07(order_id, email):
 
     if row["status"] == "approved" and row["key_prefix"]:
         result["key_prefix"] = row["key_prefix"]
-        result["dashboard_url"] = f"{SITE_BASE_URL}/dashboard.html"
+        result["dashboard_url"] = os.environ.get("SITE_BASE_URL", "https://modelrelayapis.cc") + "/dashboard.html"
         result["message"] = "Your key was displayed when the order was approved. If you lost it, contact support."
     elif row["status"] == "expired":
         result["message"] = "This order has expired. Please create a new order."
@@ -899,7 +899,7 @@ def get_order_status_v08(order_id, email):
 
     if row["status"] == "approved" and row["key_prefix"]:
         result["key_prefix"] = row["key_prefix"]
-        result["dashboard_url"] = f"{SITE_BASE_URL}/dashboard.html" if 'SITE_BASE_URL' in dir() else f"{SITE_BASE_URL}/dashboard.html"
+        result["dashboard_url"] = os.environ.get("SITE_BASE_URL", "https://modelrelayapis.cc") + "/dashboard.html"
         result["message"] = "Your API key is ready. Save it now and go to Dashboard to check usage."
     elif row["status"] == "expired":
         result["message"] = "This order has expired. Please create a new order."

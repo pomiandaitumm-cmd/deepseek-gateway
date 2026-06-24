@@ -54,10 +54,27 @@
  table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; font-size: 0.9rem; }
  th { background: #21262d; color: #f0f6fc; padding: 10px 12px; text-align: left; border: 1px solid #30363d; }
  td { padding: 10px 12px; border: 1px solid #30363d; color: #a5adb6; }
+
+ .nav-links { margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 8px; }
+ .nav-links a { font-size: 0.8rem; color: #8b949e; text-decoration: none; padding: 4px 10px; border: 1px solid #30363d; border-radius: 4px; transition: border-color 0.2s; }
+ .nav-links a:hover { border-color: #58a6ff; color: #c9d1d9; text-decoration: none; }
+ .nav-links a.highlight { border-color: #58a6ff66; color: #58a6ff; }
+
 </style>
 </head>
 <body>
 <div class="container">
+ <div class="nav-links">
+ <a href="/"><span class="en visible">Home</span><span class="zh">首页</span></a>
+ <a href="/pricing.html" class="highlight"><span class="en visible">Pricing</span><span class="zh">价格</span></a>
+ <a href="/models.html"><span class="en visible">Models</span><span class="zh">模型</span></a>
+ <a href="/docs.html"><span class="en visible">Docs</span><span class="zh">说明</span></a>
+ <a href="/api-docs.html"><span class="en visible">API Docs</span><span class="zh">接口</span></a>
+ <a href="/dashboard.html" class="highlight"><span class="en visible">Dashboard</span><span class="zh">用量</span></a>
+ <a href="/order.html"><span class="en visible">Check Order</span><span class="zh">订单</span></a>
+ <a href="/sillytavern-deepseek-setup.html"><span class="en visible">SillyTavern</span><span class="zh">酒馆</span></a>
+</div>
+
 
  <h1>How to Use DeepSeek API with SillyTavern</h1>
  <p class="subtitle">OpenAI-compatible endpoint setup — plug in and chat.</p>

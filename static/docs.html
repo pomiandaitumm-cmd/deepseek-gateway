@@ -35,16 +35,30 @@
  .step{background:#161b22;border:1px solid #30363d;border-radius:6px;padding:14px 18px;margin:8px 0}
  .step .num{display:inline-block;background:#1f6feb;color:#fff;width:22px;height:22px;text-align:center;border-radius:11px;font-size:0.75rem;font-weight:700;line-height:22px;margin-right:8px}
  .step p{display:inline;color:#c9d1d9;font-size:0.88rem}
+
+ .nav-links { margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 8px; }
+ .nav-links a { font-size: 0.8rem; color: #8b949e; text-decoration: none; padding: 4px 10px; border: 1px solid #30363d; border-radius: 4px; transition: border-color 0.2s; }
+ .nav-links a:hover { border-color: #58a6ff; color: #c9d1d9; text-decoration: none; }
+ .nav-links a.highlight { border-color: #58a6ff66; color: #58a6ff; }
+
 </style>
 </head>
 <body>
-<div class="container">
-<a class="back-link" href="/"><span class="en visible">&larr; Back to Home</span><span class="zh">&larr; 返回首页</span></a>
-
-<div class="lang-toggle">
+<div class="container"><div class="lang-toggle">
 <button id="btn-en" class="active" onclick="switchLang('en')">EN</button>
 <button id="btn-zh" onclick="switchLang('zh')">中文</button>
 </div>
+ <div class="nav-links">
+ <a href="/"><span class="en visible">Home</span><span class="zh">首页</span></a>
+ <a href="/pricing.html" class="highlight"><span class="en visible">Pricing</span><span class="zh">价格</span></a>
+ <a href="/models.html"><span class="en visible">Models</span><span class="zh">模型</span></a>
+ <a href="/docs.html"><span class="en visible">Docs</span><span class="zh">说明</span></a>
+ <a href="/api-docs.html"><span class="en visible">API Docs</span><span class="zh">接口</span></a>
+ <a href="/dashboard.html" class="highlight"><span class="en visible">Dashboard</span><span class="zh">用量</span></a>
+ <a href="/order.html"><span class="en visible">Check Order</span><span class="zh">订单</span></a>
+ <a href="/sillytavern-deepseek-setup.html"><span class="en visible">SillyTavern</span><span class="zh">酒馆</span></a>
+</div>
+
 
 <!-- ====== ENGLISH ====== -->
 <div id="en-content" class="en visible">

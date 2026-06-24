@@ -45,10 +45,27 @@
  a:hover { text-decoration: underline; }
 .footer { font-size: 0.78rem; color: #484f58; text-align: center; margin-top: 48px; }
 .highlight { color: #58a6ff; font-weight: 600; }
+
+ .nav-links { margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 8px; }
+ .nav-links a { font-size: 0.8rem; color: #8b949e; text-decoration: none; padding: 4px 10px; border: 1px solid #30363d; border-radius: 4px; transition: border-color 0.2s; }
+ .nav-links a:hover { border-color: #58a6ff; color: #c9d1d9; text-decoration: none; }
+ .nav-links a.highlight { border-color: #58a6ff66; color: #58a6ff; }
+
 </style>
 </head>
 <body>
 <div class="container">
+ <div class="nav-links">
+ <a href="/"><span class="en visible">Home</span><span class="zh">首页</span></a>
+ <a href="/pricing.html" class="highlight"><span class="en visible">Pricing</span><span class="zh">价格</span></a>
+ <a href="/models.html"><span class="en visible">Models</span><span class="zh">模型</span></a>
+ <a href="/docs.html"><span class="en visible">Docs</span><span class="zh">说明</span></a>
+ <a href="/api-docs.html"><span class="en visible">API Docs</span><span class="zh">接口</span></a>
+ <a href="/dashboard.html" class="highlight"><span class="en visible">Dashboard</span><span class="zh">用量</span></a>
+ <a href="/order.html"><span class="en visible">Check Order</span><span class="zh">订单</span></a>
+ <a href="/sillytavern-deepseek-setup.html"><span class="en visible">SillyTavern</span><span class="zh">酒馆</span></a>
+</div>
+
 
  <h1>OpenRouter vs Direct DeepSeek vs Third-Party Gateway</h1>
  <p class="subtitle">Which is right for you? A straightforward comparison.</p>

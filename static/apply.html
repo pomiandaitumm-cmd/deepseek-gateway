@@ -7,7 +7,7 @@
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont,"Segoe UI", Roboto,"Helvetica Neue", Arial, sans-serif;
     background: #0d1117; color: #c9d1d9; line-height: 1.6;
   }
   .container { max-width: 560px; margin: 0 auto; padding: 48px 24px; }
@@ -56,14 +56,14 @@
 <body>
 <div class="container">
  <div class="nav-links">
- <a href="/"><span class="en visible">Home</span><span class="zh">首页</span></a>
- <a href="/pricing.html" class="highlight"><span class="en visible">Pricing</span><span class="zh">价格</span></a>
- <a href="/models.html"><span class="en visible">Models</span><span class="zh">模型</span></a>
- <a href="/docs.html"><span class="en visible">Docs</span><span class="zh">说明</span></a>
- <a href="/api-docs.html"><span class="en visible">API Docs</span><span class="zh">接口</span></a>
- <a href="/dashboard.html" class="highlight"><span class="en visible">Dashboard</span><span class="zh">用量</span></a>
- <a href="/order.html"><span class="en visible">Check Order</span><span class="zh">订单</span></a>
- <a href="/sillytavern-deepseek-setup.html"><span class="en visible">SillyTavern</span><span class="zh">酒馆</span></a>
+ <a href="/">Home</a>
+ <a href="/pricing.html" class="highlight">Pricing</a>
+ <a href="/models.html">Models</a>
+ <a href="/docs.html">Docs</a>
+ <a href="/api-docs.html">API Docs</a>
+ <a href="/dashboard.html" class="highlight">Dashboard</a>
+ <a href="/order.html">Check Order</a>
+ <a href="/sillytavern-deepseek-setup.html">SillyTavern Setup</a>
 </div>
 <h1>Apply for API Access</h1>
   <p class="subtitle">Fill in the form below. You'll receive an Order ID to track your application.</p>
@@ -105,25 +105,21 @@
 </div>
 
 <script>
-const PLANS = {
-  "Trial":    { tokens: "100K",  price: "$1",  models: "deepseek-v4-flash", rpm: 30 },
-  "Starter":  { tokens: "500K",  price: "$3",  models: "deepseek-v4-flash", rpm: 30 },
-  "Standard": { tokens: "1M",    price: "$6",  models: "deepseek-v4-flash", rpm: 60 },
-  "Pro":      { tokens: "1M",    price: "$12", models: "flash + pro",       rpm: 30 },
+const PLANS = {"Trial":    { tokens:"100K",  price:"$1",  models:"deepseek-v4-flash", rpm: 30 },"Starter":  { tokens:"500K",  price:"$3",  models:"deepseek-v4-flash", rpm: 30 },"Standard": { tokens:"1M",    price:"$6",  models:"deepseek-v4-flash", rpm: 60 },"Pro":      { tokens:"1M",    price:"$12", models:"flash + pro",       rpm: 30 },
 };
 
 const params = new URLSearchParams(window.location.search);
-const planName = params.get("plan") || "Trial";
+const planName = params.get("plan") ||"Trial";
 const plan = PLANS[planName] || PLANS["Trial"];
 
-document.getElementById("plan-name").textContent = planName + " Plan";
+document.getElementById("plan-name").textContent = planName +" Plan";
 document.getElementById("plan-price").textContent = plan.price;
 document.getElementById("plan-tokens").textContent = plan.tokens;
 document.getElementById("plan-models").textContent = plan.models;
 document.getElementById("plan-rate").textContent = plan.rpm;
 
 // Read ref= from URL for tracking
-const urlRef = params.get("ref") || "";
+const urlRef = params.get("ref") ||"";
 if (urlRef && !document.getElementById("source").value) {
   document.getElementById("source").value = urlRef;
 }
@@ -133,8 +129,8 @@ async function submitApply(e) {
   const btn = document.getElementById("submit-btn");
   const resultDiv = document.getElementById("result");
   const errorDiv = document.getElementById("error");
-  resultDiv.innerHTML = "";
-  errorDiv.innerHTML = "";
+  resultDiv.innerHTML ="";
+  errorDiv.innerHTML ="";
 
   const email = document.getElementById("email").value.trim();
   const contact = document.getElementById("contact").value.trim();
@@ -142,13 +138,13 @@ async function submitApply(e) {
   const source = document.getElementById("source").value;
 
   btn.disabled = true;
-  btn.textContent = "Submitting...";
+  btn.textContent ="Submitting...";
 
   try {
     const baseUrl = window.location.origin;
-    const resp = await fetch(baseUrl + "/api/apply", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+    const resp = await fetch(baseUrl +"/api/apply", {
+      method:"POST",
+      headers: {"Content-Type":"application/json" },
       body: JSON.stringify({
         email: email,
         telegram_or_discord: contact,
@@ -160,7 +156,7 @@ async function submitApply(e) {
     });
     const data = await resp.json();
     if (!resp.ok) {
-      errorDiv.innerHTML = '<div class="error">' + escapeHtml(data.detail || "Submission failed") + '</div>';
+      errorDiv.innerHTML = '<div class="error">' + escapeHtml(data.detail ||"Submission failed") + '</div>';
       return;
     }
 
@@ -179,13 +175,13 @@ async function submitApply(e) {
         </div>
       </div>
     `;
-    document.getElementById("apply-form").style.display = "none";
-    document.querySelector(".plan-summary").style.display = "none";
+    document.getElementById("apply-form").style.display ="none";
+    document.querySelector(".plan-summary").style.display ="none";
   } catch (e) {
     errorDiv.innerHTML = '<div class="error">Connection failed: ' + escapeHtml(e.message) + '</div>';
   } finally {
     btn.disabled = false;
-    btn.textContent = "Submit Application";
+    btn.textContent ="Submit Application";
   }
 }
 

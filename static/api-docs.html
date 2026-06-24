@@ -7,7 +7,7 @@
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont,"Segoe UI", Roboto,"Helvetica Neue", Arial, sans-serif;
     background: #0d1117; color: #c9d1d9; line-height: 1.6;
   }
   .container { max-width: 800px; margin: 0 auto; padding: 48px 24px; }
@@ -19,7 +19,7 @@
   code { background: #161b22; padding: 2px 6px; border-radius: 3px; font-size: 0.85em; color: #58a6ff; }
   pre {
     background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 14px 18px;
-    font-family: "SF Mono", "Fira Code", monospace; font-size: 0.82rem; line-height: 1.5;
+    font-family:"SF Mono","Fira Code", monospace; font-size: 0.82rem; line-height: 1.5;
     overflow-x: auto; margin: 10px 0; white-space: pre-wrap;
   }
   pre .comment { color: #8b949e; }
@@ -55,14 +55,14 @@
 <body>
 <div class="container">
  <div class="nav-links">
- <a href="/"><span class="en visible">Home</span><span class="zh">首页</span></a>
- <a href="/pricing.html" class="highlight"><span class="en visible">Pricing</span><span class="zh">价格</span></a>
- <a href="/models.html"><span class="en visible">Models</span><span class="zh">模型</span></a>
- <a href="/docs.html"><span class="en visible">Docs</span><span class="zh">说明</span></a>
- <a href="/api-docs.html"><span class="en visible">API Docs</span><span class="zh">接口</span></a>
- <a href="/dashboard.html" class="highlight"><span class="en visible">Dashboard</span><span class="zh">用量</span></a>
- <a href="/order.html"><span class="en visible">Check Order</span><span class="zh">订单</span></a>
- <a href="/sillytavern-deepseek-setup.html"><span class="en visible">SillyTavern</span><span class="zh">酒馆</span></a>
+ <a href="/">Home</a>
+ <a href="/pricing.html" class="highlight">Pricing</a>
+ <a href="/models.html">Models</a>
+ <a href="/docs.html">Docs</a>
+ <a href="/api-docs.html">API Docs</a>
+ <a href="/dashboard.html" class="highlight">Dashboard</a>
+ <a href="/order.html">Check Order</a>
+ <a href="/sillytavern-deepseek-setup.html">SillyTavern Setup</a>
 </div>
 <h1>API Documentation</h1>
   <p class="subtitle">OpenAI-compatible DeepSeek API Gateway. Drop-in replacement for OpenAI SDK.</p>
@@ -81,8 +81,8 @@
   <h2>Chat Completions</h2>
   <pre><span class="comment"># curl</span>
 curl https://modelrelayapis.cc/v1/chat/completions \
-  -H "Authorization: Bearer YOUR_KEY" \
-  -H "Content-Type: application/json" \
+  -H"Authorization: Bearer YOUR_KEY" \
+  -H"Content-Type: application/json" \
   -d '{"model":"deepseek-v4-flash","messages":[{"role":"user","content":"Hello!"}],"max_tokens":100}'</pre>
 
   <h3>Python (OpenAI SDK)</h3>
@@ -95,34 +95,34 @@ client = OpenAI(
 
 response = client.chat.completions.create(
     model="deepseek-v4-flash",
-    messages=[{"role": "user", "content": "Hello!"}],
+    messages=[{"role":"user","content":"Hello!"}],
     max_tokens=100,
 )
 print(response.choices[0].message.content)</pre>
 
   <h3>Node.js</h3>
-  <pre>import OpenAI from "openai";
+  <pre>import OpenAI from"openai";
 
 const client = new OpenAI({
-  baseURL: "https://modelrelayapis.cc/v1",
-  apiKey: "YOUR_KEY",
+  baseURL:"https://modelrelayapis.cc/v1",
+  apiKey:"YOUR_KEY",
 });
 
 const response = await client.chat.completions.create({
-  model: "deepseek-v4-flash",
-  messages: [{ role: "user", content: "Hello!" }],
+  model:"deepseek-v4-flash",
+  messages: [{ role:"user", content:"Hello!" }],
   max_tokens: 100,
 });
 console.log(response.choices[0].message.content);</pre>
 
   <h2>List Models</h2>
   <pre>curl https://modelrelayapis.cc/v1/models \
-  -H "Authorization: Bearer YOUR_KEY"</pre>
+  -H"Authorization: Bearer YOUR_KEY"</pre>
   <p>Returns only the models your plan has access to.</p>
 
   <h2>Key Usage</h2>
   <pre>curl https://modelrelayapis.cc/v1/key/usage \
-  -H "Authorization: Bearer YOUR_KEY"</pre>
+  -H"Authorization: Bearer YOUR_KEY"</pre>
   <p>Returns your current token usage, quota, rate limit, and plan details.</p>
 
   <h2>Error Codes</h2>

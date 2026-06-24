@@ -19,12 +19,7 @@
  a{color:#58a6ff;text-decoration:none}
  a:hover{text-decoration:underline}
  .back-link{font-size:0.82rem;margin-bottom:20px;display:inline-block}
- .lang-toggle{text-align:right;margin-bottom:12px}
- .lang-toggle button{background:#21262d;border:1px solid #30363d;color:#c9d1d9;padding:4px 12px;border-radius:4px;cursor:pointer;font-size:0.8rem;margin-left:4px}
- .lang-toggle button.active{background:#1f6feb;border-color:#1f6feb;color:#fff}
- .en,.zh{display:none}
- .en.visible,.zh.visible{display:block}
- .inline-en,.inline-zh{display:none}
+.inline-en,.inline-zh{display:none}
  .inline-en.visible,.inline-zh.visible{display:inline}
  .error-table{width:100%;border-collapse:collapse;margin:10px 0;font-size:0.85rem}
  .error-table th{text-align:left;padding:8px 10px;background:#161b22;color:#8b949e;border-bottom:2px solid #30363d}
@@ -44,24 +39,17 @@
 </style>
 </head>
 <body>
-<div class="container"><div class="lang-toggle">
-<button id="btn-en" class="active" onclick="switchLang('en')">EN</button>
-<button id="btn-zh" onclick="switchLang('zh')">中文</button>
+<div class="container">
+<div class="nav-links">
+ <a href="/">Home</a>
+ <a href="/pricing.html" class="highlight">Pricing</a>
+ <a href="/models.html">Models</a>
+ <a href="/docs.html">Docs</a>
+ <a href="/api-docs.html">API Docs</a>
+ <a href="/dashboard.html" class="highlight">Dashboard</a>
+ <a href="/order.html">Check Order</a>
+ <a href="/sillytavern-deepseek-setup.html">SillyTavern Setup</a>
 </div>
- <div class="nav-links">
- <a href="/"><span class="en visible">Home</span><span class="zh">首页</span></a>
- <a href="/pricing.html" class="highlight"><span class="en visible">Pricing</span><span class="zh">价格</span></a>
- <a href="/models.html"><span class="en visible">Models</span><span class="zh">模型</span></a>
- <a href="/docs.html"><span class="en visible">Docs</span><span class="zh">说明</span></a>
- <a href="/api-docs.html"><span class="en visible">API Docs</span><span class="zh">接口</span></a>
- <a href="/dashboard.html" class="highlight"><span class="en visible">Dashboard</span><span class="zh">用量</span></a>
- <a href="/order.html"><span class="en visible">Check Order</span><span class="zh">订单</span></a>
- <a href="/sillytavern-deepseek-setup.html"><span class="en visible">SillyTavern</span><span class="zh">酒馆</span></a>
-</div>
-
-
-<!-- ====== ENGLISH ====== -->
-<div id="en-content" class="en visible">
 
 <h1>Documentation</h1>
 <p>Everything you need to use the DeepSeek API Gateway — from purchase to integration.</p>
@@ -87,14 +75,14 @@ client = OpenAI(
 
 response = client.chat.completions.create(
     model="deepseek-v4-flash",
-    messages=[{"role": "user", "content": "Hello!"}],
+    messages=[{"role":"user","content":"Hello!"}],
     max_tokens=500,
 )
 print(response.choices[0].message.content)</code></pre>
 <p>Streaming works too:</p>
 <pre><code>stream = client.chat.completions.create(
     model="deepseek-v4-flash",
-    messages=[{"role": "user", "content": "Tell me a story"}],
+    messages=[{"role":"user","content":"Tell me a story"}],
     stream=True,
 )
 for chunk in stream:
@@ -103,8 +91,8 @@ for chunk in stream:
 
 <h2>4. curl Example</h2>
 <pre><code>curl https://modelrelayapis.cc/v1/chat/completions \
-  -H "Authorization: Bearer sk-gateway-YOUR-KEY" \
-  -H "Content-Type: application/json" \
+  -H"Authorization: Bearer sk-gateway-YOUR-KEY" \
+  -H"Content-Type: application/json" \
   -d '{"model":"deepseek-v4-flash","messages":[{"role":"user","content":"Hello"}],"max_tokens":100}'</code></pre>
 
 <h2>5. Supported Models</h2>
@@ -128,7 +116,7 @@ for chunk in stream:
 </ul>
 
 <h2>7. How Billing Works</h2>
-<p>You are <strong>not</strong> billed by simple "total tokens". Instead, each request deducts from your API budget based on real DeepSeek token pricing:</p>
+<p>You are <strong>not</strong> billed by simple"total tokens". Instead, each request deducts from your API budget based on real DeepSeek token pricing:</p>
 <ul>
 <li><strong>Input (cache miss)</strong> — $0.14 per million tokens</li>
 <li><strong>Input (cache hit)</strong> — $0.014 per million tokens (10x cheaper!)</li>
@@ -164,17 +152,6 @@ Payments are processed by PayPal. Prices may change. Do not share your API key.
 
 </div>
 
-<!-- ====== CHINESE ====== -->
-<div id="zh-content" class="zh">
-
-<h1>使用说明</h1>
-<p>从购买到接入，使用 DeepSeek API 网关所需的一切。</p>
-
-<h2>1. 这是什么？</h2>
-<p>这是一个<strong>独立第三方 API 网关</strong>，提供 OpenAI 兼容格式的 DeepSeek 模型接入。<strong>并非</strong> DeepSeek 官方服务。你购买 API 预算额度，获取自己的 API key，通过我们的端点调用 DeepSeek 模型。</p>
-
-<h2>2. 怎么购买</h2>
-<div class="step"><span class="num">1</span><p>打开 <a href="/pricing.html">套餐页面</a>，选择套餐（试用 / 入门 / 标准 / 专业）。</p></div>
 <div class="step"><span class="num">2</span><p>在结账页输入你的邮箱地址。</p></div>
 <div class="step"><span class="num">3</span><p>使用 <strong>PayPal</strong> 付款，金额为美元。</p></div>
 <div class="step"><span class="num">4</span><p>付款成功后，API key 会自动显示在页面上。</p></div>
@@ -191,14 +168,14 @@ client = OpenAI(
 
 response = client.chat.completions.create(
     model="deepseek-v4-flash",
-    messages=[{"role": "user", "content": "你好"}],
+    messages=[{"role":"user","content":"你好"}],
     max_tokens=500,
 )
 print(response.choices[0].message.content)</code></pre>
 <p>流式输出同样支持：</p>
 <pre><code>stream = client.chat.completions.create(
     model="deepseek-v4-flash",
-    messages=[{"role": "user", "content": "讲个故事"}],
+    messages=[{"role":"user","content":"讲个故事"}],
     stream=True,
 )
 for chunk in stream:
@@ -207,8 +184,8 @@ for chunk in stream:
 
 <h2>4. curl 示例</h2>
 <pre><code>curl https://modelrelayapis.cc/v1/chat/completions \
-  -H "Authorization: Bearer sk-gateway-YOUR-KEY" \
-  -H "Content-Type: application/json" \
+  -H"Authorization: Bearer sk-gateway-YOUR-KEY" \
+  -H"Content-Type: application/json" \
   -d '{"model":"deepseek-v4-flash","messages":[{"role":"user","content":"你好"}],"max_tokens":100}'</code></pre>
 
 <h2>5. 支持模型</h2>
@@ -265,25 +242,6 @@ for chunk in stream:
 这是独立第三方 API 网关，与 DeepSeek 无关联，非 DeepSeek 官方服务。<br>
 付款由 PayPal 处理。价格可能变动。请勿分享你的 API key。
 </div>
-
 </div>
-
-</div>
-
-<script>
-function switchLang(lang) {
-  document.getElementById('en-content').classList.toggle('visible', lang === 'en');
-  document.getElementById('zh-content').classList.toggle('visible', lang === 'zh');
-  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
-  document.getElementById('btn-zh').classList.toggle('active', lang === 'zh');
-  document.querySelectorAll('.en').forEach(function(el){el.classList.toggle('visible',lang==='en')});
-  document.querySelectorAll('.zh').forEach(function(el){el.classList.toggle('visible',lang==='zh')});
-  localStorage.setItem('lang', lang);
-}
-(function(){
-  var s = localStorage.getItem('lang');
-  if (s === 'zh') switchLang('zh');
-})();
-</script>
 </body>
 </html>

@@ -50,14 +50,14 @@ a:hover{text-decoration:underline}
 <body>
 <div class="container">
  <div class="nav-links">
- <a href="/"><span class="en visible">Home</span><span class="zh">首页</span></a>
- <a href="/pricing.html" class="highlight"><span class="en visible">Pricing</span><span class="zh">价格</span></a>
- <a href="/models.html"><span class="en visible">Models</span><span class="zh">模型</span></a>
- <a href="/docs.html"><span class="en visible">Docs</span><span class="zh">说明</span></a>
- <a href="/api-docs.html"><span class="en visible">API Docs</span><span class="zh">接口</span></a>
- <a href="/dashboard.html" class="highlight"><span class="en visible">Dashboard</span><span class="zh">用量</span></a>
- <a href="/order.html"><span class="en visible">Check Order</span><span class="zh">订单</span></a>
- <a href="/sillytavern-deepseek-setup.html"><span class="en visible">SillyTavern</span><span class="zh">酒馆</span></a>
+ <a href="/">Home</a>
+ <a href="/pricing.html" class="highlight">Pricing</a>
+ <a href="/models.html">Models</a>
+ <a href="/docs.html">Docs</a>
+ <a href="/api-docs.html">API Docs</a>
+ <a href="/dashboard.html" class="highlight">Dashboard</a>
+ <a href="/order.html">Check Order</a>
+ <a href="/sillytavern-deepseek-setup.html">SillyTavern Setup</a>
 </div>
 <h1>Checkout</h1>
 <p class="subtitle">OpenAI-compatible DeepSeek API Gateway. Third-party service, not official DeepSeek.</p>
@@ -78,7 +78,6 @@ a:hover{text-decoration:underline}
     </div>
     <div class="paypal-container" id="paypal-button-container"></div>
     <div id="form-error" class="error-msg hidden"></div>
-  </div>
 </div>
 
 <!-- Step 2: Approved — Show Key -->
@@ -116,13 +115,9 @@ a:hover{text-decoration:underline}
 
 <script>
 const params = new URLSearchParams(window.location.search);
-const PLAN = params.get("plan") || "Trial";
+const PLAN = params.get("plan") ||"Trial";
 
-const PLAN_INFO = {
-  "Trial":    { budget: "$0.70", price: "$1.0", models: "deepseek-v4-flash" },
-  "Starter":  { budget: "$2.30", price: "$3.0", models: "deepseek-v4-flash" },
-  "Standard": { budget: "$4.80", price: "$6.0", models: "deepseek-v4-flash" },
-  "Pro":      { budget: "$3.80", price: "$6.0", models: "flash + pro" },
+const PLAN_INFO = {"Trial":    { budget:"$0.70", price:"$1.0", models:"deepseek-v4-flash" },"Starter":  { budget:"$2.30", price:"$3.0", models:"deepseek-v4-flash" },"Standard": { budget:"$4.80", price:"$6.0", models:"deepseek-v4-flash" },"Pro":      { budget:"$3.80", price:"$6.0", models:"flash + pro" },
 };
 
 const info = PLAN_INFO[PLAN] || PLAN_INFO["Trial"];
@@ -152,7 +147,7 @@ async function initPayPal() {
 
     // Load PayPal SDK
     const script = document.createElement("script");
-    const sdkUrl = cfg.mode === "live"
+    const sdkUrl = cfg.mode ==="live"
       ? `https://www.paypal.com/sdk/js?client-id=${cfg.client_id}&currency=${cfg.currency}`
       : `https://www.paypal.com/sdk/js?client-id=${cfg.client_id}&currency=${cfg.currency}&intent=capture`;
     script.src = sdkUrl;
@@ -179,15 +174,15 @@ function renderPayPalButtons(currency) {
 
   window.paypal.Buttons({
     style: {
-      layout: "vertical",
-      color: "gold",
-      shape: "rect",
-      label: "paypal",
+      layout:"vertical",
+      color:"gold",
+      shape:"rect",
+      label:"paypal",
     },
     createOrder: async function() {
       const email = document.getElementById("email").value.trim();
       if (!email || !email.includes("@")) {
-        document.getElementById("form-error").textContent = "Please enter a valid email address.";
+        document.getElementById("form-error").textContent ="Please enter a valid email address.";
         document.getElementById("form-error").classList.remove("hidden");
         throw new Error("Email required");
       }
@@ -195,12 +190,12 @@ function renderPayPalButtons(currency) {
 
       try {
         const resp = await fetch("/api/paypal/create-order", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, plan: PLAN, source: "web" })
+          method:"POST",
+          headers: {"Content-Type":"application/json" },
+          body: JSON.stringify({ email, plan: PLAN, source:"web" })
         });
         const data = await resp.json();
-        if (!resp.ok) throw new Error(data.detail || "Failed to create order");
+        if (!resp.ok) throw new Error(data.detail ||"Failed to create order");
         localOrderId = data.order_id;
         return data.paypal_order_id;
       } catch(e) {
@@ -213,30 +208,30 @@ function renderPayPalButtons(currency) {
       const email = document.getElementById("email").value.trim();
       try {
         const resp = await fetch("/api/paypal/capture-order", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+          method:"POST",
+          headers: {"Content-Type":"application/json" },
           body: JSON.stringify({ paypal_order_id: data.orderID, email })
         });
         const result = await resp.json();
-        if (!resp.ok) throw new Error(result.detail || "Capture failed");
+        if (!resp.ok) throw new Error(result.detail ||"Capture failed");
 
         // Show the key
         document.getElementById("step-form").classList.add("hidden");
-        document.getElementById("approved-key").textContent = result.full_key || "See order status page.";
+        document.getElementById("approved-key").textContent = result.full_key ||"See order status page.";
         document.getElementById("approved-plan").textContent = PLAN;
-        document.getElementById("approved-quota").textContent = "$" + (result.upstream_budget || 0).toFixed(2) + " budget";
+        document.getElementById("approved-quota").textContent ="$" + (result.upstream_budget || 0).toFixed(2) +" budget";
         document.getElementById("approved-models").textContent = info.models;
         document.getElementById("step-approved").classList.remove("hidden");
       } catch(e) {
-        showError("Payment captured but there was an issue: " + e.message + " Please check your order status page.");
+        showError("Payment captured but there was an issue:" + e.message +" Please check your order status page.");
       }
     },
     onCancel: function() {
-      document.getElementById("form-error").textContent = "Payment was cancelled. You can try again.";
+      document.getElementById("form-error").textContent ="Payment was cancelled. You can try again.";
       document.getElementById("form-error").classList.remove("hidden");
     },
     onError: function(err) {
-      document.getElementById("form-error").textContent = "PayPal error. Please try again.";
+      document.getElementById("form-error").textContent ="PayPal error. Please try again.";
       document.getElementById("form-error").classList.remove("hidden");
     }
   }).render("#paypal-button-container");

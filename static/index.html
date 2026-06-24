@@ -7,7 +7,7 @@
 <style>
  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
  body {
- font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Microsoft YaHei", "PingFang SC", sans-serif;
+ font-family: -apple-system, BlinkMacSystemFont,"Segoe UI", Roboto,"Helvetica Neue", Arial,"Microsoft YaHei","PingFang SC", sans-serif;
  background: #0d1117; color: #c9d1d9; line-height: 1.6;
  }
  .container { max-width: 720px; margin: 0 auto; padding: 60px 24px; }
@@ -28,7 +28,7 @@
  background: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 16px;
  overflow-x: auto; font-size: 0.85rem; line-height: 1.5; color: #c9d1d9;
  }
- code { font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace; font-size: 0.85em; }
+ code { font-family:"SF Mono","Fira Code","Cascadia Code", monospace; font-size: 0.85em; }
  .pricing { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 24px 0; }
  .plan {
  background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 20px; text-align: center;
@@ -36,15 +36,7 @@
  .plan h3 { font-size: 0.95rem; color: #f0f6fc; }
  .plan .tokens { font-size: 1.3rem; font-weight: 700; color: #58a6ff; margin: 8px 0; }
  .plan .desc { font-size: 0.8rem; color: #8b949e; }
- .lang-toggle { text-align: right; margin-bottom: 12px; }
- .lang-toggle button {
- background: #21262d; border: 1px solid #30363d; color: #c9d1d9; padding: 4px 12px;
- border-radius: 4px; cursor: pointer; font-size: 0.8rem; margin-left: 4px;
- }
- .lang-toggle button.active { background: #1f6feb; border-color: #1f6feb; color: #fff; }
- .en, .zh { display: none; }
- .en.visible, .zh.visible { display: block; }
- hr { border: none; border-top: 1px solid #30363d; margin: 40px 0; }
+hr { border: none; border-top: 1px solid #30363d; margin: 40px 0; }
  .footer { font-size: 0.8rem; color: #484f58; text-align: center; margin-top: 40px; }
  a { color: #58a6ff; text-decoration: none; }
  a:hover { text-decoration: underline; }
@@ -72,23 +64,16 @@
 </head>
 <body>
 <div class="container">
-
- <div class="lang-toggle">
- <button id="btn-en" class="active" onclick="switchLang('en')">EN</button>
- <button id="btn-zh" onclick="switchLang('zh')">中文</button>
- </div>
- <div class="nav-links">
- <a href="/pricing.html" class="highlight"><span class="en visible">Pricing</span><span class="zh">套餐价格</span></a>
- <a href="/models.html"><span class="en visible">Models</span><span class="zh">模型</span></a>
- <a href="/docs.html"><span class="en visible">Docs</span><span class="zh">使用说明</span></a>
- <a href="/dashboard.html" class="highlight"><span class="en visible">Dashboard</span><span class="zh">用量查询</span></a>
- <a href="/order.html"><span class="en visible">Check Order</span><span class="zh">订单查询</span></a>
- <a href="/api-docs.html"><span class="en visible">API Docs</span><span class="zh">API 文档</span></a>
- <a href="/sillytavern-deepseek-setup.html"><span class="en visible">SillyTavern</span><span class="zh">酒馆接入</span></a>
- </div>
-
-<!-- ====== ENGLISH ====== -->
-<div id="en-content" class="en visible">
+<div class="nav-links">
+ <a href="/">Home</a>
+ <a href="/pricing.html" class="highlight">Pricing</a>
+ <a href="/models.html">Models</a>
+ <a href="/docs.html">Docs</a>
+ <a href="/api-docs.html">API Docs</a>
+ <a href="/dashboard.html" class="highlight">Dashboard</a>
+ <a href="/order.html">Check Order</a>
+ <a href="/sillytavern-deepseek-setup.html">SillyTavern Setup</a>
+</div>
 
 <h1>DeepSeek API Gateway</h1>
 <p class="subtitle">OpenAI-compatible access to DeepSeek models. Drop-in replacement — change the URL, keep your code.</p>
@@ -110,7 +95,7 @@ client = OpenAI(
 
 response = client.chat.completions.create(
     model="deepseek-v4-flash",
-    messages=[{"role": "user", "content": "Hello!"}],
+    messages=[{"role":"user","content":"Hello!"}],
 )
 print(response.choices[0].message.content)</code></pre>
 <p style="margin-top:12px">Same <code>openai</code> package. No new SDK.</p>
@@ -140,7 +125,7 @@ print(response.choices[0].message.content)</code></pre>
 <div class="plan"><h3>Trial</h3><div class="tokens">$1.0</div><div class="desc">$0.70 API budget</div></div>
 <div class="plan"><h3>Starter</h3><div class="tokens">$3.0</div><div class="desc">$2.30 API budget</div></div>
 <div class="plan"><h3>Standard</h3><div class="tokens">$6.0</div><div class="desc">$4.80 API budget</div></div>
-<div class="plan"><h3>Pro</h3><div class="tokens">$6.0</div><div class="desc">$3.80 budget + pro model</div></div>
+<div class="plan"><h3>Pro</h3><div class="tokens">$6.0</div><div class="desc">$3.80 budget + pro model</div>
 </div>
 
 <div class="cta-box">
@@ -168,7 +153,6 @@ print(response.choices[0].message.content)</code></pre>
 <p>Yes. Each key has a per-minute limit (30 or 60 RPM depending on plan). Exceeding returns HTTP 429.</p>
 </div>
 
-
 <h3 style="color:#f0f6fc; margin-top:32px">Works with Popular Tools</h3>
 <div class="card">
 <p style="margin-bottom:8px">Our API gateway works with any OpenAI-compatible client:</p>
@@ -187,13 +171,6 @@ print(response.choices[0].message.content)</code></pre>
 
 </div>
 
-<!-- ====== CHINESE ====== -->
-<div id="zh-content" class="zh">
-
-<h1>DeepSeek API 网关</h1>
-<p class="subtitle">OpenAI 兼容格式的 DeepSeek API 接入。换 URL 即可，无需改代码。</p>
-<div class="badge">PayPal 支付 — 正式运营中</div>
-
 <div class="card">
 <h3>这是什么？</h3>
 <p>一个托管 API 端点，把你的请求以 OpenAI 格式转发到 DeepSeek 模型。如果你的代码已经使用 OpenAI Python SDK，直接换 base_url 和 key 就能用。</p>
@@ -210,7 +187,7 @@ client = OpenAI(
 
 response = client.chat.completions.create(
     model="deepseek-v4-flash",
-    messages=[{"role": "user", "content": "你好"}],
+    messages=[{"role":"user","content":"你好"}],
 )
 print(response.choices[0].message.content)</code></pre>
 <p style="margin-top:12px">就是你正在用的 <code>openai</code> 包，无需额外安装。</p>
@@ -240,7 +217,7 @@ print(response.choices[0].message.content)</code></pre>
 <div class="plan"><h3>试用</h3><div class="tokens">$1.0</div><div class="desc">$0.70 API 预算</div></div>
 <div class="plan"><h3>入门</h3><div class="tokens">$3.0</div><div class="desc">$2.30 API 预算</div></div>
 <div class="plan"><h3>标准</h3><div class="tokens">$6.0</div><div class="desc">$4.80 API 预算</div></div>
-<div class="plan"><h3>专业</h3><div class="tokens">$6.0</div><div class="desc">$3.80 预算 + pro 模型</div></div>
+<div class="plan"><h3>专业</h3><div class="tokens">$6.0</div><div class="desc">$3.80 预算 + pro 模型</div>
 </div>
 
 <div class="cta-box">
@@ -270,26 +247,6 @@ print(response.choices[0].message.content)</code></pre>
 
 <div class="disclaimer">独立第三方 API 网关，非 DeepSeek 官方服务。</div>
 <div class="footer">DeepSeek Gateway — 邀请制</div>
-
 </div>
-
-</div>
-
-<script>
-function switchLang(lang) {
-  document.getElementById('en-content').classList.toggle('visible', lang === 'en');
-  document.getElementById('zh-content').classList.toggle('visible', lang === 'zh');
-  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
-  document.getElementById('btn-zh').classList.toggle('active', lang === 'zh');
-  // Also toggle nav link spans
-  document.querySelectorAll('.en').forEach(function(el) { el.classList.toggle('visible', lang === 'en'); });
-  document.querySelectorAll('.zh').forEach(function(el) { el.classList.toggle('visible', lang === 'zh'); });
-  localStorage.setItem('lang', lang);
-}
-(function() {
-  var saved = localStorage.getItem('lang');
-  if (saved === 'zh') switchLang('zh');
-})();
-</script>
 </body>
 </html>

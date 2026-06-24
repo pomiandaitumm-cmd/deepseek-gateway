@@ -7,7 +7,7 @@
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont,"Segoe UI", Roboto,"Helvetica Neue", Arial, sans-serif;
     background: #0d1117; color: #c9d1d9; line-height: 1.6;
   }
   .container { max-width: 640px; margin: 0 auto; padding: 48px 24px; }
@@ -74,14 +74,14 @@
 <body>
 <div class="container">
  <div class="nav-links">
- <a href="/"><span class="en visible">Home</span><span class="zh">首页</span></a>
- <a href="/pricing.html" class="highlight"><span class="en visible">Pricing</span><span class="zh">价格</span></a>
- <a href="/models.html"><span class="en visible">Models</span><span class="zh">模型</span></a>
- <a href="/docs.html"><span class="en visible">Docs</span><span class="zh">说明</span></a>
- <a href="/api-docs.html"><span class="en visible">API Docs</span><span class="zh">接口</span></a>
- <a href="/dashboard.html" class="highlight"><span class="en visible">Dashboard</span><span class="zh">用量</span></a>
- <a href="/order.html"><span class="en visible">Check Order</span><span class="zh">订单</span></a>
- <a href="/sillytavern-deepseek-setup.html"><span class="en visible">SillyTavern</span><span class="zh">酒馆</span></a>
+ <a href="/">Home</a>
+ <a href="/pricing.html" class="highlight">Pricing</a>
+ <a href="/models.html">Models</a>
+ <a href="/docs.html">Docs</a>
+ <a href="/api-docs.html">API Docs</a>
+ <a href="/dashboard.html" class="highlight">Dashboard</a>
+ <a href="/order.html">Check Order</a>
+ <a href="/sillytavern-deepseek-setup.html">SillyTavern Setup</a>
 </div>
 <h1>Usage Dashboard</h1>
   <p class="subtitle">Check your API key usage, budget, and plan details in real time.</p>
@@ -105,8 +105,8 @@ async function checkUsage() {
   const resultDiv = document.getElementById("result");
   const errorDiv = document.getElementById("error");
 
-  resultDiv.innerHTML = "";
-  errorDiv.innerHTML = "";
+  resultDiv.innerHTML ="";
+  errorDiv.innerHTML ="";
 
   if (!key.startsWith("sk-gateway-")) {
     errorDiv.innerHTML = '<div class="error">Invalid key format. Must start with sk-gateway-</div>';
@@ -114,27 +114,27 @@ async function checkUsage() {
   }
 
   btn.disabled = true;
-  btn.textContent = "Checking...";
+  btn.textContent ="Checking...";
 
   try {
     const baseUrl = window.location.origin;
-    const resp = await fetch(baseUrl + "/v1/key/usage", {
-      headers: { "Authorization": "Bearer " + key }
+    const resp = await fetch(baseUrl +"/v1/key/usage", {
+      headers: {"Authorization":"Bearer" + key }
     });
 
     if (resp.status === 401) {
       errorDiv.innerHTML = '<div class="error">Invalid API key. Please check and try again.</div>';
-      btn.disabled = false; btn.textContent = "Check Usage"; return;
+      btn.disabled = false; btn.textContent ="Check Usage"; return;
     }
     if (resp.status === 403) {
       errorDiv.innerHTML = '<div class="error">This API key has been disabled. Contact support or purchase a new package.</div>';
-      btn.disabled = false; btn.textContent = "Check Usage"; return;
+      btn.disabled = false; btn.textContent ="Check Usage"; return;
     }
 
     const data = await resp.json();
     if (!resp.ok) {
-      errorDiv.innerHTML = '<div class="error">' + escapeHtml(data.detail || "Unknown error") + '</div>';
-      btn.disabled = false; btn.textContent = "Check Usage"; return;
+      errorDiv.innerHTML = '<div class="error">' + escapeHtml(data.detail ||"Unknown error") + '</div>';
+      btn.disabled = false; btn.textContent ="Check Usage"; return;
     }
 
     const budget = data.upstream_budget || 0;
@@ -143,37 +143,37 @@ async function checkUsage() {
     const salePrice = data.sale_price || 0;
     const pct = budget > 0 ? Math.min(100, Math.round(usedCost / budget * 100)) : 0;
 
-    let remainingClass = "good";
-    if (budget > 0 && remainingBudget <= 0) remainingClass = "bad";
-    else if (budget > 0 && remainingBudget < budget * 0.1) remainingClass = "bad";
-    else if (budget > 0 && remainingBudget < budget * 0.2) remainingClass = "warn";
+    let remainingClass ="good";
+    if (budget > 0 && remainingBudget <= 0) remainingClass ="bad";
+    else if (budget > 0 && remainingBudget < budget * 0.1) remainingClass ="bad";
+    else if (budget > 0 && remainingBudget < budget * 0.2) remainingClass ="warn";
 
-    let statusClass = "good";
-    if (data.status === "exhausted") statusClass = "bad";
-    else if (data.status === "disabled") statusClass = "bad";
-    else if (data.status !== "active") statusClass = "warn";
+    let statusClass ="good";
+    if (data.status ==="exhausted") statusClass ="bad";
+    else if (data.status ==="disabled") statusClass ="bad";
+    else if (data.status !=="active") statusClass ="warn";
 
-    let modelsHtml = "";
+    let modelsHtml ="";
     if (data.allowed_models && data.allowed_models.length > 0) {
       modelsHtml = data.allowed_models.map(m => '<span class="model-tag">' + escapeHtml(m) + '</span>').join("");
     }
 
-    let barColor = "#3fb950";
-    if (pct >= 100) barColor = "#f85149";
-    else if (pct > 90) barColor = "#f85149";
-    else if (pct > 80) barColor = "#d29922";
+    let barColor ="#3fb950";
+    if (pct >= 100) barColor ="#f85149";
+    else if (pct > 90) barColor ="#f85149";
+    else if (pct > 80) barColor ="#d29922";
 
-    let lowWarning = "";
-    if (data.status === "exhausted") {
+    let lowWarning ="";
+    if (data.status ==="exhausted") {
       lowWarning = '<div class="low-balance" style="background:#1b1114;border-color:#f8514944;color:#f85149;"><strong>&#9888; Your API budget is exhausted.</strong> Please buy a new package to continue. <a class="topup-btn" href="/pricing.html">Buy More</a></div>';
-    } else if (data.status === "active" && budget > 0 && remainingBudget < budget * 0.2) {
+    } else if (data.status ==="active" && budget > 0 && remainingBudget < budget * 0.2) {
       lowWarning = '<div class="low-balance"><strong>&#9888; Low balance.</strong> Less than 20% budget remaining. <a class="topup-btn" href="/pricing.html">Top up / Upgrade</a></div>';
     }
 
-    let statusLine = "";
-    if (data.status === "active") {
+    let statusLine ="";
+    if (data.status ==="active") {
       statusLine = '<div style="color:#3fb950;font-size:0.85rem;margin:8px 0;">&#10003; Your API key is active.</div>';
-    } else if (data.status === "exhausted") {
+    } else if (data.status ==="exhausted") {
       statusLine = '<div style="color:#f85149;font-size:0.85rem;margin:8px 0;">&#10007; Your API budget is exhausted. Please buy a new package.</div>';
     }
 
@@ -183,7 +183,7 @@ async function checkUsage() {
     const totalTk = data.total_tokens || 0;
 
     // Last usage breakdown
-    let lastUsageHtml = "";
+    let lastUsageHtml ="";
     if (data.last_usage) {
       const lu = data.last_usage;
       lastUsageHtml = `
@@ -200,9 +200,9 @@ async function checkUsage() {
       <div class="card">
         <h3>${escapeHtml(data.prefix)} (${escapeHtml(data.name)})</h3>
         ${statusLine}
-        <div class="stat-row"><span class="stat-label">Package</span><span class="stat-value">${escapeHtml(data.package || "N/A")}</span></div>
+        <div class="stat-row"><span class="stat-label">Package</span><span class="stat-value">${escapeHtml(data.package ||"N/A")}</span></div>
         <div class="stat-row"><span class="stat-label">Status</span><span class="stat-value ${statusClass}">${data.status}</span></div>
-        <div class="stat-row"><span class="stat-label">Models</span><span class="stat-value">${modelsHtml || "N/A"}</span></div>
+        <div class="stat-row"><span class="stat-label">Models</span><span class="stat-value">${modelsHtml ||"N/A"}</span></div>
         <div class="stat-row"><span class="stat-label">Rate Limit</span><span class="stat-value">${data.rate_limit} RPM</span></div>
         <div class="stat-row"><span class="stat-label">Requests</span><span class="stat-value">${data.request_count}</span></div>
         <div class="stat-row"><span class="stat-label">Paid Amount</span><span class="stat-value">$${salePrice.toFixed(2)} ${escapeHtml(data.currency || 'USD')}</span></div>
@@ -213,7 +213,7 @@ async function checkUsage() {
         <div class="stat-row"><span class="stat-label">Total Cache Misses</span><span class="stat-value">${cacheMiss.toLocaleString()} tk</span></div>
         <div class="stat-row"><span class="stat-label">Total Output</span><span class="stat-value">${outputTk.toLocaleString()} tk</span></div>
         <div class="stat-row"><span class="stat-label">Total All Tokens</span><span class="stat-value">${totalTk.toLocaleString()} tk</span></div>
-        <div class="stat-row"><span class="stat-label">Last Used</span><span class="stat-value">${data.last_used || "N/A"}</span></div>
+        <div class="stat-row"><span class="stat-label">Last Used</span><span class="stat-value">${data.last_used ||"N/A"}</span></div>
         ${budget > 0 ? '<div class="progress-bar"><div class="progress-fill" style="width:' + Math.min(100, pct) + '%;background:' + barColor + ';"></div></div>' : ''}
         ${budget > 0 ? '<div style="font-size:0.75rem;color:#8b949e;margin-top:4px;">' + pct + '% budget used</div>' : ''}
         ${lastUsageHtml}
@@ -224,7 +224,7 @@ async function checkUsage() {
     errorDiv.innerHTML = '<div class="error">Connection failed: ' + escapeHtml(e.message) + '</div>';
   } finally {
     btn.disabled = false;
-    btn.textContent = "Check Usage";
+    btn.textContent ="Check Usage";
   }
 }
 

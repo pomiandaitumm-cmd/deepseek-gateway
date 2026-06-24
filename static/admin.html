@@ -62,14 +62,14 @@
 <body>
 <div class="container">
  <div class="nav-links">
- <a href="/"><span class="en visible">Home</span><span class="zh">首页</span></a>
- <a href="/pricing.html" class="highlight"><span class="en visible">Pricing</span><span class="zh">价格</span></a>
- <a href="/models.html"><span class="en visible">Models</span><span class="zh">模型</span></a>
- <a href="/docs.html"><span class="en visible">Docs</span><span class="zh">说明</span></a>
- <a href="/api-docs.html"><span class="en visible">API Docs</span><span class="zh">接口</span></a>
- <a href="/dashboard.html" class="highlight"><span class="en visible">Dashboard</span><span class="zh">用量</span></a>
- <a href="/order.html"><span class="en visible">Check Order</span><span class="zh">订单</span></a>
- <a href="/sillytavern-deepseek-setup.html"><span class="en visible">SillyTavern</span><span class="zh">酒馆</span></a>
+ <a href="/">Home</a>
+ <a href="/pricing.html" class="highlight">Pricing</a>
+ <a href="/models.html">Models</a>
+ <a href="/docs.html">Docs</a>
+ <a href="/api-docs.html">API Docs</a>
+ <a href="/dashboard.html" class="highlight">Dashboard</a>
+ <a href="/order.html">Check Order</a>
+ <a href="/sillytavern-deepseek-setup.html">SillyTavern Setup</a>
 </div>
 <h1>管理后台</h1>
   <p class="subtitle">订单、Key、收入、用量总览</p>
@@ -143,12 +143,11 @@
       </table>
     </div>
     <div id="keys-empty" class="empty" style="display:none">暂无 Key。</div>
-  </div>
 </div>
 
 <script>
 const BASE = window.location.origin;
-let adminToken = "";
+let adminToken ="";
 let searchTimers = {};
 
 (function(){
@@ -159,19 +158,19 @@ let searchTimers = {};
 async function authAndLoad() {
   const token = document.getElementById("admin-token").value.trim();
   const errDiv = document.getElementById("error");
-  errDiv.innerHTML = "";
+  errDiv.innerHTML ="";
   if (!token) { errDiv.innerHTML = '<div class="error">请输入管理员令牌</div>'; return; }
 
   try {
-    const r = await fetch(BASE + "/api/admin/summary", { headers: { "Authorization": "Bearer " + token } });
+    const r = await fetch(BASE +"/api/admin/summary", { headers: {"Authorization":"Bearer" + token } });
     if (r.status === 401) { errDiv.innerHTML = '<div class="error">令牌无效，请检查后重试</div>'; return; }
     if (r.status === 501) { errDiv.innerHTML = '<div class="error">服务器未配置管理后台</div>'; return; }
     if (!r.ok) { errDiv.innerHTML = '<div class="error">服务器错误: ' + r.status + '</div>'; return; }
 
     adminToken = token;
     localStorage.setItem("admin_token", token);
-    document.getElementById("auth-section").style.display = "none";
-    document.getElementById("dashboard").style.display = "block";
+    document.getElementById("auth-section").style.display ="none";
+    document.getElementById("dashboard").style.display ="block";
     await Promise.all([loadSummary(), loadOrders(), loadKeys()]);
   } catch(e) {
     errDiv.innerHTML = '<div class="error">连接失败: ' + escapeHtml(e.message) + '</div>';
@@ -184,7 +183,7 @@ async function refresh() {
 
 async function loadSummary() {
   try {
-    const r = await fetch(BASE + "/api/admin/summary", { headers: { "Authorization": "Bearer " + adminToken } });
+    const r = await fetch(BASE +"/api/admin/summary", { headers: {"Authorization":"Bearer" + adminToken } });
     const d = await r.json();
     const s = [
       {label:"总订单",value:d.total_orders},
@@ -209,30 +208,30 @@ async function loadOrders() {
   const status = document.getElementById("order-status").value;
   const tbody = document.getElementById("orders-tbody");
   const empty = document.getElementById("orders-empty");
-  let url = BASE + "/api/admin/orders?";
-  if (search) url += "search=" + encodeURIComponent(search) + "&";
-  if (status) url += "status=" + encodeURIComponent(status) + "&";
+  let url = BASE +"/api/admin/orders?";
+  if (search) url +="search=" + encodeURIComponent(search) +"&";
+  if (status) url +="status=" + encodeURIComponent(status) +"&";
   try {
-    const r = await fetch(url, { headers: { "Authorization": "Bearer " + adminToken } });
+    const r = await fetch(url, { headers: {"Authorization":"Bearer" + adminToken } });
     const d = await r.json();
     if (!d.orders || d.orders.length === 0) {
-      tbody.innerHTML = ""; empty.style.display = "block"; return;
+      tbody.innerHTML =""; empty.style.display ="block"; return;
     }
-    empty.style.display = "none";
+    empty.style.display ="none";
     tbody.innerHTML = d.orders.map(o => {
-      const ks = o.key_status || "";
-      let kb = "";
+      const ks = o.key_status ||"";
+      let kb ="";
       if (ks==="active") kb='<span class="badge badge-active">正常</span>';
       else if (ks==="exhausted") kb='<span class="badge badge-exhausted">已耗尽</span>';
       else if (ks==="disabled") kb='<span class="badge badge-disabled">已禁用</span>';
       else kb='<span class="badge badge-pending">'+escapeHtml(ks||"? key")+'</span>';
-      const os = o.order_status || "";
-      let ob = "";
+      const os = o.order_status ||"";
+      let ob ="";
       if (os==="approved") ob='<span class="badge badge-approved">已批准</span>';
       else if (os==="pending") ob='<span class="badge badge-pending">待处理</span>';
       else ob='<span class="badge badge-pending">'+escapeHtml(os||"-")+'</span>';
-      const ps = o.payment_status || "";
-      let pb = "";
+      const ps = o.payment_status ||"";
+      let pb ="";
       if (ps==="paid") pb='<span class="badge badge-paid">已付款</span>';
       else if (ps==="unpaid") pb='<span class="badge badge-pending">未付款</span>';
       else pb=escapeHtml(ps||"-");
@@ -262,18 +261,18 @@ async function loadKeys() {
   const status = document.getElementById("key-status").value;
   const tbody = document.getElementById("keys-tbody");
   const empty = document.getElementById("keys-empty");
-  let url = BASE + "/api/admin/keys?";
-  if (search) url += "search=" + encodeURIComponent(search) + "&";
-  if (status) url += "status=" + encodeURIComponent(status) + "&";
+  let url = BASE +"/api/admin/keys?";
+  if (search) url +="search=" + encodeURIComponent(search) +"&";
+  if (status) url +="status=" + encodeURIComponent(status) +"&";
   try {
-    const r = await fetch(url, { headers: { "Authorization": "Bearer " + adminToken } });
+    const r = await fetch(url, { headers: {"Authorization":"Bearer" + adminToken } });
     const d = await r.json();
     if (!d.keys || d.keys.length === 0) {
-      tbody.innerHTML = ""; empty.style.display = "block"; return;
+      tbody.innerHTML =""; empty.style.display ="block"; return;
     }
-    empty.style.display = "none";
+    empty.style.display ="none";
     tbody.innerHTML = d.keys.map(k => {
-      let sb = "";
+      let sb ="";
       if (k.status==="active") sb='<span class="badge badge-active">正常</span>';
       else if (k.status==="exhausted") sb='<span class="badge badge-exhausted">已耗尽</span>';
       else if (k.status==="disabled") sb='<span class="badge badge-disabled">已禁用</span>';
@@ -302,7 +301,7 @@ async function loadKeys() {
 function debounceSearch(type) {
   if (searchTimers[type]) clearTimeout(searchTimers[type]);
   searchTimers[type] = setTimeout(() => {
-    if (type === "orders") loadOrders();
+    if (type ==="orders") loadOrders();
     else loadKeys();
   }, 400);
 }

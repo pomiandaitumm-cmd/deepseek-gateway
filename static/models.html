@@ -8,7 +8,7 @@
 <link rel="canonical" href="https://modelrelayapis.cc/models.html">
 <style>
  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
- body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Microsoft YaHei", "PingFang SC", sans-serif; background: #0d1117; color: #c9d1d9; line-height: 1.6; }
+ body { font-family: -apple-system, BlinkMacSystemFont,"Segoe UI", Roboto,"Helvetica Neue", Arial,"Microsoft YaHei","PingFang SC", sans-serif; background: #0d1117; color: #c9d1d9; line-height: 1.6; }
  .container { max-width: 780px; margin: 0 auto; padding: 40px 24px; }
  nav { padding-bottom: 16px; border-bottom: 1px solid #30363d; margin-bottom: 32px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
  nav a { color: #8b949e; text-decoration: none; font-size: 0.85rem; padding: 4px 10px; border: 1px solid #30363d; border-radius: 4px; }
@@ -19,7 +19,7 @@
  .subtitle code { background: #21262d; padding: 2px 6px; border-radius: 3px; font-size: 0.88em; }
  .model-card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 28px; margin-bottom: 20px; }
  .model-card h2 { font-size: 1.2rem; color: #f0f6fc; margin-bottom: 4px; }
- .model-card .id { font-family: "SF Mono", "Fira Code", monospace; font-size: 0.85rem; color: #58a6ff; margin-bottom: 12px; }
+ .model-card .id { font-family:"SF Mono","Fira Code", monospace; font-size: 0.85rem; color: #58a6ff; margin-bottom: 12px; }
  .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 500; margin-right: 6px; }
  .badge-avail { background: #1f6feb22; color: #3fb950; border: 1px solid #3fb95044; }
  .badge-flash { background: #d2992222; color: #d29922; border: 1px solid #d2992244; }
@@ -45,180 +45,143 @@
  .cta a.outline { background: transparent; border: 1px solid #30363d; color: #c9d1d9; }
  .cta a.outline:hover { border-color: #58a6ff; }
  .disclaimer { text-align: center; color: #8b949e; font-size: 0.75rem; margin-top: 32px; }
- .lang-toggle { text-align: right; margin-bottom: -38px; position: relative; z-index: 1; }
- .lang-toggle button { background: #21262d; border: 1px solid #30363d; color: #c9d1d9; padding: 3px 10px; border-radius: 4px; cursor: pointer; font-size: 0.78rem; margin-left: 4px; }
- .lang-toggle button.active { background: #1f6feb; border-color: #1f6feb; color: #fff; }
- .en, .zh { display: none; }
- .en.visible, .zh.visible { display: block; }
- span.en, span.zh { display: none; }
- span.en.visible, span.zh.visible { display: inline; }
- td .en, td .zh, th .en, th .zh { display: none; }
- td .en.visible, td .zh.visible, th .en.visible, th .zh.visible { display: inline; }
+
+ .nav-links { margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 8px; }
+ .nav-links a { font-size: 0.8rem; color: #8b949e; text-decoration: none; padding: 4px 10px; border: 1px solid #30363d; border-radius: 4px; transition: border-color 0.2s; }
+ .nav-links a:hover { border-color: #58a6ff; color: #c9d1d9; text-decoration: none; }
+ .nav-links a.highlight { border-color: #58a6ff66; color: #58a6ff; }
+
 </style>
 </head>
 <body>
 <div class="container">
-<div class="lang-toggle">
- <button id="btn-en" class="active" onclick="switchLang('en')">EN</button>
- <button id="btn-zh" onclick="switchLang('zh')">&#x4e2d;&#x6587;</button>
+<div class="nav-links">
+ <a href="/">Home</a>
+ <a href="/pricing.html" class="highlight">Pricing</a>
+ <a href="/models.html">Models</a>
+ <a href="/docs.html">Docs</a>
+ <a href="/api-docs.html">API Docs</a>
+ <a href="/dashboard.html" class="highlight">Dashboard</a>
+ <a href="/order.html">Check Order</a>
+ <a href="/sillytavern-deepseek-setup.html">SillyTavern Setup</a>
 </div>
 
-<nav>
- <a href="/"><span class="en visible">Home</span><span class="zh">&#x9996;&#x9875;</span></a>
- <a href="/pricing.html"><span class="en visible">Pricing</span><span class="zh">&#x4ef7;&#x683c;</span></a>
- <a href="/models.html" class="active"><span class="en visible">Models</span><span class="zh">&#x6a21;&#x578b;</span></a>
- <a href="/docs.html"><span class="en visible">Docs</span><span class="zh">&#x8bf4;&#x660e;</span></a>
- <a href="/api-docs.html"><span class="en visible">API</span><span class="zh">&#x63a5;&#x53e3;</span></a>
- <a href="/dashboard.html"><span class="en visible">Dashboard</span><span class="zh">&#x7528;&#x91cf;</span></a>
+<h1 >Available Models</h1>
 
- <a href="/order.html"><span class="en visible">Check Order</span><span class="zh">订单</span></a>
- <a href="/sillytavern-deepseek-setup.html"><span class="en visible">SillyTavern</span><span class="zh">酒馆</span></a>
-</nav>
-
-<h1 class="en visible">Available Models</h1>
-<h1 class="zh">&#x53ef;&#x7528;&#x6a21;&#x578b;</h1>
-
-<p class="subtitle en visible">All models accessed through a single OpenAI-compatible endpoint: <code>https://modelrelayapis.cc/v1</code></p>
-<p class="subtitle zh">&#x6240;&#x6709;&#x6a21;&#x578b;&#x901a;&#x8fc7;&#x7edf;&#x4e00;&#x63a5;&#x53e3;&#x8bbf;&#x95ee;&#xff1a;<code>https://modelrelayapis.cc/v1</code></p>
+<p class="subtitle">All models accessed through a single OpenAI-compatible endpoint: <code>https://modelrelayapis.cc/v1</code></p>
 
 <div class="model-card">
-<h2><span class="en visible">DeepSeek V4 Flash</span><span class="zh">DeepSeek V4 Flash</span></h2>
+<h2>DeepSeek V4 Flash</h2>
 <div class="id">deepseek-v4-flash</div>
-<span class="badge badge-avail en visible">available</span><span class="badge badge-avail zh">&#x53ef;&#x7528;</span>
+<span class="badge badge-avail">available</span>
 <span class="badge badge-flash">flash</span>
 
 <dl class="specs">
- <dt class="en visible">Context Window</dt><dt class="zh">&#x4e0a;&#x4e0b;&#x6587;&#x7a97;&#x53e3;</dt>
+ <dt >Context Window</dt>
  <dd>128K tokens</dd>
- <dt class="en visible">Endpoint</dt><dt class="zh">&#x63a5;&#x53e3;&#x5730;&#x5740;</dt>
+ <dt >Endpoint</dt>
  <dd><code>https://modelrelayapis.cc/v1</code></dd>
- <dt class="en visible">Format</dt><dt class="zh">&#x683c;&#x5f0f;</dt>
- <dd class="en visible">OpenAI-compatible</dd><dd class="zh">OpenAI &#x517c;&#x5bb9;</dd>
- <dt class="en visible">Streaming</dt><dt class="zh">&#x6d41;&#x5f0f;&#x8f93;&#x51fa;</dt>
- <dd class="en visible">Supported (SSE)</dd><dd class="zh">&#x652f;&#x6301; (SSE)</dd>
+ <dt >Format</dt>
+ <dd >OpenAI-compatible</dd>
+ <dt >Streaming</dt>
+ <dd >Supported (SSE)</dd>
 </dl>
 
 <div class="use-cases">
-<h4 class="en visible">Best For</h4><h4 class="zh">&#x9002;&#x5408;&#x573a;&#x666f;</h4>
-<ul class="en visible">
+<h4 >Best For</h4>
+<ul >
 <li>Chat applications and AI assistants</li>
 <li>Roleplay / character bots (SillyTavern, RisuAI)</li>
 <li>Content generation and summarization</li>
 <li>Simple coding tasks and autocomplete</li>
 <li>High-throughput production workloads</li>
 </ul>
-<ul class="zh">
-<li>&#x804a;&#x5929;&#x5e94;&#x7528;&#x548c; AI &#x52a9;&#x624b;</li>
-<li>&#x89d2;&#x8272;&#x626e;&#x6f14; / &#x5bf9;&#x8bdd;&#x673a;&#x5668;&#x4eba; (SillyTavern&#x3001;RisuAI)</li>
-<li>&#x5185;&#x5bb9;&#x751f;&#x6210;&#x548c;&#x6458;&#x8981;</li>
-<li>&#x7b80;&#x5355;&#x7f16;&#x7a0b;&#x4efb;&#x52a1;&#x548c;&#x4ee3;&#x7801;&#x8865;&#x5168;</li>
-<li>&#x9ad8;&#x5e76;&#x53d1;&#x751f;&#x4ea7;&#x73af;&#x5883;</li>
-</ul>
+
 </div>
 </div>
 
 <div class="model-card">
-<h2><span class="en visible">DeepSeek V4 Pro</span><span class="zh">DeepSeek V4 Pro</span></h2>
+<h2>DeepSeek V4 Pro</h2>
 <div class="id">deepseek-v4-pro</div>
-<span class="badge badge-avail en visible">available</span><span class="badge badge-avail zh">&#x53ef;&#x7528;</span>
+<span class="badge badge-avail">available</span>
 <span class="badge badge-pro">pro</span>
 
 <dl class="specs">
- <dt class="en visible">Context Window</dt><dt class="zh">&#x4e0a;&#x4e0b;&#x6587;&#x7a97;&#x53e3;</dt>
+ <dt >Context Window</dt>
  <dd>128K tokens</dd>
- <dt class="en visible">Endpoint</dt><dt class="zh">&#x63a5;&#x53e3;&#x5730;&#x5740;</dt>
+ <dt >Endpoint</dt>
  <dd><code>https://modelrelayapis.cc/v1</code></dd>
- <dt class="en visible">Format</dt><dt class="zh">&#x683c;&#x5f0f;</dt>
- <dd class="en visible">OpenAI-compatible</dd><dd class="zh">OpenAI &#x517c;&#x5bb9;</dd>
- <dt class="en visible">Streaming</dt><dt class="zh">&#x6d41;&#x5f0f;&#x8f93;&#x51fa;</dt>
- <dd class="en visible">Supported (SSE)</dd><dd class="zh">&#x652f;&#x6301; (SSE)</dd>
+ <dt >Format</dt>
+ <dd >OpenAI-compatible</dd>
+ <dt >Streaming</dt>
+ <dd >Supported (SSE)</dd>
 </dl>
 
 <div class="use-cases">
-<h4 class="en visible">Best For</h4><h4 class="zh">&#x9002;&#x5408;&#x573a;&#x666f;</h4>
-<ul class="en visible">
+<h4 >Best For</h4>
+<ul >
 <li>Complex reasoning and multi-step logic</li>
 <li>Advanced coding ? architecture, debugging, refactoring</li>
 <li>Technical writing and documentation</li>
 <li>Research and analysis</li>
 <li>Tasks requiring deeper understanding</li>
 </ul>
-<ul class="zh">
-<li>&#x590d;&#x6742;&#x63a8;&#x7406;&#x548c;&#x591a;&#x6b65;&#x903b;&#x8f91;</li>
-<li>&#x9ad8;&#x7ea7;&#x7f16;&#x7a0b; ? &#x67b6;&#x6784;&#x3001;&#x8c03;&#x8bd5;&#x3001;&#x91cd;&#x6784;</li>
-<li>&#x6280;&#x672f;&#x5199;&#x4f5c;&#x548c;&#x6587;&#x6863;</li>
-<li>&#x7814;&#x7a76;&#x548c;&#x5206;&#x6790;</li>
-<li>&#x9700;&#x8981;&#x6df1;&#x5ea6;&#x7406;&#x89e3;&#x7684;&#x4efb;&#x52a1;</li>
-</ul>
+
 </div>
 </div>
 
-<h2 style="color:#f0f6fc; margin-top:32px"><span class="en visible">Model Comparison</span><span class="zh">&#x6a21;&#x578b;&#x5bf9;&#x6bd4;</span></h2>
+<h2 style="color:#f0f6fc; margin-top:32px">Model Comparison</h2>
 <table>
 <tr>
- <th><span class="en visible">Model</span><span class="zh">&#x6a21;&#x578b;</span></th>
- <th><span class="en visible">Speed</span><span class="zh">&#x901f;&#x5ea6;</span></th>
- <th><span class="en visible">Coding</span><span class="zh">&#x7f16;&#x7a0b;</span></th>
- <th><span class="en visible">Reasoning</span><span class="zh">&#x63a8;&#x7406;</span></th>
- <th><span class="en visible">Cost Level</span><span class="zh">&#x8d39;&#x7528;</span></th>
- <th><span class="en visible">Recommended Use</span><span class="zh">&#x63a8;&#x8350;&#x7528;&#x9014;</span></th>
+ <th>Model</th>
+ <th>Speed</th>
+ <th>Coding</th>
+ <th>Reasoning</th>
+ <th>Cost Level</th>
+ <th>Recommended Use</th>
 </tr>
 <tr>
  <td><code>deepseek-v4-flash</code></td>
  <td><span class="star">&#x2605;&#x2605;&#x2605;&#x2605;&#x2605;</span></td>
  <td><span class="star">&#x2605;&#x2605;&#x2605;</span></td>
  <td><span class="star">&#x2605;&#x2605;&#x2605;</span></td>
- <td><span class="en visible">$ Low</span><span class="zh">$ &#x4f4e;</span></td>
- <td><span class="en visible">Chat, content, roleplay, high-volume</span><span class="zh">&#x804a;&#x5929;&#x3001;&#x5185;&#x5bb9;&#x3001;&#x89d2;&#x8272;&#x626e;&#x6f14;&#x3001;&#x9ad8;&#x5e76;&#x53d1;</span></td>
+ <td>$ Low</td>
+ <td>Chat, content, roleplay, high-volume</td>
 </tr>
 <tr>
  <td><code>deepseek-v4-pro</code></td>
  <td><span class="star">&#x2605;&#x2605;&#x2605;</span></td>
  <td><span class="star">&#x2605;&#x2605;&#x2605;&#x2605;&#x2605;</span></td>
  <td><span class="star">&#x2605;&#x2605;&#x2605;&#x2605;&#x2605;</span></td>
- <td><span class="en visible">$$ Medium</span><span class="zh">$$ &#x4e2d;</span></td>
- <td><span class="en visible">Complex coding, reasoning, research</span><span class="zh">&#x590d;&#x6742;&#x7f16;&#x7a0b;&#x3001;&#x63a8;&#x7406;&#x3001;&#x7814;&#x7a76;</span></td>
+ <td>$$ Medium</td>
+ <td>Complex coding, reasoning, research</td>
 </tr>
 </table>
 
-<h2 style="color:#f0f6fc; margin-top:28px"><span class="en visible">Plan Availability</span><span class="zh">&#x5957;&#x9910;&#x6743;&#x9650;</span></h2>
+<h2 style="color:#f0f6fc; margin-top:28px">Plan Availability</h2>
 <table>
 <tr>
- <th><span class="en visible">Plan</span><span class="zh">&#x5957;&#x9910;</span></th>
+ <th>Plan</th>
  <th><code>deepseek-v4-flash</code></th>
  <th><code>deepseek-v4-pro</code></th>
 </tr>
-<tr><td><span class="en visible">Trial</span><span class="zh">&#x8bd5;&#x7528;</span></td><td>&#x2705;</td><td>&#x274c;</td></tr>
-<tr><td><span class="en visible">Starter</span><span class="zh">&#x5165;&#x95e8;</span></td><td>&#x2705;</td><td>&#x274c;</td></tr>
-<tr><td><span class="en visible">Standard</span><span class="zh">&#x6807;&#x51c6;</span></td><td>&#x2705;</td><td>&#x274c;</td></tr>
-<tr><td><span class="en visible">Pro</span><span class="zh">&#x4e13;&#x4e1a;</span></td><td>&#x2705;</td><td>&#x2705;</td></tr>
+<tr><td>Trial</td><td>&#x2705;</td><td>&#x274c;</td></tr>
+<tr><td>Starter</td><td>&#x2705;</td><td>&#x274c;</td></tr>
+<tr><td>Standard</td><td>&#x2705;</td><td>&#x274c;</td></tr>
+<tr><td>Pro</td><td>&#x2705;</td><td>&#x2705;</td></tr>
 </table>
 
 <div class="cta">
-<h3 class="en visible">Get Your API Key ? From $1</h3>
-<h3 class="zh">&#x83b7;&#x53d6; API Key&#xff0c;&#x6700;&#x4f4e; $1 &#x8d77;</h3>
-<p class="en visible">All models through one endpoint. PayPal checkout, instant key delivery, usage dashboard.</p>
-<p class="zh">&#x6240;&#x6709;&#x6a21;&#x578b;&#x901a;&#x8fc7;&#x540c;&#x4e00;&#x63a5;&#x53e3;&#x8bbf;&#x95ee;&#x3002;PayPal &#x652f;&#x4ed8;&#xff0c;&#x5373;&#x65f6;&#x53d1;&#x653e; Key&#xff0c;&#x7528;&#x91cf;&#x67e5;&#x8be2;&#x3002;</p>
-<a href="/pricing.html"><span class="en visible">Get API Key</span><span class="zh">&#x83b7;&#x53d6; API Key</span></a>
-<a href="/api-docs.html" class="outline"><span class="en visible">Read API Docs</span><span class="zh">&#x67e5;&#x770b; API &#x6587;&#x6863;</span></a>
+<h3 >Get Your API Key ? From $1</h3>
+
+<p >All models through one endpoint. PayPal checkout, instant key delivery, usage dashboard.</p>
+
+<a href="/pricing.html">Get API Key</a>
+<a href="/api-docs.html" class="outline">Read API Docs</a>
 </div>
 
-<div class="disclaimer en visible">Independent third-party API gateway. Not affiliated with DeepSeek. Models and pricing subject to change.</div>
-<div class="disclaimer zh">&#x72ec;&#x7acb;&#x7b2c;&#x4e09;&#x65b9; API &#x7f51;&#x5173;&#xff0c;&#x4e0e; DeepSeek &#x65e0;&#x5173;&#x8054;&#x3002;&#x6a21;&#x578b;&#x548c;&#x4ef7;&#x683c;&#x53ef;&#x80fd;&#x53d8;&#x52a8;&#x3002;</div>
-</div>
+<div class="disclaimer">Independent third-party API gateway. Not affiliated with DeepSeek. Models and pricing subject to change.</div>
 
-<script>
-function switchLang(lang) {
- document.querySelectorAll('.en').forEach(function(el) { el.classList.toggle('visible', lang === 'en'); });
- document.querySelectorAll('.zh').forEach(function(el) { el.classList.toggle('visible', lang === 'zh'); });
- document.getElementById('btn-en').classList.toggle('active', lang === 'en');
- document.getElementById('btn-zh').classList.toggle('active', lang === 'zh');
- localStorage.setItem('lang', lang);
-}
-(function() {
- var saved = localStorage.getItem('lang');
- if (saved === 'zh') switchLang('zh');
-})();
-</script>
+</div>
 </body>
 </html>

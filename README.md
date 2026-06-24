@@ -18,6 +18,7 @@
 
 **[Pricing & Buy →](https://modelrelayapis.cc/pricing.html)** &nbsp;
 **[API Docs →](https://modelrelayapis.cc/api-docs.html)** &nbsp;
+**[Models →](https://modelrelayapis.cc/models.html) &nbsp;
 **[Docs →](https://modelrelayapis.cc/docs.html)** &nbsp;
 **[SillyTavern Setup →](https://modelrelayapis.cc/sillytavern-deepseek-setup.html)**
 
@@ -50,6 +51,7 @@ A **third-party API gateway** that gives you an OpenAI-compatible endpoint for D
 | **[Dashboard](https://modelrelayapis.cc/dashboard.html)** | Check your usage | Real-time budget tracking |
 | **[Docs](https://modelrelayapis.cc/docs.html)** | Setup guide | Python, curl, SillyTavern |
 | **[API Reference](https://modelrelayapis.cc/api-docs.html)** | Endpoints | Models, errors, rate limits |
+| **[Models](https://modelrelayapis.cc/models.html)** | Available models | Compare flash vs pro |
 | **[Order Status](https://modelrelayapis.cc/order.html)** | Find your key | Look up by Order ID + email |
 
 ---

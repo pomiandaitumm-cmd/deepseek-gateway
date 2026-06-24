@@ -222,7 +222,7 @@ document.addEventListener("DOMContentLoaded", function() {
           "<td>" + (o.order_status || o.status || "-") + "</td>" +
           "<td>" + (o.payment_status || "-") + "</td>" +
           "<td><code>" + (o.key_prefix || "-") + "</code></td>" +
-          "<td><span class='badge-status badge-' + (o.key_status || "disabled") + "">" + (o.key_status || "-") + "</span></td>" +
+          "<td><span class='badge-status badge-' + (o.key_status || "disabled") + "'>" + (o.key_status || "-") + "</span></td>" +
           "<td>" + (o.request_count || 0) + "</td>" +
           "<td>" + (o.created_at || "-") + "</td>" +
           "</tr>";
@@ -244,7 +244,7 @@ document.addEventListener("DOMContentLoaded", function() {
       tbody.innerHTML = (data.keys || []).map(function(k) {
         return "<tr>" +
           "<td><code>" + (k.key_prefix || "-") + "</code></td>" +
-          "<td><span class='badge-status badge-' + (k.status || "disabled") + "">" + (k.status || "-") + "</span></td>" +
+          "<td><span class='badge-status badge-' + (k.status || "disabled") + "'>" + (k.status || "-") + "</span></td>" +
           "<td>" + (k.package_name || "-") + "</td>" +
           "<td>$" + (k.upstream_budget || 0).toFixed(2) + "</td>" +
           "<td>$" + (k.used_upstream_cost || 0).toFixed(6) + "</td>" +

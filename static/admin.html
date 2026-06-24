@@ -70,6 +70,7 @@ td code { background: #21262d; padding: 1px 5px; border-radius: 3px; font-size: 
 <h1>Admin Panel</h1>
 <p class="subtitle">Orders, Keys, Revenue, and Usage Overview</p>
 
+<div id="auth-error" style="color:#f85149;background:#f8514922;border:1px solid #f8514944;border-radius:6px;padding:10px 14px;margin-bottom:12px;display:none"></div>
 <div id="auth-section" class="auth-box">
  <div style="flex:1;min-width:200px">
   <label for="admin-token" style="display:block;font-size:0.82rem;color:#c9d1d9;margin-bottom:4px">Admin Token</label>
@@ -124,14 +125,26 @@ let ADMIN_TOKEN = localStorage.getItem("admin_token") || "";
 let searchTimers = {};
 
 function authAndLoad() {
+  const errDiv = document.getElementById("auth-error");
+  errDiv.style.display = "none";
+  const btn = document.getElementById("auth-btn");
   ADMIN_TOKEN = document.getElementById("admin-token").value.trim();
-  if (!ADMIN_TOKEN) return alert("Enter admin token");
+  if (!ADMIN_TOKEN) {
+    errDiv.textContent = "Please enter an admin token.";
+    errDiv.style.display = "block";
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = "Verifying...";
   localStorage.setItem("admin_token", ADMIN_TOKEN);
-  loadAll();
+  loadAll().finally(() => {
+    btn.disabled = false;
+    btn.textContent = "Unlock";
+  });
 }
 
 async function api(path) {
-  const r = await fetch(BASE + path, { headers: { "Authorization": "Bearer " + ADMIN_TOKEN } });
+  const r = await fetch(BASE + path, { headers: { "X-Admin-Token": ADMIN_TOKEN } });
   if (!r.ok) throw new Error(r.status + " " + (await r.text()).slice(0,100));
   return r.json();
 }
@@ -152,7 +165,7 @@ async function loadAll() {
     loadOrders();
     loadKeys();
   } catch(e) {
-    alert("Auth failed or API error: " + e.message);
+    document.getElementById("auth-error").textContent = "Auth failed: " + e.message; document.getElementById("auth-error").style.display = "block";
   }
 }
 

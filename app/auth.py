@@ -49,14 +49,18 @@ def verify_admin_token(request: Request, credentials: HTTPAuthorizationCredentia
     from .config import ADMIN_TOKEN
     if not ADMIN_TOKEN:
         raise HTTPException(status_code=501, detail="Admin backend not configured")
-    if credentials and credentials.credentials:
+    token = None
+    xt = request.headers.get("X-Admin-Token", "")
+    if xt:
+        token = xt
+    elif credentials and credentials.credentials:
         token = credentials.credentials
     else:
         auth = request.headers.get("Authorization", "")
         if auth.startswith("Bearer "):
             token = auth[7:]
-        else:
-            raise HTTPException(status_code=401, detail="Admin token required")
+    if not token:
+        raise HTTPException(status_code=401, detail="Admin token required")
     if token != ADMIN_TOKEN:
         raise HTTPException(status_code=401, detail="Invalid admin token")
     return {"admin": True}

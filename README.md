@@ -1,11 +1,29 @@
-﻿# DeepSeek API Gateway
+# DeepSeek API Gateway — OpenAI-Compatible, From $1
 
-**OpenAI-compatible DeepSeek API. Buy a key, start coding — from $1.**
+**[modelrelayapis.cc](https://modelrelayapis.cc)** — A third-party API gateway that gives you OpenAI-compatible access to DeepSeek models. PayPal checkout, instant key delivery, per-key budgeting.
 
 [![Status](https://img.shields.io/badge/status-live-3fb950)](#)
 [![HTTPS](https://img.shields.io/badge/SSL-Let%27s_Encrypt-3fb950)](#)
 [![PayPal](https://img.shields.io/badge/payment-PayPal-58a6ff)](#)
 [![Price](https://img.shields.io/badge/from-%241-3fb950)](#)
+
+| | | |
+|---|---|---|
+| **HTTPS endpoint** | `https://modelrelayapis.cc/v1` | Drop-in OpenAI SDK replacement |
+| **PayPal checkout** | Buy a package, get your key instantly | No registration, no waiting |
+| **$1 Trial** | 2M token quota | Start small, no commitment |
+| **Usage dashboard** | Real-time balance & breakdown | Cache hit/miss/output |
+| **Per-key budget** | Fixed spend per key | No surprise bills |
+| **Works with** | OpenAI SDK, SillyTavern, LangChain, LobeChat, Dify, NextChat, Open WebUI, Chatbox | [Setup guides](#tools--integrations) |
+
+**[Pricing & Buy →](https://modelrelayapis.cc/pricing.html)** &nbsp;
+**[API Docs →](https://modelrelayapis.cc/api-docs.html)** &nbsp;
+**[Docs →](https://modelrelayapis.cc/docs.html)** &nbsp;
+**[SillyTavern Setup →](https://modelrelayapis.cc/sillytavern-deepseek-setup.html)**
+
+> **Not affiliated with or endorsed by DeepSeek.** Independent third-party service.
+
+---
 
 ```bash
 curl https://modelrelayapis.cc/v1/chat/completions \

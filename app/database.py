@@ -2,6 +2,7 @@ import sqlite3
 import hashlib
 import random
 import os
+import json
 import time
 from datetime import datetime, timezone
 
@@ -10,6 +11,19 @@ _default_local = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", 
 _in_docker = os.path.exists("/.dockerenv") or os.environ.get("DOCKER_CONTAINER", "") == "1"
 _fallback = _default_docker if _in_docker else _default_local
 DB_PATH = os.environ.get("DB_PATH", _fallback)
+
+def parse_allowed_models(val):
+    if not val:
+        return ['deepseek-v4-flash']
+    if isinstance(val, list):
+        return val
+    try:
+        parsed = json.loads(val)
+        if isinstance(parsed, list):
+            return parsed
+    except (json.JSONDecodeError, TypeError):
+        pass
+    return [m.strip() for m in str(val).split(',') if m.strip()]
 
 def _ensure_data_dir():
     data_dir = os.path.dirname(DB_PATH)
@@ -224,7 +238,11 @@ def lookup_key(key):
     conn = get_db()
     row = conn.execute("SELECT * FROM api_keys WHERE key_hash=?", (h,)).fetchone()
     conn.close()
-    return dict(row) if row else None
+    if not row:
+        return None
+    d = dict(row)
+    d["allowed_models"] = parse_allowed_models(d.get("allowed_models"))
+    return d
 
 def touch_key(key_id):
     conn = get_db()
@@ -312,7 +330,7 @@ def get_key_usage(key_id):
         "request_count": row["req_count"],
         "last_used": row["last_used_at"],
         "rate_limit": row["rate_limit_per_minute"],
-        "allowed_models": (row["allowed_models"] or "deepseek-v4-flash").split(","),
+        "allowed_models": parse_allowed_models(row["allowed_models"]),
         "package": row["package_name"] or "",
         "cache_hit_tokens": row["total_cache_hit"] or 0,
         "cache_miss_tokens": row["total_cache_miss"] or 0,
@@ -412,7 +430,7 @@ def get_order_status(order_id, email):
         "selected_plan": row["package_name"],
         "quota": row["token_quota"],
         "rate_limit": row["rate_limit"],
-        "allowed_models": (row["allowed_models"] or "deepseek-v4-flash").split(","),
+        "allowed_models": parse_allowed_models(row["allowed_models"]),
         "price_usd": row["price_usd"] or 0,
         "created_at": row["created_at"],
         "approved_at": row["approved_at"],
@@ -659,7 +677,7 @@ def get_order_status_v07(order_id, email):
         "selected_plan": row["package_name"],
         "quota": row["token_quota"],
         "rate_limit": row["rate_limit"],
-        "allowed_models": (row["allowed_models"] or "deepseek-v4-flash").split(","),
+        "allowed_models": parse_allowed_models(row["allowed_models"]),
         "price_usd": row["price_usd"] or 0,
         "expected_amount": row["expected_amount"] or 0,
         "payment_address": row["payment_address"] or "",
@@ -869,7 +887,7 @@ def get_order_status_v08(order_id, email):
         "selected_plan": row["package_name"],
         "quota": row["token_quota"],
         "rate_limit": row["rate_limit"],
-        "allowed_models": (row["allowed_models"] or "deepseek-v4-flash").split(","),
+        "allowed_models": parse_allowed_models(row["allowed_models"]),
         "price_usd": row["price_usd"] or 0,
         "created_at": row["created_at"],
         "approved_at": row["approved_at"],

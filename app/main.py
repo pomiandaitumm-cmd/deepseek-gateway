@@ -18,6 +18,7 @@ from .database import (
     get_admin_summary, get_admin_orders, get_admin_keys,
     get_lead_stats, checkout_order, get_order_status_v07,
     checkout_order_paypal, capture_paypal_and_approve, get_order_status_v08,
+    parse_allowed_models,
 )
 
 # Initialize database on startup
@@ -33,7 +34,7 @@ async def list_models(key_info: dict = Depends(verify_key_light)):
     row = conn.execute("SELECT allowed_models FROM api_keys WHERE id=?", (key_info["id"],)).fetchone()
     conn.close()
     if row and row["allowed_models"]:
-        models = [m.strip() for m in row["allowed_models"].split(",") if m.strip()]
+        models = parse_allowed_models(row["allowed_models"])
     else:
         models = list(EXPOSED_MODELS)
     return JSONResponse(content={
@@ -54,10 +55,11 @@ async def chat_completions(request: Request, key_info: dict = Depends(verify_api
         raise HTTPException(status_code=400, detail="Invalid JSON body")
 
     model = body.get("model", "")
-    allowed = key_info.get("allowed_models", "")
+    allowed = key_info.get("allowed_models", [])
+    if isinstance(allowed, str):
+        allowed = [m.strip() for m in allowed.split(",") if m.strip()]
     if allowed:
-        allowed_list = [m.strip() for m in allowed.split(",") if m.strip()]
-        if model not in allowed_list:
+        if model not in allowed:
             raise HTTPException(
                 status_code=403,
                 detail="All plans support both flash and pro models. If budget exhausted, buy a new package.",
@@ -92,7 +94,7 @@ async def list_all_packages():
     pkgs = []
     for r in rows:
         d = dict(r)
-        d["allowed_models"] = [m.strip() for m in (d.get("allowed_models") or "").split(",") if m.strip()]
+        d["allowed_models"] = parse_allowed_models(d.get("allowed_models"))
         pkgs.append(d)
     return JSONResponse(content={"packages": pkgs})
 

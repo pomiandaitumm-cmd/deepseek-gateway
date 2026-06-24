@@ -1,56 +1,56 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="Available DeepSeek models via ModelRelay API Gateway: deepseek-v4-flash and deepseek-v4-pro. OpenAI-compatible endpoint, per-key budgeting.">
-<title>Available Models ? ModelRelay API Gateway</title>
+<title>Available Models — ModelRelay API Gateway</title>
 <link rel="canonical" href="https://modelrelayapis.cc/models.html">
 <style>
  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
- body { font-family: -apple-system, BlinkMacSystemFont,"Segoe UI", Roboto,"Helvetica Neue", Arial,"Microsoft YaHei","PingFang SC", sans-serif; background: #0d1117; color: #c9d1d9; line-height: 1.6; }
- .container { max-width: 780px; margin: 0 auto; padding: 40px 24px; }
- nav { padding-bottom: 16px; border-bottom: 1px solid #30363d; margin-bottom: 32px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
- nav a { color: #8b949e; text-decoration: none; font-size: 0.85rem; padding: 4px 10px; border: 1px solid #30363d; border-radius: 4px; }
- nav a:hover { border-color: #58a6ff; color: #c9d1d9; }
- nav a.active { border-color: #58a6ff66; color: #58a6ff; }
+ body { font-family: -apple-system, BlinkMacSystemFont,"Segoe UI", Roboto,"Helvetica Neue", Arial, sans-serif; background: #0d1117; color: #c9d1d9; line-height: 1.6; }
+ .container { max-width: 780px; margin: 0 auto; padding: 48px 24px; }
  h1 { font-size: 1.8rem; color: #f0f6fc; margin-bottom: 6px; letter-spacing: -0.02em; }
- .subtitle { color: #8b949e; font-size: 0.95rem; margin-bottom: 28px; }
+ .subtitle { color: #8b949e; font-size: 0.95rem; margin-bottom: 32px; }
  .subtitle code { background: #21262d; padding: 2px 6px; border-radius: 3px; font-size: 0.88em; }
- .model-card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 28px; margin-bottom: 20px; }
- .model-card h2 { font-size: 1.2rem; color: #f0f6fc; margin-bottom: 4px; }
- .model-card .id { font-family:"SF Mono","Fira Code", monospace; font-size: 0.85rem; color: #58a6ff; margin-bottom: 12px; }
- .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 500; margin-right: 6px; }
+ h2 { font-size: 1.15rem; color: #f0f6fc; margin: 36px 0 14px; padding-top: 28px; border-top: 1px solid #21262d; }
+
+ .model-card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 24px; margin-bottom: 16px; }
+ .model-card .header-row { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+ .model-card h3 { font-size: 1.1rem; color: #f0f6fc; }
+ .model-card .model-id { font-family:"SF Mono","Fira Code", monospace; font-size: 0.82rem; color: #58a6ff; margin-bottom: 12px; }
+ .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.73rem; font-weight: 500; }
  .badge-avail { background: #1f6feb22; color: #3fb950; border: 1px solid #3fb95044; }
  .badge-flash { background: #d2992222; color: #d29922; border: 1px solid #d2992244; }
  .badge-pro { background: #a371f722; color: #a371f7; border: 1px solid #a371f744; }
- .specs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; margin: 16px 0; font-size: 0.88rem; }
+ .specs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 20px; margin: 10px 0; font-size: 0.85rem; }
  .specs dt { color: #8b949e; }
  .specs dd { color: #c9d1d9; }
- .use-cases { margin-top: 12px; }
- .use-cases h4 { color: #8b949e; font-size: 0.8rem; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
- .use-cases ul { padding-left: 18px; font-size: 0.85rem; color: #c9d1d9; }
+ .use-cases { margin-top: 8px; }
+ .use-cases h4 { color: #8b949e; font-size: 0.78rem; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+ .use-cases ul { padding-left: 18px; font-size: 0.83rem; color: #c9d1d9; }
  .use-cases li { margin-bottom: 2px; }
- table { width: 100%; border-collapse: collapse; margin: 20px 0 32px; font-size: 0.85rem; }
+
+ table { width: 100%; border-collapse: collapse; margin: 16px 0 28px; font-size: 0.85rem; }
  th, td { border: 1px solid #30363d; padding: 10px 12px; text-align: left; }
  th { background: #161b22; color: #8b949e; font-weight: 500; }
  td { color: #c9d1d9; }
  td code { background: #21262d; padding: 1px 5px; border-radius: 3px; font-size: 0.9em; }
  .star { color: #58a6ff; }
- .cta { background: #161b22; border: 2px solid #58a6ff44; border-radius: 8px; padding: 24px; text-align: center; margin: 28px 0; }
+
+ .cta { background: #161b22; border: 1px solid #58a6ff44; border-radius: 8px; padding: 24px; text-align: center; margin: 32px 0; }
  .cta h3 { color: #f0f6fc; margin-bottom: 6px; }
  .cta p { color: #8b949e; margin-bottom: 14px; font-size: 0.9rem; }
- .cta a { display: inline-block; background: #1f6feb; color: #fff; padding: 9px 22px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.9rem; margin: 0 6px; }
- .cta a:hover { background: #388bfd; }
- .cta a.outline { background: transparent; border: 1px solid #30363d; color: #c9d1d9; }
- .cta a.outline:hover { border-color: #58a6ff; }
+ .cta .btn { display: inline-block; background: #238636; color: #fff; padding: 9px 22px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.9rem; margin: 0 6px; }
+ .cta .btn:hover { background: #2ea043; }
+ .cta .btn-outline { display: inline-block; background: transparent; border: 1px solid #30363d; color: #c9d1d9; padding: 9px 22px; border-radius: 6px; text-decoration: none; font-weight: 500; font-size: 0.9rem; margin: 0 6px; }
+ .cta .btn-outline:hover { border-color: #58a6ff; }
  .disclaimer { text-align: center; color: #8b949e; font-size: 0.75rem; margin-top: 32px; }
 
  .nav-links { margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 8px; }
  .nav-links a { font-size: 0.8rem; color: #8b949e; text-decoration: none; padding: 4px 10px; border: 1px solid #30363d; border-radius: 4px; transition: border-color 0.2s; }
  .nav-links a:hover { border-color: #58a6ff; color: #c9d1d9; text-decoration: none; }
  .nav-links a.highlight { border-color: #58a6ff66; color: #58a6ff; }
-
 </style>
 </head>
 <body>
@@ -66,105 +66,81 @@
  <a href="/sillytavern-deepseek-setup.html">SillyTavern Setup</a>
 </div>
 
-<h1 >Available Models</h1>
-
-<p class="subtitle">All models accessed through a single OpenAI-compatible endpoint: <code>https://modelrelayapis.cc/v1</code></p>
+<h1>Available Models</h1>
+<p class="subtitle">All models through a single OpenAI-compatible endpoint: <code>https://modelrelayapis.cc/v1</code></p>
 
 <div class="model-card">
-<h2>DeepSeek V4 Flash</h2>
-<div class="id">deepseek-v4-flash</div>
+<div class="header-row">
+<h3>DeepSeek V4 Flash</h3>
 <span class="badge badge-avail">available</span>
-<span class="badge badge-flash">flash</span>
-
+<span class="badge badge-flash">fast</span>
+</div>
+<div class="model-id">deepseek-v4-flash</div>
 <dl class="specs">
- <dt >Context Window</dt>
- <dd>128K tokens</dd>
- <dt >Endpoint</dt>
- <dd><code>https://modelrelayapis.cc/v1</code></dd>
- <dt >Format</dt>
- <dd >OpenAI-compatible</dd>
- <dt >Streaming</dt>
- <dd >Supported (SSE)</dd>
+ <dt>Context Window</dt><dd>128K tokens</dd>
+ <dt>Endpoint</dt><dd><code>https://modelrelayapis.cc/v1</code></dd>
+ <dt>Format</dt><dd>OpenAI-compatible</dd>
+ <dt>Streaming</dt><dd>Supported (SSE)</dd>
 </dl>
-
 <div class="use-cases">
-<h4 >Best For</h4>
-<ul >
+<h4>Best For</h4>
+<ul>
 <li>Chat applications and AI assistants</li>
-<li>Roleplay / character bots (SillyTavern, RisuAI)</li>
+<li>Roleplay / character bots (SillyTavern)</li>
 <li>Content generation and summarization</li>
-<li>Simple coding tasks and autocomplete</li>
 <li>High-throughput production workloads</li>
 </ul>
-
 </div>
 </div>
 
 <div class="model-card">
-<h2>DeepSeek V4 Pro</h2>
-<div class="id">deepseek-v4-pro</div>
+<div class="header-row">
+<h3>DeepSeek V4 Pro</h3>
 <span class="badge badge-avail">available</span>
-<span class="badge badge-pro">pro</span>
-
+<span class="badge badge-pro">Pro plan only</span>
+</div>
+<div class="model-id">deepseek-v4-pro</div>
 <dl class="specs">
- <dt >Context Window</dt>
- <dd>128K tokens</dd>
- <dt >Endpoint</dt>
- <dd><code>https://modelrelayapis.cc/v1</code></dd>
- <dt >Format</dt>
- <dd >OpenAI-compatible</dd>
- <dt >Streaming</dt>
- <dd >Supported (SSE)</dd>
+ <dt>Context Window</dt><dd>128K tokens</dd>
+ <dt>Endpoint</dt><dd><code>https://modelrelayapis.cc/v1</code></dd>
+ <dt>Format</dt><dd>OpenAI-compatible</dd>
+ <dt>Streaming</dt><dd>Supported (SSE)</dd>
 </dl>
-
 <div class="use-cases">
-<h4 >Best For</h4>
-<ul >
+<h4>Best For</h4>
+<ul>
 <li>Complex reasoning and multi-step logic</li>
-<li>Advanced coding ? architecture, debugging, refactoring</li>
+<li>Advanced coding — architecture, debugging, refactoring</li>
 <li>Technical writing and documentation</li>
 <li>Research and analysis</li>
-<li>Tasks requiring deeper understanding</li>
 </ul>
-
 </div>
 </div>
 
-<h2 style="color:#f0f6fc; margin-top:32px">Model Comparison</h2>
+<h2>Model Comparison</h2>
 <table>
+<tr><th>Model</th><th>Speed</th><th>Coding</th><th>Reasoning</th><th>Cost Level</th><th>Recommended Use</th></tr>
 <tr>
- <th>Model</th>
- <th>Speed</th>
- <th>Coding</th>
- <th>Reasoning</th>
- <th>Cost Level</th>
- <th>Recommended Use</th>
+<td><code>deepseek-v4-flash</code></td>
+<td><span class="star">&#x2605;&#x2605;&#x2605;&#x2605;&#x2605;</span></td>
+<td><span class="star">&#x2605;&#x2605;&#x2605;</span></td>
+<td><span class="star">&#x2605;&#x2605;&#x2605;</span></td>
+<td>$ Low</td>
+<td>Chat, content, roleplay, high-volume</td>
 </tr>
 <tr>
- <td><code>deepseek-v4-flash</code></td>
- <td><span class="star">&#x2605;&#x2605;&#x2605;&#x2605;&#x2605;</span></td>
- <td><span class="star">&#x2605;&#x2605;&#x2605;</span></td>
- <td><span class="star">&#x2605;&#x2605;&#x2605;</span></td>
- <td>$ Low</td>
- <td>Chat, content, roleplay, high-volume</td>
-</tr>
-<tr>
- <td><code>deepseek-v4-pro</code></td>
- <td><span class="star">&#x2605;&#x2605;&#x2605;</span></td>
- <td><span class="star">&#x2605;&#x2605;&#x2605;&#x2605;&#x2605;</span></td>
- <td><span class="star">&#x2605;&#x2605;&#x2605;&#x2605;&#x2605;</span></td>
- <td>$$ Medium</td>
- <td>Complex coding, reasoning, research</td>
+<td><code>deepseek-v4-pro</code></td>
+<td><span class="star">&#x2605;&#x2605;&#x2605;</span></td>
+<td><span class="star">&#x2605;&#x2605;&#x2605;&#x2605;&#x2605;</span></td>
+<td><span class="star">&#x2605;&#x2605;&#x2605;&#x2605;&#x2605;</span></td>
+<td>$$ Medium</td>
+<td>Complex coding, reasoning, research</td>
 </tr>
 </table>
 
-<h2 style="color:#f0f6fc; margin-top:28px">Plan Availability</h2>
+<h2>Plan Availability</h2>
 <table>
-<tr>
- <th>Plan</th>
- <th><code>deepseek-v4-flash</code></th>
- <th><code>deepseek-v4-pro</code></th>
-</tr>
+<tr><th>Plan</th><th><code>deepseek-v4-flash</code></th><th><code>deepseek-v4-pro</code></th></tr>
 <tr><td>Trial</td><td>&#x2705;</td><td>&#x274c;</td></tr>
 <tr><td>Starter</td><td>&#x2705;</td><td>&#x274c;</td></tr>
 <tr><td>Standard</td><td>&#x2705;</td><td>&#x274c;</td></tr>
@@ -172,16 +148,13 @@
 </table>
 
 <div class="cta">
-<h3 >Get Your API Key ? From $1</h3>
-
-<p >All models through one endpoint. PayPal checkout, instant key delivery, usage dashboard.</p>
-
-<a href="/pricing.html">Get API Key</a>
-<a href="/api-docs.html" class="outline">Read API Docs</a>
+<h3>Get Your API Key — From $1</h3>
+<p>All models through one endpoint. PayPal checkout, instant key delivery, usage dashboard.</p>
+<a href="/pricing.html" class="btn">Get API Key</a>
+<a href="/api-docs.html" class="btn-outline">Read API Docs</a>
 </div>
 
 <div class="disclaimer">Independent third-party API gateway. Not affiliated with DeepSeek. Models and pricing subject to change.</div>
-
 </div>
 </body>
 </html>

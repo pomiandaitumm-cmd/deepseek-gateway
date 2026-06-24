@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -10,9 +10,18 @@
     font-family: -apple-system, BlinkMacSystemFont,"Segoe UI", Roboto,"Helvetica Neue", Arial, sans-serif;
     background: #0d1117; color: #c9d1d9; line-height: 1.6;
   }
-  .container { max-width: 640px; margin: 0 auto; padding: 48px 24px; }
+  .container { max-width: 660px; margin: 0 auto; padding: 48px 24px; }
   h1 { font-size: 1.5rem; font-weight: 700; color: #f0f6fc; margin-bottom: 4px; }
   .subtitle { font-size: 0.9rem; color: #8b949e; margin-bottom: 28px; }
+
+  .info-card {
+    background: #161b22; border: 1px solid #58a6ff33; border-radius: 8px; padding: 16px 20px; margin-bottom: 24px;
+    font-size: 0.85rem; color: #8b949e; line-height: 1.55;
+  }
+  .info-card strong { color: #c9d1d9; }
+  .info-card ul { padding-left: 18px; margin-top: 6px; }
+  .info-card li { margin-bottom: 3px; }
+
   label { display: block; font-size: 0.85rem; font-weight: 500; color: #f0f6fc; margin-bottom: 6px; }
   input[type="text"] {
     width: 100%; padding: 10px 14px; background: #161b22; border: 1px solid #30363d;
@@ -20,10 +29,10 @@
   }
   input:focus { outline: none; border-color: #58a6ff; }
   button {
-    background: #1f6feb; color: #fff; border: none; padding: 10px 24px;
+    background: #238636; color: #fff; border: none; padding: 10px 24px;
     border-radius: 6px; font-weight: 600; font-size: 0.9rem; cursor: pointer; margin-bottom: 20px;
   }
-  button:hover { background: #388bfd; }
+  button:hover { background: #2ea043; }
   button:disabled { background: #21262d; color: #484f58; cursor: not-allowed; }
   .card {
     background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 20px; margin-bottom: 14px;
@@ -49,7 +58,6 @@
   .topup-btn:hover { background: #30363d; }
   a { color: #58a6ff; text-decoration: none; }
   a:hover { text-decoration: underline; }
-  .back-link { font-size: 0.82rem; margin-bottom: 20px; display: inline-block; }
   .progress-bar {
     height: 8px; background: #21262d; border-radius: 4px; margin-top: 8px; overflow: hidden;
   }
@@ -59,16 +67,11 @@
     background: #1f6feb22; color: #58a6ff; margin-right: 4px;
   }
   .section-title { font-size: 0.85rem; color: #8b949e; text-transform: uppercase; letter-spacing: 0.5px; margin: 16px 0 8px; }
-  .code-snippet {
-    background: #0d1117; border: 1px solid #21262d; border-radius: 4px; padding: 8px 12px;
-    font-family: monospace; font-size: 0.78rem; color: #7ee787; margin-top: 4px; word-break: break-all;
-  }
 
  .nav-links { margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 8px; }
  .nav-links a { font-size: 0.8rem; color: #8b949e; text-decoration: none; padding: 4px 10px; border: 1px solid #30363d; border-radius: 4px; transition: border-color 0.2s; }
  .nav-links a:hover { border-color: #58a6ff; color: #c9d1d9; text-decoration: none; }
  .nav-links a.highlight { border-color: #58a6ff66; color: #58a6ff; }
-
 </style>
 </head>
 <body>
@@ -85,6 +88,14 @@
 </div>
 <h1>Usage Dashboard</h1>
   <p class="subtitle">Check your API key usage, budget, and plan details in real time.</p>
+
+  <div class="info-card">
+    <strong>Already have an API key?</strong> Enter it below to check your remaining budget, plan details, and latest usage breakdown.
+    <ul>
+      <li>Your key is only sent to this server for lookup &mdash; never stored in your browser.</li>
+      <li>You can also check usage via <code>/v1/key/usage</code> with your key in the Authorization header.</li>
+    </ul>
+  </div>
 
   <label for="key-input">Your API Key (sk-gateway-...)</label>
   <input type="text" id="key-input" placeholder="sk-gateway-..." autocomplete="off">
@@ -119,7 +130,7 @@ async function checkUsage() {
   try {
     const baseUrl = window.location.origin;
     const resp = await fetch(baseUrl +"/v1/key/usage", {
-      headers: {"Authorization":"Bearer" + key }
+      headers: {"Authorization":"Bearer " + key }
     });
 
     if (resp.status === 401) {
@@ -177,12 +188,6 @@ async function checkUsage() {
       statusLine = '<div style="color:#f85149;font-size:0.85rem;margin:8px 0;">&#10007; Your API budget is exhausted. Please buy a new package.</div>';
     }
 
-    const cacheHit = data.cache_hit_tokens || 0;
-    const cacheMiss = data.cache_miss_tokens || 0;
-    const outputTk = data.output_tokens || 0;
-    const totalTk = data.total_tokens || 0;
-
-    // Last usage breakdown
     let lastUsageHtml ="";
     if (data.last_usage) {
       const lu = data.last_usage;
@@ -209,10 +214,6 @@ async function checkUsage() {
         <div class="stat-row"><span class="stat-label">Upstream Budget</span><span class="stat-value">$${budget.toFixed(2)}</span></div>
         <div class="stat-row"><span class="stat-label">Used Upstream Cost</span><span class="stat-value">$${usedCost.toFixed(6)}</span></div>
         <div class="stat-row"><span class="stat-label">Remaining Budget</span><span class="stat-value ${remainingClass}">$${remainingBudget.toFixed(6)}</span></div>
-        <div class="stat-row"><span class="stat-label">Total Cache Hits</span><span class="stat-value">${cacheHit.toLocaleString()} tk</span></div>
-        <div class="stat-row"><span class="stat-label">Total Cache Misses</span><span class="stat-value">${cacheMiss.toLocaleString()} tk</span></div>
-        <div class="stat-row"><span class="stat-label">Total Output</span><span class="stat-value">${outputTk.toLocaleString()} tk</span></div>
-        <div class="stat-row"><span class="stat-label">Total All Tokens</span><span class="stat-value">${totalTk.toLocaleString()} tk</span></div>
         <div class="stat-row"><span class="stat-label">Last Used</span><span class="stat-value">${data.last_used ||"N/A"}</span></div>
         ${budget > 0 ? '<div class="progress-bar"><div class="progress-fill" style="width:' + Math.min(100, pct) + '%;background:' + barColor + ';"></div></div>' : ''}
         ${budget > 0 ? '<div style="font-size:0.75rem;color:#8b949e;margin-top:4px;">' + pct + '% budget used</div>' : ''}

@@ -13,7 +13,6 @@ body {
 }
 .container { max-width: 960px; margin: 0 auto; padding: 0 24px; }
 
-/* NAV */
 .nav-links {
   display: flex; flex-wrap: wrap; gap: 6px; padding: 16px 0;
   border-bottom: 1px solid #21262d; margin-bottom: 0;
@@ -26,91 +25,97 @@ body {
 .nav-links a:hover { border-color: #58a6ff; color: #c9d1d9; }
 .nav-links a.highlight { border-color: #58a6ff55; color: #58a6ff; }
 
-/* HERO */
-.hero { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; padding: 48px 0 40px; }
-.hero-left h1 { font-size: 2.1rem; font-weight: 700; color: #f0f6fc; letter-spacing: -0.03em; margin-bottom: 8px; }
-.hero-left .tagline { font-size: 1rem; color: #8b949e; margin-bottom: 20px; line-height: 1.5; }
-.hero-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
-.btn-primary {
-  display: inline-block; background: #1f6feb; color: #fff; padding: 9px 20px;
-  border-radius: 6px; font-weight: 600; font-size: 0.9rem; text-decoration: none;
-}
-.btn-primary:hover { background: #388bfd; }
-.btn-outline {
-  display: inline-block; border: 1px solid #30363d; color: #c9d1d9; padding: 9px 20px;
-  border-radius: 6px; font-weight: 500; font-size: 0.9rem; text-decoration: none;
-}
-.btn-outline:hover { border-color: #58a6ff; color: #58a6ff; }
-.bullets { display: flex; flex-wrap: wrap; gap: 6px 14px; }
-.bullets span {
-  font-size: 0.78rem; color: #8b949e; display: flex; align-items: center; gap: 4px;
-}
-.bullets span::before { content: "\2713"; color: #3fb950; font-weight: bold; }
+.hero { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; padding: 56px 0 48px; }
+.hero-left h1 { font-size: 2.3rem; font-weight: 700; color: #f0f6fc; letter-spacing: -0.04em; margin-bottom: 10px; line-height: 1.2; }
+.hero-left .tagline { font-size: 1.05rem; color: #8b949e; margin-bottom: 24px; line-height: 1.55; }
+.hero-left .tagline code { background: #21262d; padding: 2px 6px; border-radius: 3px; font-size: 0.9em; color: #58a6ff; }
 
+.hero-btns { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; }
+.btn-buy {
+  display: inline-block; background: #238636; color: #fff; padding: 11px 26px;
+  border-radius: 6px; font-weight: 600; font-size: 0.95rem; text-decoration: none;
+  transition: background 0.2s;
+}
+.btn-buy:hover { background: #2ea043; text-decoration: none; }
+.btn-outline {
+  display: inline-block; border: 1px solid #30363d; color: #c9d1d9; padding: 11px 22px;
+  border-radius: 6px; font-weight: 500; font-size: 0.9rem; text-decoration: none;
+  transition: border-color 0.2s, color 0.2s;
+}
+.btn-outline:hover { border-color: #58a6ff; color: #58a6ff; text-decoration: none; }
+
+.trust-bullets {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px 20px;
+}
+.trust-bullets .bullet {
+  font-size: 0.84rem; color: #8b949e; display: flex; align-items: center; gap: 7px;
+  padding: 5px 0;
+}
+.trust-bullets .bullet .check { color: #3fb950; font-weight: bold; font-size: 1rem; }
+
+.hero-right .code-card {
+  background: #161b22; border: 1px solid #30363d; border-radius: 8px; overflow: hidden;
+}
+.hero-right .code-header {
+  background: #21262d; padding: 6px 14px; font-size: 0.7rem; color: #8b949e;
+  text-transform: uppercase; letter-spacing: 0.06em; display: flex; justify-content: space-between; align-items: center;
+}
 .hero-right pre {
-  background: #161b22; border: 1px solid #30363d; border-radius: 8px;
-  padding: 20px; overflow-x: auto; font-size: 0.8rem; line-height: 1.6;
+  padding: 18px; overflow-x: auto; font-size: 0.78rem; line-height: 1.6;
   color: #c9d1d9; margin: 0;
 }
 .hero-right pre code { font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace; }
-.hero-right .code-label {
-  font-size: 0.7rem; color: #484f58; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px;
-}
 
-/* SECTION TITLES */
 .section-title {
-  font-size: 1.15rem; font-weight: 700; color: #f0f6fc;
-  margin: 40px 0 16px; padding-top: 24px; border-top: 1px solid #21262d;
+  font-size: 1.2rem; font-weight: 700; color: #f0f6fc;
+  margin: 48px 0 18px; padding-top: 28px; border-top: 1px solid #21262d;
 }
 
-/* PLANS */
-.plans { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.plans { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
 .plan {
   background: #161b22; border: 1px solid #30363d; border-radius: 8px;
-  padding: 20px 16px; text-align: center; transition: border-color 0.2s;
+  padding: 22px 18px; text-align: center; transition: border-color 0.2s;
+  display: flex; flex-direction: column;
 }
 .plan:hover { border-color: #58a6ff55; }
-.plan h3 { font-size: 0.9rem; color: #f0f6fc; margin-bottom: 4px; }
-.plan .price { font-size: 1.4rem; font-weight: 700; color: #58a6ff; margin: 6px 0 2px; }
-.plan .budget { font-size: 0.78rem; color: #8b949e; margin-bottom: 6px; }
+.plan h3 { font-size: 0.92rem; color: #f0f6fc; margin-bottom: 4px; }
+.plan .price { font-size: 1.5rem; font-weight: 700; color: #58a6ff; margin: 6px 0 2px; }
+.plan .budget { font-size: 0.8rem; color: #8b949e; margin-bottom: 8px; }
 .plan .model-tag {
-  display: inline-block; font-size: 0.68rem; padding: 2px 7px; border-radius: 3px;
+  display: inline-block; font-size: 0.7rem; padding: 2px 8px; border-radius: 3px;
   background: #d2992222; color: #d29922; border: 1px solid #d2992244;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 .plan .plan-btn {
-  display: block; margin-top: 10px; padding: 6px 0; border-radius: 5px;
-  background: #21262d; color: #c9d1d9; text-decoration: none; font-size: 0.8rem;
-  font-weight: 500; border: 1px solid #30363d;
+  display: block; margin-top: auto; padding: 7px 0; border-radius: 5px;
+  background: #21262d; color: #c9d1d9; text-decoration: none; font-size: 0.82rem;
+  font-weight: 500; border: 1px solid #30363d; transition: all 0.2s;
 }
-.plan .plan-btn:hover { border-color: #58a6ff; color: #58a6ff; }
+.plan .plan-btn:hover { border-color: #58a6ff; color: #58a6ff; text-decoration: none; }
 
-/* MODELS */
 .models-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .model-card {
-  background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 20px;
+  background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 22px;
 }
 .model-card h3 { font-size: 1rem; color: #f0f6fc; margin-bottom: 2px; }
 .model-card .model-id {
-  font-family: "SF Mono", "Fira Code", monospace; font-size: 0.8rem; color: #58a6ff; margin-bottom: 8px;
+  font-family: "SF Mono", "Fira Code", monospace; font-size: 0.8rem; color: #58a6ff; margin-bottom: 10px;
 }
-.model-card .tags { margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 4px; }
-.tag { font-size: 0.68rem; padding: 2px 7px; border-radius: 3px; }
+.tags { margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 5px; }
+.tag { font-size: 0.7rem; padding: 2px 8px; border-radius: 3px; }
 .tag-avail { background: #1f6feb22; color: #3fb950; border: 1px solid #3fb95044; }
 .tag-speed { background: #d2992222; color: #d29922; border: 1px solid #d2992244; }
 .tag-pro { background: #a371f722; color: #a371f7; border: 1px solid #a371f744; }
 .model-card ul { padding-left: 18px; font-size: 0.82rem; color: #8b949e; }
-.model-card li { margin-bottom: 2px; }
+.model-card li { margin-bottom: 3px; }
 
-/* TABLE */
 .compare-table { width: 100%; border-collapse: collapse; margin: 8px 0 0; font-size: 0.82rem; }
-.compare-table th, .compare-table td { border: 1px solid #21262d; padding: 8px 12px; text-align: left; }
+.compare-table th, .compare-table td { border: 1px solid #21262d; padding: 9px 12px; text-align: left; }
 .compare-table th { background: #161b22; color: #8b949e; font-weight: 500; }
 .compare-table td { color: #c9d1d9; }
-.compare-table td:first-child code { background: #21262d; padding: 1px 5px; border-radius: 3px; }
+.compare-table td:first-child code { background: #21262d; padding: 2px 6px; border-radius: 3px; }
 .star { color: #58a6ff; }
 
-/* INTEGRATIONS */
 .integrations {
   display: flex; flex-wrap: wrap; gap: 8px;
 }
@@ -121,24 +126,22 @@ body {
 }
 .integrations a:hover { border-color: #58a6ff; color: #c9d1d9; }
 
-/* FAQ */
 .faq { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.faq-item { background: #161b22; border: 1px solid #21262d; border-radius: 6px; padding: 14px 16px; }
-.faq-item h4 { font-size: 0.85rem; color: #f0f6fc; margin-bottom: 4px; }
+.faq-item { background: #161b22; border: 1px solid #21262d; border-radius: 6px; padding: 16px 18px; }
+.faq-item h4 { font-size: 0.86rem; color: #f0f6fc; margin-bottom: 4px; }
 .faq-item p { font-size: 0.8rem; color: #8b949e; line-height: 1.5; }
 
-/* FOOTER */
 .footer-bar {
-  border-top: 1px solid #21262d; margin-top: 40px; padding: 20px 0;
+  border-top: 1px solid #21262d; margin-top: 48px; padding: 22px 0;
   display: flex; justify-content: space-between; align-items: center;
-  font-size: 0.75rem; color: #484f58;
+  font-size: 0.77rem; color: #484f58;
 }
-.disclaimer { font-size: 0.7rem; color: #484f58; text-align: center; padding-bottom: 12px; }
+.disclaimer { font-size: 0.72rem; color: #484f58; text-align: center; padding-bottom: 16px; }
 
-/* RESPONSIVE */
 @media (max-width: 700px) {
-  .hero { grid-template-columns: 1fr; gap: 20px; padding: 28px 0 20px; }
-  .hero-left h1 { font-size: 1.6rem; }
+  .hero { grid-template-columns: 1fr; gap: 24px; padding: 32px 0 24px; }
+  .hero-left h1 { font-size: 1.7rem; }
+  .trust-bullets { grid-template-columns: 1fr; }
   .plans { grid-template-columns: repeat(2, 1fr); }
   .models-grid { grid-template-columns: 1fr; }
   .faq { grid-template-columns: 1fr; }
@@ -159,32 +162,32 @@ a:hover { text-decoration: underline; }
  <a href="/models.html">Models</a>
  <a href="/docs.html">Docs</a>
  <a href="/api-docs.html">API Docs</a>
- <a href="/dashboard.html" class="highlight">Dashboard</a>
+ <a href="/dashboard.html">Dashboard</a>
  <a href="/order.html">Check Order</a>
  <a href="/sillytavern-deepseek-setup.html">SillyTavern Setup</a>
 </div>
 
-<!-- HERO -->
 <div class="hero">
 <div class="hero-left">
 <h1>DeepSeek API Gateway</h1>
-<p class="tagline">OpenAI-compatible DeepSeek API access. Change the <code>base_url</code>, keep your code.</p>
+<p class="tagline">OpenAI-compatible DeepSeek API access. Change the <code>base_url</code>, keep your code. No registration queue. No foreign payment hassle.</p>
 <div class="hero-btns">
-<a href="/pricing.html" class="btn-primary">View Plans &amp; Buy</a>
+<a href="/pricing.html" class="btn-buy">View Plans &amp; Buy — From $1</a>
 <a href="/api-docs.html" class="btn-outline">API Docs</a>
 <a href="/models.html" class="btn-outline">Models</a>
 </div>
-<div class="bullets">
-<span>HTTPS endpoint</span>
-<span>PayPal checkout</span>
-<span>Instant key delivery</span>
-<span>Per-key dashboard</span>
-<span>Fixed budget, no surprises</span>
-<span>OpenAI SDK compatible</span>
+<div class="trust-bullets">
+<div class="bullet"><span class="check">+</span> HTTPS endpoint</div>
+<div class="bullet"><span class="check">+</span> PayPal checkout</div>
+<div class="bullet"><span class="check">+</span> Instant key delivery</div>
+<div class="bullet"><span class="check">+</span> Per-key usage dashboard</div>
+<div class="bullet"><span class="check">+</span> Fixed budget — no surprise bills</div>
+<div class="bullet"><span class="check">+</span> OpenAI SDK drop-in compatible</div>
 </div>
 </div>
 <div class="hero-right">
-<div class="code-label">Quick Start — Python</div>
+<div class="code-card">
+<div class="code-header"><span>Quick Start — Python</span></div>
 <pre><code>from openai import OpenAI
 
 client = OpenAI(
@@ -199,8 +202,8 @@ response = client.chat.completions.create(
 print(response.choices[0].message.content)</code></pre>
 </div>
 </div>
+</div>
 
-<!-- PLANS -->
 <div class="section-title">Plans</div>
 <div class="plans">
 <div class="plan">
@@ -233,7 +236,6 @@ print(response.choices[0].message.content)</code></pre>
 </div>
 </div>
 
-<!-- MODELS -->
 <div class="section-title">Models</div>
 <div class="models-grid">
 <div class="model-card">
@@ -255,7 +257,7 @@ print(response.choices[0].message.content)</code></pre>
 <div class="model-id">deepseek-v4-pro</div>
 <div class="tags">
 <span class="tag tag-avail">available</span>
-<span class="tag tag-pro">pro</span>
+<span class="tag tag-pro">Pro plan only</span>
 </div>
 <ul>
 <li>Complex reasoning and multi-step logic</li>
@@ -288,7 +290,6 @@ print(response.choices[0].message.content)</code></pre>
 </tr>
 </table>
 
-<!-- INTEGRATIONS -->
 <div class="section-title">Works With</div>
 <div class="integrations">
 <a href="/sillytavern-deepseek-setup.html">SillyTavern</a>
@@ -301,7 +302,6 @@ print(response.choices[0].message.content)</code></pre>
 <a href="/openwebui-deepseek-api.html">Open WebUI</a>
 </div>
 
-<!-- FAQ -->
 <div class="section-title">FAQ</div>
 <div class="faq">
 <div class="faq-item">

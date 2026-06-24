@@ -12,23 +12,34 @@
  background: #0d1117; color: #c9d1d9; line-height: 1.65;
  }
  .container { max-width: 760px; margin: 0 auto; padding: 60px 24px; }
- h1 { font-size: 2rem; font-weight: 700; color: #f0f6fc; margin-bottom: 8px; }
+ h1 { font-size: 1.9rem; font-weight: 700; color: #f0f6fc; margin-bottom: 8px; }
  .subtitle { font-size: 1rem; color: #8b949e; margin-bottom: 36px; }
- h2 { font-size: 1.3rem; color: #f0f6fc; margin: 36px 0 12px; border-top: 1px solid #30363d; padding-top: 28px; }
- h3 { font-size: 1rem; color: #f0f6fc; margin-bottom: 8px; }
+ h2 { font-size: 1.25rem; color: #f0f6fc; margin: 36px 0 12px; border-top: 1px solid #30363d; padding-top: 28px; }
  p, li { color: #a5adb6; font-size: 0.925rem; margin-bottom: 10px; }
  ul, ol { padding-left: 22px; margin-bottom: 16px; }
  li { margin-bottom: 6px; }
+
  .step {
- background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 20px 24px; margin-bottom: 16px;
+ background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 20px 24px; margin-bottom: 14px;
  }
- .step h3 { color: #58a6ff; }
+ .step .step-num {
+ display: inline-block; background: #1f6feb22; color: #58a6ff; border: 1px solid #1f6feb44;
+ font-size: 0.78rem; font-weight: 700; padding: 2px 10px; border-radius: 4px; margin-bottom: 8px;
+ }
+ .step h3 { font-size: 1rem; color: #f0f6fc; margin-bottom: 6px; }
+ .step p { margin-bottom: 4px; }
+ .step code.inline { background: #21262d; padding: 2px 6px; border-radius: 3px; }
+
+ .config-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.88rem; }
+ .config-table th { background: #21262d; color: #f0f6fc; padding: 10px 12px; text-align: left; border: 1px solid #30363d; font-size: 0.82rem; }
+ .config-table td { padding: 10px 12px; border: 1px solid #30363d; color: #a5adb6; }
+ .config-table td code { background: #0d1117; padding: 2px 6px; border-radius: 3px; color: #58a6ff; }
+
  pre {
  background: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 14px 18px;
  overflow-x: auto; font-size: 0.85rem; line-height: 1.55; color: #c9d1d9; margin-bottom: 12px;
  }
  code { font-family:"SF Mono","Fira Code","Cascadia Code", monospace; font-size: 0.85em; }
- code.inline { background: #21262d; padding: 2px 6px; border-radius: 3px; }
  .badge {
  display: inline-block; background: #1f6feb22; color: #58a6ff; border: 1px solid #1f6feb44;
  padding: 3px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: 500; margin-bottom: 24px;
@@ -37,17 +48,18 @@
  background: #291a00; border: 1px solid #3d2e00; border-radius: 6px; padding: 16px; margin: 20px 0;
  color: #d2991d;
  }
+
  .cta-box {
- background: #161b22; border: 2px solid #58a6ff44; border-radius: 8px; padding: 28px;
+ background: #161b22; border: 1px solid #58a6ff44; border-radius: 8px; padding: 28px;
  text-align: center; margin: 48px 0 24px;
  }
  .cta-box h3 { color: #f0f6fc; font-size: 1.15rem; }
  .cta-box p { color: #8b949e; margin: 8px 0 20px; }
  .cta-box a {
- display: inline-block; background: #1f6feb; color: #fff; padding: 10px 28px;
- border-radius: 6px; font-weight: 600; font-size: 0.95rem;
+ display: inline-block; background: #238636; color: #fff; padding: 10px 28px;
+ border-radius: 6px; font-weight: 600; font-size: 0.95rem; text-decoration: none;
  }
- .cta-box a:hover { background: #388bfd; }
+ .cta-box a:hover { background: #2ea043; }
  a { color: #58a6ff; text-decoration: none; }
  a:hover { text-decoration: underline; }
  .footer { font-size: 0.78rem; color: #484f58; text-align: center; margin-top: 48px; }
@@ -59,7 +71,6 @@
  .nav-links a { font-size: 0.8rem; color: #8b949e; text-decoration: none; padding: 4px 10px; border: 1px solid #30363d; border-radius: 4px; transition: border-color 0.2s; }
  .nav-links a:hover { border-color: #58a6ff; color: #c9d1d9; text-decoration: none; }
  .nav-links a.highlight { border-color: #58a6ff66; color: #58a6ff; }
-
 </style>
 </head>
 <body>
@@ -79,97 +90,100 @@
  <p class="subtitle">OpenAI-compatible endpoint setup — plug in and chat.</p>
  <div class="badge">Third-Party Gateway</div>
 
- <p>SillyTavern supports any <strong>OpenAI-compatible</strong> API endpoint. If you have a DeepSeek-compatible gateway key, here is how to connect it — step by step.</p>
+ <p>SillyTavern supports any <strong>OpenAI-compatible</strong> API endpoint. Here is how to connect your DeepSeek API key — step by step.</p>
 
- <!-- Step 1 -->
- <h2>1. Open API Connections</h2>
  <div class="step">
- <h3>In SillyTavern</h3>
+ <div class="step-num">Step 1</div>
+ <h3>Open API Connections</h3>
  <ol>
  <li>Click the <strong>plug icon</strong> (API Connections) in the top bar.</li>
  <li>Select <strong>Chat Completion</strong> from the API dropdown.</li>
- <li>Choose <strong>OpenAI</strong> as the API type (or"Custom" /"OpenAI-compatible" depending on your version).</li>
+ <li>Choose <strong>OpenAI</strong> as the API type (or "Custom" / "OpenAI-compatible" depending on your version).</li>
  </ol>
  </div>
 
- <!-- Step 2 -->
- <h2>2. Configure the Endpoint</h2>
  <div class="step">
- <h3>Fill in these fields</h3>
- <table>
+ <div class="step-num">Step 2</div>
+ <h3>Configure the Endpoint</h3>
+ <p>Fill in these fields exactly:</p>
+ <table class="config-table">
  <tr><th>Setting</th><th>Value</th></tr>
- <tr><td>API Base URL</td><td><code class="inline">https://modelrelayapis.cc/v1</code></td></tr>
- <tr><td>API Key</td><td><code class="inline">sk-gateway-xxxxxxxx...</code> (provided by admin)</td></tr>
- <tr><td>Model</td><td><code class="inline">deepseek-v4-flash</code></td></tr>
- <tr><td>Streaming</td><td>Enabled ✓</td></tr>
+ <tr><td>API Base URL</td><td><code>https://modelrelayapis.cc/v1</code></td></tr>
+ <tr><td>API Key</td><td><code>sk-gateway-xxxxxxxx...</code></td></tr>
+ <tr><td>Model</td><td><code>deepseek-v4-flash</code></td></tr>
+ <tr><td>Streaming</td><td>Enabled &#x2713;</td></tr>
  </table>
- <p><strong>Important:</strong> The base URL <em>must</em> end with <code class="inline">/v1</code>. SillyTavern appends <code class="inline">/chat/completions</code> automatically. If you forget <code class="inline">/v1</code>, requests will go to the wrong path and you will get <strong>404 Not Found</strong>.</p>
+ <p><strong>Important:</strong> The base URL <em>must</em> end with <code class="inline">/v1</code>. SillyTavern appends <code class="inline">/chat/completions</code> automatically.</p>
  </div>
 
- <!-- Step 3 -->
- <h2>3. Model Name</h2>
  <div class="step">
+ <div class="step-num">Step 3</div>
+ <h3>Set the Model Name</h3>
  <p>Use exactly: <code class="inline">deepseek-v4-flash</code></p>
  <p>Do not add prefixes like <code class="inline">openai/</code> or <code class="inline">text-</code>. Just the bare model ID.</p>
  <p>Available models on this gateway:</p>
  <ul>
  <li><code class="inline">deepseek-v4-flash</code> — Fast, great for chat/roleplay. Recommended for SillyTavern.</li>
- <li><code class="inline">deepseek-v4-pro</code> — Higher capability, more expensive in tokens.</li>
+ <li><code class="inline">deepseek-v4-pro</code> — Higher capability, more expensive per token. Pro plan only.</li>
  </ul>
  </div>
 
- <!-- Step 4 -->
- <h2>4. Test the Connection</h2>
  <div class="step">
- <p>Click <strong>Connect</strong> or send a test message in your chat. If everything is configured correctly, you should get a response within 2-5 seconds.</p>
+ <div class="step-num">Step 4</div>
+ <h3>Test the Connection</h3>
+ <p>Click <strong>Connect</strong> or send a test message in your chat. If everything is configured correctly, you should get a response within seconds.</p>
  </div>
 
- <!-- Error troubleshooting -->
- <h2>5. Common Errors and Fixes</h2>
+ <h2>Common Errors and Fixes</h2>
 
  <div class="step">
+ <div class="step-num">Error</div>
  <h3>401 Unauthorized</h3>
  <p><strong>Problem:</strong> Invalid or missing API key.</p>
- <p><strong>Fix:</strong> Check that your <code class="inline">sk-gateway-...</code> key is copied correctly — no extra spaces, no missing characters. Contact your admin if the key is new and still failing.</p>
+ <p><strong>Fix:</strong> Check that your <code class="inline">sk-gateway-...</code> key is copied correctly — no extra spaces, no missing characters.</p>
  </div>
 
  <div class="step">
+ <div class="step-num">Error</div>
  <h3>404 Not Found</h3>
  <p><strong>Problem:</strong> The path does not exist.</p>
- <p><strong>Fix:</strong> Make sure your Base URL ends with <code class="inline">/v1</code>. SillyTavern will call <code class="inline">/v1/chat/completions</code>. If your URL is just <code class="inline">http://IP</code> without <code class="inline">/v1</code>, it will call the wrong path.</p>
+ <p><strong>Fix:</strong> Make sure your Base URL ends with <code class="inline">/v1</code>. SillyTavern calls <code class="inline">/v1/chat/completions</code>.</p>
  </div>
 
  <div class="step">
- <h3>402 Payment Required / Token Quota Exceeded</h3>
- <p><strong>Problem:</strong> Your key has used all allocated tokens.</p>
- <p><strong>Fix:</strong> Contact your admin to add more tokens. This is a per-key quota — each key has a set number of tokens and stops when exhausted.</p>
+ <div class="step-num">Error</div>
+ <h3>402 Payment Required</h3>
+ <p><strong>Problem:</strong> Your API budget is exhausted.</p>
+ <p><strong>Fix:</strong> Buy a new package to get a fresh key with budget.</p>
  </div>
 
  <div class="step">
+ <div class="step-num">Error</div>
  <h3>429 Too Many Requests</h3>
- <p><strong>Problem:</strong> You exceeded the rate limit (default: 30 requests per minute).</p>
+ <p><strong>Problem:</strong> Exceeded rate limit (30 or 60 RPM depending on plan).</p>
  <p><strong>Fix:</strong> Wait 60 seconds and try again. Reduce auto-retry frequency in SillyTavern settings.</p>
  </div>
 
  <div class="step">
+ <div class="step-num">Error</div>
  <h3>5xx Server Error</h3>
- <p><strong>Problem:</strong> The gateway or upstream DeepSeek service is temporarily unavailable.</p>
- <p><strong>Fix:</strong> Wait 1-2 minutes and retry. If it persists for more than 5 minutes, contact your admin.</p>
+ <p><strong>Problem:</strong> Gateway or upstream DeepSeek service temporarily unavailable.</p>
+ <p><strong>Fix:</strong> Wait 1-2 minutes and retry.</p>
  </div>
 
- <!-- Streaming note -->
- <h2>6. About Streaming</h2>
+ <h2>Streaming &amp; Reasoning</h2>
  <div class="step">
- <p>Streaming (SSE) is supported. Characters in SillyTavern will appear token-by-token as they are generated. If streaming seems broken, check that the <strong>Streaming</strong> toggle is enabled in your API connection settings and that your character card does not have excessive prefill length.</p>
+ <div class="step-num">Note</div>
+ <h3>Streaming</h3>
+ <p>Streaming (SSE) is fully supported. Characters appear token-by-token. Make sure the <strong>Streaming</strong> toggle is enabled in your API connection settings.</p>
  </div>
 
- <!-- Reasoning content note -->
  <div class="step">
+ <div class="step-num">Note</div>
  <h3>Reasoning Content</h3>
  <p>This gateway filters <code class="inline">reasoning_content</code> by default. You only receive the final <code class="inline">content</code> field — exactly what SillyTavern expects. No stray thinking tokens in your character replies.</p>
  </div>
 
- <!- CTA -->
  <div class="cta-box">
  <h3>Need an API Key?</h3>
  <p>Buy a package and get your API key instantly after PayPal payment.</p>
@@ -178,14 +192,8 @@
  </div>
 
  <div class="footer">
- Third-party gateway · Not official DeepSeek · Do not share your API key
+ Third-party gateway &middot; Not official DeepSeek &middot; Do not share your API key
  </div>
-
 </div>
-
- <div style="text-align:center;margin:32px 0;">
- <a href="/pricing.html" style="display:inline-block;background:#1f6feb;color:#fff;padding:12px 28px;border-radius:6px;font-weight:600;text-decoration:none;font-size:0.95rem;">Get Your API Key &mdash; From $1</a>
- <p style="margin-top:10px;font-size:0.82rem;color:#8b949e;">Plans start at $1 for 2M tokens. Instant delivery after PayPal payment.</p>
- </div>
 </body>
 </html>

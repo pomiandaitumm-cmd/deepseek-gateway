@@ -120,144 +120,137 @@ td code { background: #21262d; padding: 1px 5px; border-radius: 3px; font-size: 
 </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-  const BASE = "";
-  let ADMIN_TOKEN = localStorage.getItem("admin_token") || "";
-  let searchTimers = {};
-
-  // Auto-fill token input
+(function() {
+  var ADMIN_TOKEN = localStorage.getItem("admin_token") || "";
   if (ADMIN_TOKEN) {
-    document.getElementById("admin-token").value = ADMIN_TOKEN;
+    var inp = document.getElementById("admin-token");
+    if (inp) inp.value = ADMIN_TOKEN;
   }
 
-  // Bind Unlock button
-  document.getElementById("auth-btn").addEventListener("click", function() {
-    const errDiv = document.getElementById("auth-error");
-    errDiv.style.display = "none";
-    const btn = document.getElementById("auth-btn");
-    ADMIN_TOKEN = document.getElementById("admin-token").value.trim();
-    if (!ADMIN_TOKEN) {
-      errDiv.textContent = "Please enter an admin token.";
-      errDiv.style.display = "block";
+  var btn = document.getElementById("auth-btn");
+  if (!btn) { console.error("auth-btn not found"); return; }
+
+  btn.addEventListener("click", function() {
+    console.log("Unlock clicked");
+    var errDiv = document.getElementById("auth-error");
+    if (errDiv) { errDiv.style.display = "none"; errDiv.textContent = ""; }
+
+    var tokenInput = document.getElementById("admin-token");
+    var token = tokenInput ? tokenInput.value.trim() : "";
+    if (!token) {
+      if (errDiv) { errDiv.textContent = "Please enter an admin token."; errDiv.style.display = "block"; }
       return;
     }
+
+    ADMIN_TOKEN = token;
+    localStorage.setItem("admin_token", token);
     btn.disabled = true;
     btn.textContent = "Verifying...";
-    localStorage.setItem("admin_token", ADMIN_TOKEN);
-    loadAll().finally(function() {
-      btn.disabled = false;
-      btn.textContent = "Unlock";
-    });
+
+    fetch("/api/admin/summary", { headers: { "X-Admin-Token": token } })
+      .then(function(r) {
+        if (!r.ok) { return r.text().then(function(t) { throw new Error(r.status + " " + t.slice(0,200)); }); }
+        return r.json();
+      })
+      .then(function(s) {
+        console.log("Summary loaded", s);
+        var content = document.getElementById("admin-content");
+        if (content) content.classList.remove("hidden");
+
+        var statsEl = document.getElementById("stats");
+        if (statsEl) {
+          statsEl.innerHTML =
+            '<div class="stat-card"><div class="stat-value">' + (s.total_orders || 0) + '</div><div class="stat-label">Total Orders</div></div>' +
+            '<div class="stat-card"><div class="stat-value">' + (s.paid_orders || 0) + '</div><div class="stat-label">Paid Orders</div></div>' +
+            '<div class="stat-card"><div class="stat-value">' + (s.active_keys || 0) + '</div><div class="stat-label">Active Keys</div></div>' +
+            '<div class="stat-card"><div class="stat-value">' + (s.exhausted_keys || 0) + '</div><div class="stat-label">Exhausted</div></div>' +
+            '<div class="stat-card"><div class="stat-value">$' + (s.total_sales || 0).toFixed(2) + '</div><div class="stat-label">Total Sales</div></div>' +
+            '<div class="stat-card"><div class="stat-value">$' + (s.total_upstream_budget || 0).toFixed(2) + '</div><div class="stat-label">Upstream Budget</div></div>' +
+            '<div class="stat-card"><div class="stat-value">$' + (s.total_used_cost || 0).toFixed(6) + '</div><div class="stat-label">Used Cost</div></div>' +
+            '<div class="stat-card"><div class="stat-value">$' + ((s.total_sales || 0) - (s.total_used_cost || 0)).toFixed(2) + '</div><div class="stat-label">Gross Margin</div></div>';
+        }
+
+        // Load orders
+        fetch("/api/admin/orders", { headers: { "X-Admin-Token": ADMIN_TOKEN } })
+          .then(function(r) { return r.ok ? r.json() : Promise.reject(r.status); })
+          .then(function(data) {
+            var tbody = document.querySelector("#orders-table tbody");
+            if (!tbody) return;
+            if (!data.orders || !data.orders.length) {
+              tbody.innerHTML = '<tr><td colspan="14" style="text-align:center;color:#8b949e;padding:20px">No orders found</td></tr>';
+              return;
+            }
+            tbody.innerHTML = data.orders.map(function(o) {
+              return "<tr>" +
+                "<td>" + (o.order_id || o.id || "-") + "</td>" +
+                "<td>" + (o.email || "-") + "</td>" +
+                "<td>" + (o.package_name || o.plan || "-") + "</td>" +
+                "<td>$" + (o.sale_price || 0).toFixed(2) + "</td>" +
+                "<td>$" + (o.upstream_budget || 0).toFixed(2) + "</td>" +
+                "<td>$" + (o.used_upstream_cost || 0).toFixed(6) + "</td>" +
+                "<td>$" + (o.remaining_budget || 0).toFixed(6) + "</td>" +
+                "<td>" + (o.payment_provider || "-") + "</td>" +
+                "<td>" + (o.order_status || o.status || "-") + "</td>" +
+                "<td>" + (o.payment_status || "-") + "</td>" +
+                "<td><code>" + (o.key_prefix || "-") + "</code></td>" +
+                "<td><span class='badge-status badge-" + (o.key_status || "disabled") + "'>" + (o.key_status || "-") + "</span></td>" +
+                "<td>" + (o.request_count || 0) + "</td>" +
+                "<td>" + (o.created_at || "-") + "</td>" +
+                "</tr>";
+            }).join("");
+          }).catch(function(e) {
+            var tbody2 = document.querySelector("#orders-table tbody");
+            if (tbody2) tbody2.innerHTML = '<tr><td colspan="14" class="error">Orders load error: ' + e + '</td></tr>';
+          });
+
+        // Load keys
+        fetch("/api/admin/keys", { headers: { "X-Admin-Token": ADMIN_TOKEN } })
+          .then(function(r) { return r.ok ? r.json() : Promise.reject(r.status); })
+          .then(function(data) {
+            var tbody = document.querySelector("#keys-table tbody");
+            if (!tbody) return;
+            if (!data.keys || !data.keys.length) {
+              tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#8b949e;padding:20px">No keys found</td></tr>';
+              return;
+            }
+            tbody.innerHTML = data.keys.map(function(k) {
+              return "<tr>" +
+                "<td><code>" + (k.key_prefix || "-") + "</code></td>" +
+                "<td><span class='badge-status badge-" + (k.status || "disabled") + "'>" + (k.status || "-") + "</span></td>" +
+                "<td>" + (k.package_name || "-") + "</td>" +
+                "<td>$" + (k.upstream_budget || 0).toFixed(2) + "</td>" +
+                "<td>$" + (k.used_upstream_cost || 0).toFixed(6) + "</td>" +
+                "<td>$" + (k.remaining_budget || 0).toFixed(6) + "</td>" +
+                "<td>" + (k.request_count || 0) + "</td>" +
+                "<td>" + (k.last_used_at || "-") + "</td>" +
+                "</tr>";
+            }).join("");
+          }).catch(function(e) {
+            var tbody2 = document.querySelector("#keys-table tbody");
+            if (tbody2) tbody2.innerHTML = '<tr><td colspan="8" class="error">Keys load error: ' + e + '</td></tr>';
+          });
+
+        btn.disabled = false;
+        btn.textContent = "Unlock";
+      })
+      .catch(function(e) {
+        console.error("Admin error:", e);
+        btn.disabled = false;
+        btn.textContent = "Unlock";
+        var errDiv2 = document.getElementById("auth-error");
+        if (errDiv2) {
+          errDiv2.textContent = "Error: " + e.message;
+          errDiv2.style.display = "block";
+        }
+      });
   });
 
-  // Bind Refresh button
-  document.getElementById("refresh-btn").addEventListener("click", function() {
-    loadAll();
-  });
-
-  // Bind search inputs
-  document.getElementById("order-search").addEventListener("input", function() {
-    clearTimeout(searchTimers["orders"]);
-    searchTimers["orders"] = setTimeout(function() { loadOrders(); }, 300);
-  });
-  document.getElementById("order-status-filter").addEventListener("change", function() {
-    clearTimeout(searchTimers["orders"]);
-    searchTimers["orders"] = setTimeout(function() { loadOrders(); }, 300);
-  });
-  document.getElementById("key-search").addEventListener("input", function() {
-    clearTimeout(searchTimers["keys"]);
-    searchTimers["keys"] = setTimeout(function() { loadKeys(); }, 300);
-  });
-  document.getElementById("key-status-filter").addEventListener("change", function() {
-    clearTimeout(searchTimers["keys"]);
-    searchTimers["keys"] = setTimeout(function() { loadKeys(); }, 300);
-  });
-
-  async function api(path) {
-    var r = await fetch(BASE + path, { headers: { "X-Admin-Token": ADMIN_TOKEN } });
-    if (!r.ok) throw new Error(r.status + " " + (await r.text()).slice(0, 100));
-    return r.json();
+  // Refresh button
+  var refreshBtn = document.getElementById("refresh-btn");
+  if (refreshBtn) {
+    refreshBtn.addEventListener("click", function() { btn.click(); });
   }
-
-  async function loadAll() {
-    try {
-      var s = await api("/api/admin/summary");
-      document.getElementById("admin-content").classList.remove("hidden");
-      document.getElementById("stats").innerHTML =
-        "<div class='stat-card'><div class='stat-value'>" + (s.total_orders || 0) + "</div><div class='stat-label'>Total Orders</div></div>" +
-        "<div class='stat-card'><div class='stat-value'>" + (s.paid_orders || 0) + "</div><div class='stat-label'>Paid Orders</div></div>" +
-        "<div class='stat-card'><div class='stat-value'>" + (s.active_keys || 0) + "</div><div class='stat-label'>Active Keys</div></div>" +
-        "<div class='stat-card'><div class='stat-value'>" + (s.exhausted_keys || 0) + "</div><div class='stat-label'>Exhausted</div></div>" +
-        "<div class='stat-card'><div class='stat-value'>$" + (s.total_sales || 0).toFixed(2) + "</div><div class='stat-label'>Total Sales</div></div>" +
-        "<div class='stat-card'><div class='stat-value'>$" + (s.total_upstream_budget || 0).toFixed(2) + "</div><div class='stat-label'>Upstream Budget</div></div>" +
-        "<div class='stat-card'><div class='stat-value'>$" + (s.total_used_cost || 0).toFixed(6) + "</div><div class='stat-label'>Used Cost</div></div>" +
-        "<div class='stat-card'><div class='stat-value'>$" + ((s.total_sales || 0) - (s.total_used_cost || 0)).toFixed(2) + "</div><div class='stat-label'>Gross Margin</div></div>";
-      loadOrders();
-      loadKeys();
-    } catch (e) {
-      document.getElementById("auth-error").textContent = "Auth failed: " + e.message;
-      document.getElementById("auth-error").style.display = "block";
-    }
-  }
-
-  async function loadOrders() {
-    var q = document.getElementById("order-search").value;
-    var st = document.getElementById("order-status-filter").value;
-    var url = "/api/admin/orders?";
-    if (q) url += "search=" + encodeURIComponent(q) + "&";
-    if (st) url += "status=" + encodeURIComponent(st);
-    try {
-      var data = await api(url);
-      var tbody = document.querySelector("#orders-table tbody");
-      tbody.innerHTML = (data.orders || []).map(function(o) {
-        return "<tr>" +
-          "<td>" + (o.order_id || o.id || "-") + "</td>" +
-          "<td>" + (o.email || "-") + "</td>" +
-          "<td>" + (o.package_name || o.plan || "-") + "</td>" +
-          "<td>$" + (o.sale_price || 0).toFixed(2) + "</td>" +
-          "<td>$" + (o.upstream_budget || 0).toFixed(2) + "</td>" +
-          "<td>$" + (o.used_upstream_cost || 0).toFixed(6) + "</td>" +
-          "<td>$" + (o.remaining_budget || 0).toFixed(6) + "</td>" +
-          "<td>" + (o.payment_provider || "-") + "</td>" +
-          "<td>" + (o.order_status || o.status || "-") + "</td>" +
-          "<td>" + (o.payment_status || "-") + "</td>" +
-          "<td><code>" + (o.key_prefix || "-") + "</code></td>" +
-          "<td><span class='badge-status badge-' + (o.key_status || "disabled") + "'>" + (o.key_status || "-") + "</span></td>" +
-          "<td>" + (o.request_count || 0) + "</td>" +
-          "<td>" + (o.created_at || "-") + "</td>" +
-          "</tr>";
-      }).join("") || "<tr><td colspan='14' style='text-align:center;color:#8b949e;padding:20px'>No orders found</td></tr>";
-    } catch (e) {
-      document.querySelector("#orders-table tbody").innerHTML = "<tr><td colspan='14' class='error'>" + e.message + "</td></tr>";
-    }
-  }
-
-  async function loadKeys() {
-    var q = document.getElementById("key-search").value;
-    var st = document.getElementById("key-status-filter").value;
-    var url = "/api/admin/keys?";
-    if (q) url += "search=" + encodeURIComponent(q) + "&";
-    if (st) url += "status=" + encodeURIComponent(st);
-    try {
-      var data = await api(url);
-      var tbody = document.querySelector("#keys-table tbody");
-      tbody.innerHTML = (data.keys || []).map(function(k) {
-        return "<tr>" +
-          "<td><code>" + (k.key_prefix || "-") + "</code></td>" +
-          "<td><span class='badge-status badge-' + (k.status || "disabled") + "'>" + (k.status || "-") + "</span></td>" +
-          "<td>" + (k.package_name || "-") + "</td>" +
-          "<td>$" + (k.upstream_budget || 0).toFixed(2) + "</td>" +
-          "<td>$" + (k.used_upstream_cost || 0).toFixed(6) + "</td>" +
-          "<td>$" + (k.remaining_budget || 0).toFixed(6) + "</td>" +
-          "<td>" + (k.request_count || 0) + "</td>" +
-          "<td>" + (k.last_used_at || "-") + "</td>" +
-          "</tr>";
-      }).join("") || "<tr><td colspan='8' style='text-align:center;color:#8b949e;padding:20px'>No keys found</td></tr>";
-    } catch (e) {
-      document.querySelector("#keys-table tbody").innerHTML = "<tr><td colspan='8' class='error'>" + e.message + "</td></tr>";
-    }
-  }
-});
+})();
 </script>
 </body>
 </html>
